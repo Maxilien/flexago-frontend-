@@ -1290,6 +1290,24 @@ select {
 }
 
 /* ============================================================
+  LOGOUT
+   ============================================================ */
+.logout-btn {
+  background: #ef4444;
+  color: #fff;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  margin-left: 12px;
+}
+
+.logout-btn:hover {
+  background: #dc2626;
+}
+
+/* ============================================================
    FINAL Z-INDEX FIXES
    ============================================================ */
 #traveler-job-panel,

@@ -61,19 +61,23 @@
         </div>
       </div>
 
-      <div class="top-nav-right">
-        <div class="env-pill" data-i18n="traveler.nav.env">SANDBOX</div>
-        <div class="version-pill" data-i18n="traveler.nav.version">v1.0.0</div>
+<div class="top-nav-right">
+  <div class="env-pill" data-i18n="traveler.nav.env">SANDBOX</div>
+  <div class="version-pill" data-i18n="traveler.nav.version">v1.0.0</div>
 
-        <select class="lang-select" id="languageSelector">
-          <option value="en">EN</option>
-          <option value="es">ES</option>
-          <option value="fr">FR</option>
-          <option value="ht">HT</option>
-          <option value="zh">ZH</option>
-          <option value="pt">PT</option>
-        </select>
-      </div>
+  <!-- LOGOUT BUTTON -->
+  <button class="logout-btn" onclick="Logout()">Logout</button>
+
+  <select class="lang-select" id="languageSelector">
+    <option value="en">EN</option>
+    <option value="es">ES</option>
+    <option value="fr">FR</option>
+    <option value="ht">HT</option>
+    <option value="zh">ZH</option>
+    <option value="pt">PT</option>
+  </select>
+</div>
+
     </header>
 
     <!-- ====== MAIN LAYOUT ====== -->
@@ -885,6 +889,9 @@
 </div>
 
 <!-- ================= FINAL SCRIPT INCLUDES ================= -->
+<!-- ⭐ Logout -->
+<script src="logout.js"></script>
+
 
 <!-- ⭐ FIXED: Traveler.js import (case‑sensitive on Render) -->
 <script src="traveler.js"></script>
