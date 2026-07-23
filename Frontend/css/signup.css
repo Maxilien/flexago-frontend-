@@ -216,3 +216,67 @@ body {
 .footer-column a:hover {
   color: #ffffff;
 }
+/* ============================================================
+   TOP NAV — Unified FlexaGo Banner
+   ============================================================ */
+
+.top-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #0f172a; /* same dark blue as Traveler/Sender */
+  padding: 14px 20px;
+  color: #fff;
+}
+
+.top-nav-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.top-nav-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.flexago-logo-img {
+  height: 40px;
+  width: auto;
+  object-fit: contain;
+}
+
+.top-nav-title-main {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.top-nav-title-sub {
+  font-size: 13px;
+  opacity: 0.8;
+}
+
+.top-nav-links {
+  display: flex;
+  gap: 16px;
+}
+
+.top-nav-link {
+  color: #fff;
+  text-decoration: none;
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+.top-nav-link:hover {
+  opacity: 1;
+}
+
+.lang-select {
+  background: #1e293b;
+  color: #fff;
+  border: 1px solid #334155;
+  padding: 6px 10px;
+  border-radius: 6px;
+}
