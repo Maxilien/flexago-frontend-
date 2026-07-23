@@ -28,16 +28,11 @@ a {
 }
 
 @keyframes fadeIn {
-  to {
-    opacity: 1;
-  }
+  to { opacity: 1; }
 }
 
 @keyframes fadeInUp {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 /* ============================
@@ -49,26 +44,52 @@ a {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
 }
 
-.logo {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #fff;
-  letter-spacing: 1px;
-  text-transform: uppercase;
+.logo img {
+  height: 42px;
+  width: auto;
+  object-fit: contain;
+  animation: fadeIn 1.2s ease-in;
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 24px;
 }
 
 .nav-right .nav-link {
   color: #fff;
-  margin-left: 28px;
   font-weight: 500;
   text-transform: uppercase;
   font-size: 0.95rem;
+  transition: opacity 0.3s ease;
 }
 
 .nav-right .nav-link:hover {
   opacity: 0.8;
+}
+
+/* ============================
+   MULTI-LANGUAGE DROPDOWN
+============================ */
+.lang-select {
+  background: #fff;
+  color: #0A4DFF;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.lang-select:hover {
+  background: #e0e7ff;
 }
 
 /* ============================
@@ -77,7 +98,7 @@ a {
 .hero {
   padding: 160px 40px;
   text-align: center;
-  background: url("https://images.unsplash.com/photo-1503376780353-7e6692767b70") center/cover no-repeat fixed;
+  background: url("IMG/flexago-hero.jpg") center/cover no-repeat fixed;
   color: #fff;
   position: relative;
 }
@@ -86,11 +107,7 @@ a {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, 0.55),
-    rgba(0, 0, 0, 0.35)
-  );
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.35));
 }
 
 .hero-content {
@@ -117,6 +134,7 @@ a {
   border-radius: 6px;
   font-weight: 600;
   margin: 0 10px;
+  transition: all 0.3s ease;
 }
 
 .btn-primary {
@@ -124,10 +142,18 @@ a {
   color: #fff;
 }
 
+.btn-primary:hover {
+  background: #083bcc;
+}
+
 .btn-secondary {
   background: #fff;
   color: #0A4DFF;
   border: 2px solid #0A4DFF;
+}
+
+.btn-secondary:hover {
+  background: #e0e7ff;
 }
 
 /* ============================
@@ -166,6 +192,7 @@ a {
   margin: 20px auto 40px;
   display: block;
   box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  animation: fadeIn 1.2s ease-in;
 }
 
 .parallax-img {
@@ -212,6 +239,11 @@ a {
   padding: 30px;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  transition: transform 0.3s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-6px);
 }
 
 /* ============================
@@ -279,11 +311,17 @@ a {
   color: #fff;
   display: flex;
   justify-content: space-between;
+  align-items: center;
 }
 
 .footer a {
   color: #fff;
   margin-left: 20px;
+  transition: opacity 0.3s ease;
+}
+
+.footer a:hover {
+  opacity: 0.8;
 }
 
 /* ============================
@@ -298,6 +336,8 @@ a {
 
   .nav-right {
     margin-top: 10px;
+    flex-wrap: wrap;
+    gap: 10px;
   }
 
   .nav-right .nav-link {
