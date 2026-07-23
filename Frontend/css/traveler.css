@@ -1288,6 +1288,20 @@ select {
   overflow-y: auto !important;
   padding-right: 6px;
 }
+/* ============================================================
+  LOGO
+   ============================================================ */
+.flexago-logo {
+  display: flex;
+  align-items: center;
+  margin-left: 12px;
+}
+
+.flexago-logo-img {
+  height: 40px;
+  width: auto;
+  object-fit: contain;
+}
 
 /* ============================================================
   LOGOUT

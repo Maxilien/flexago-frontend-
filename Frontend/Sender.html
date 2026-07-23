@@ -27,7 +27,10 @@
           <i data-lucide="menu"></i>
         </button>
 
-        <div class="logo-mark"><div class="logo-mark-inner"></div></div>
+        <div class="flexago-logo">
+  <img src="IMG/flexago-logo.JPG" alt="Flexago Logo" class="flexago-logo-img">
+</div>
+
 
         <div class="top-nav-title">
           <div class="top-nav-title-main" data-i18n="sender.nav.title">
@@ -53,6 +56,9 @@
       <div class="top-nav-right">
         <div class="env-pill" data-i18n="sender.nav.env">SANDBOX</div>
         <div class="version-pill" data-i18n="sender.nav.version">v1.0.0</div>
+
+     <!-- LOGOUT BUTTON (same as Traveler) -->
+  <button class="logout-btn" onclick="logout()">Logout</button>
 
         <select class="lang-select" id="languageSelector">
           <option value="en">EN</option>
@@ -1055,7 +1061,8 @@
 <!-- ========================================================= -->
 <!-- SCRIPTS (FINAL, RACE‑CONDITION SAFE)                      -->
 <!-- ========================================================= -->
-
+<!-- ⭐ Logout -->
+<script src="logout.js"></script>
 <!-- 1. Safe initMap wrapper (prevents early Google Maps calls) -->
 <script>
   window.initMap = function initMapSafe() {

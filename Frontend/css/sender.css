@@ -553,6 +553,24 @@ section[id$="View"]:not(.hidden) {
   border-top: 1px solid rgba(255,255,255,0.08);
 }
 /* ============================================================
+   Logout
+   ============================================================ */
+.logout-btn {
+  background: #ef4444;
+  color: #fff;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  margin-left: 12px;
+}
+
+.logout-btn:hover {
+  background: #dc2626;
+}
+
+/* ============================================================
    32. MY DELIVERIES (SENDER)
    ============================================================ */
 
