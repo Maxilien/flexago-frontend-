@@ -2,20 +2,205 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Flexagoo – Ship Smarter. Travel Smarter.</title>
+  <title>FlexaGo – Ship Smarter. Travel Smarter.</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <link rel="stylesheet" href="css/style.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background: #f9fafb;
+      color: #0f172a;
+      overflow-x: hidden;
+    }
+
+    /* NAVBAR */
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #0f172a;
+      color: #fff;
+      padding: 16px 40px;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      animation: fadeIn 1s ease-in;
+    }
+
+    .logo img {
+      height: 42px;
+      width: auto;
+      object-fit: contain;
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .nav-link {
+      color: #fff;
+      text-decoration: none;
+      font-weight: 500;
+      opacity: 0.9;
+    }
+
+    .nav-link:hover {
+      opacity: 1;
+    }
+
+    .nav-btn {
+      background: #2563eb;
+      color: #fff;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .nav-btn.signup {
+      background: #10b981;
+    }
+
+    /* HERO SECTION */
+    .hero {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      padding: 80px 60px;
+      background: #ffffff;
+      animation: fadeSlide 1.2s ease-out;
+    }
+
+    .hero-content {
+      max-width: 480px;
+    }
+
+    .hero-content h1 {
+      font-size: 2.8rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+
+    .hero-content p {
+      font-size: 1.1rem;
+      color: #475569;
+      margin-bottom: 24px;
+    }
+
+    .hero-buttons {
+      display: flex;
+      gap: 16px;
+    }
+
+    .btn-primary, .btn-secondary {
+      padding: 14px 24px;
+      border-radius: 8px;
+      font-size: 1rem;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .btn-primary {
+      background: #2563eb;
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: #1d4ed8;
+    }
+
+    .btn-secondary {
+      background: #e2e8f0;
+      color: #1e293b;
+    }
+
+    .btn-secondary:hover {
+      background: #cbd5e1;
+    }
+
+    .hero-image img {
+      width: 420px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      animation: fadeIn 1.5s ease-in;
+    }
+
+    /* ANIMATIONS */
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes fadeSlide {
+      0% { opacity: 0; transform: translateY(20px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    /* SCROLL ANIMATION */
+    .fade-in-up {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+    }
+
+    .fade-in-up.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* FOOTER */
+    footer {
+      background: #0f172a;
+      color: #fff;
+      padding: 40px;
+      text-align: center;
+      margin-top: 60px;
+    }
+
+    footer a {
+      color: #93c5fd;
+      text-decoration: none;
+      margin: 0 10px;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 768px) {
+      .hero {
+        flex-direction: column;
+        text-align: center;
+      }
+      .hero-image img {
+        width: 90%;
+        margin-top: 20px;
+      }
+    }
+  </style>
 </head>
 
 <body>
 
-<nav class="nav fade-in">
+<!-- ========================================================= -->
+<!-- NAVBAR — Unified FlexaGo Banner                           -->
+<!-- ========================================================= -->
+<nav>
   <div class="nav-left">
-    <div class="logo">FLEXAGOO</div>
+    <div class="logo">
+      <img src="IMG/flexago-logo.JPG" alt="FlexaGo Logo">
+    </div>
   </div>
 
   <div class="nav-right">
@@ -23,139 +208,56 @@
     <a href="#travelers" class="nav-link">Traveler</a>
     <a href="#how" class="nav-link">How it Works</a>
     <a href="#contact" class="nav-link">Contact</a>
+
+    <button class="nav-btn" onclick="window.location.href='login.html'">Login</button>
+    <button class="nav-btn signup" onclick="window.location.href='signup.html'">Sign Up</button>
   </div>
 </nav>
 
+
+<!-- ========================================================= -->
+<!-- HERO SECTION                                              -->
+<!-- ========================================================= -->
 <section class="hero fade-in-up">
   <div class="hero-content">
     <h1>Ship Smarter. Travel Smarter.</h1>
-    <p>Flexagoo connects travelers with people who need to send items — fast, secure, and affordable.</p>
+    <p>FlexaGo connects travelers with people who need to send items — fast, secure, and affordable.</p>
 
     <div class="hero-buttons">
       <a href="#how" class="btn-primary">Get Started</a>
       <a href="#features" class="btn-secondary">Learn More</a>
     </div>
   </div>
+
+  <div class="hero-image">
+    <img src="IMG/flexago-hero.jpg" alt="FlexaGo Delivery">
+  </div>
 </section>
 
-<section id="about" class="section fade-in-up">
-  <h2 class="section-title">About Flexagoo</h2>
+
+<!-- ========================================================= -->
+<!-- FOOTER                                                    -->
+<!-- ========================================================= -->
+<footer>
+  <p>© 2026 FlexaGo. All rights reserved.</p>
   <p>
-    <strong>Flexagoo is a people‑powered way to move things from one place to another.</strong>
-    We connect folks who need to send something with travelers already heading that way. 
-    It’s simple, fast, and built around real people helping real people.
-  </p>
-</section>
-
-<section id="senders" class="section dark fade-in-up">
-  <h2 class="section-title">For Senders</h2>
-  <img class="section-image parallax-img" src="https://images.unsplash.com/photo-1607082349566-187342175e2f" alt="Package">
-  <p>
-    <strong>Sending something shouldn’t feel like a chore.</strong>
-    With Flexagoo, you tell us what you need delivered and where it’s going — and we match you with a traveler already on that route.
-  </p>
-</section>
-
-<section id="travelers" class="section fade-in-up">
-  <h2 class="section-title">For Travelers</h2>
-  <img class="section-image parallax-img" src="https://images.unsplash.com/photo-1503376780353-7e6692767b70" alt="Traveler on road">
-  <p>
-    <strong>You’re already going — why not earn along the way?</strong>
-    Flexagoo lets you pick up small deliveries that fit naturally into your route.
-  </p>
-</section>
-
-<section id="how" class="section fade-in-up">
-  <h2 class="section-title">How Flexagoo Works</h2>
-
-  <div class="steps">
-    <div class="step">
-      <img class="step-img parallax-img" src="https://images.unsplash.com/photo-1581091012184-5c8af7a4c3c9" alt="Sender with package">
-      <h3>1. Sender Creates a Request</h3>
-      <p>Describe your item, pickup, and drop‑off.</p>
-    </div>
-
-    <div class="step">
-      <img class="step-img parallax-img" src="https://images.unsplash.com/photo-1503376780353-7e6692767b70" alt="Traveler driving">
-      <h3>2. Traveler Accepts & Delivers</h3>
-      <p>Verified travelers pick up your item and deliver it along their route.</p>
-    </div>
-
-    <div class="step">
-      <img class="step-img parallax-img" src="https://images.unsplash.com/photo-1605902711622-cfb43c44367e" alt="Delivery handoff">
-      <h3>3. Delivery Completed</h3>
-      <p>Traveler hands the package to the receiver — simple and secure.</p>
-    </div>
-  </div>
-</section>
-
-<section id="features" class="section dark fade-in-up">
-  <h2 class="section-title">Why Flexagoo?</h2>
-
-  <div class="features-grid">
-    <div class="feature-card">
-      <h3>Verified Travelers</h3>
-      <p>Every traveler is identity‑verified for safety and trust.</p>
-    </div>
-    <div class="feature-card">
-      <h3>Real‑Time Tracking</h3>
-      <p>Track your delivery from pickup to drop‑off with live updates.</p>
-    </div>
-    <div class="feature-card">
-      <h3>Secure Payouts</h3>
-      <p>Travelers get paid instantly after completing deliveries.</p>
-    </div>
-    <div class="feature-card">
-      <h3>Global Routes</h3>
-      <p>Send items across cities, states, or countries using existing travel routes.</p>
-    </div>
-  </div>
-</section>
-
-<section id="pricing" class="section fade-in-up">
-  <h2 class="section-title">Simple, Transparent Pricing</h2>
-
-  <div class="pricing-grid">
-    <div class="pricing-card">
-      <h3>Senders</h3>
-      <p class="price">$5 + Distance</p>
-      <p>Pay a small fee plus distance‑based cost.</p>
-    </div>
-    <div class="pricing-card">
-      <h3>Travelers</h3>
-      <p class="price">Earn 100%</p>
-      <p>Travelers keep the full delivery payout.</p>
-    </div>
-  </div>
-</section>
-
-<section id="contact" class="section dark fade-in-up">
-  <h2 class="section-title">Contact Us</h2>
-  <p class="contact-text">Have questions? Need support? We’re here to help.</p>
-  <div class="contact-box">
-    <p>Email: <strong>support@flexagoo.com</strong></p>
-  </div>
-</section>
-
-<!-- ============================
-     CTA SECTION
-============================ -->
-<section class="section cta-section fade-in-up">
-  <h2 class="section-title">Ready to Flex Your Route?</h2>
-  <p>Whether you’re sending something important or traveling anyway, Flexagoo makes every trip smarter.</p>
-  <div class="cta-buttons">
-    <a href="#senders" class="btn-primary">I Want to Send</a>
-    <a href="#travelers" class="btn-secondary">I Want to Travel</a>
-  </div>
-</section>
-
-<footer class="footer">
-  <div class="footer-left">© 2026 Flexagoo. All rights reserved.</div>
-  <div class="footer-right">
-    <a href="privacy.html">Privacy Policy</a>
+    <a href="privacy.html">Privacy Policy</a> |
     <a href="terms.html">Terms of Service</a>
-  </div>
+  </p>
 </footer>
+
+<script>
+  // Scroll-triggered animation
+  const fadeElements = document.querySelectorAll('.fade-in-up');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  });
+  fadeElements.forEach(el => observer.observe(el));
+</script>
 
 </body>
 </html>
