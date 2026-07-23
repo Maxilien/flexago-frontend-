@@ -1,15 +1,119 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Login</title>
+  <meta charset="UTF-8" />
+  <title>Login – Flexago</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <link rel="stylesheet" href="css/auth.css" />
+
+  <style>
+    body {
+      font-family: Inter, sans-serif;
+      background: #f9fafb;
+      margin: 0;
+      padding: 0;
+    }
+
+    .login-container {
+      max-width: 400px;
+      margin: 60px auto;
+      background: white;
+      padding: 32px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+      text-align: center;
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      font-size: 1.6rem;
+      font-weight: 600;
+    }
+
+    .input-field {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      font-size: 1rem;
+    }
+
+    .login-btn {
+      width: 100%;
+      padding: 12px;
+      background: #2563eb;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+  </style>
 </head>
+
 <body>
+
+<!-- ========================================================= -->
+<!-- TOP NAVBAR — Unified FlexaGo Banner                       -->
+<!-- ========================================================= -->
+<header class="top-nav">
+  <div class="top-nav-left">
+
+    <!-- ⭐ FLEXAGO LOGO -->
+    <div class="flexago-logo">
+      <img src="IMG/flexago-logo.JPG" alt="Flexago Logo" class="flexago-logo-img">
+    </div>
+
+    <!-- Title (Login-specific) -->
+    <div class="top-nav-title">
+      <div class="top-nav-title-main">
+        Login to FlexaGo
+      </div>
+      <div class="top-nav-title-sub">
+        Logistics marketplace for travelers & senders
+      </div>
+    </div>
+
+  </div>
+
+  <div class="top-nav-right">
+
+    <!-- Navigation -->
+    <nav class="top-nav-links">
+      <a href="Sender.html" class="top-nav-link">Sender</a>
+      <a href="Traveler.html" class="top-nav-link">Traveler</a>
+      <a href="about.html" class="top-nav-link">About</a>
+    </nav>
+
+    <!-- Language Selector -->
+    <select class="lang-select" id="languageSelector">
+      <option value="en">EN</option>
+      <option value="es">ES</option>
+      <option value="fr">FR</option>
+      <option value="ht">HT</option>
+      <option value="zh">ZH</option>
+      <option value="pt">PT</option>
+    </select>
+
+  </div>
+</header>
+
+
+<div class="login-container">
+
   <h2>Login</h2>
 
-  <input id="email" placeholder="Email">
-  <input id="password" type="password" placeholder="Password">
-  <button id="login-btn">Login</button>
+  <input id="email" class="input-field" placeholder="Email" />
+  <input id="password" class="input-field" type="password" placeholder="Password" />
 
-  <script src="login.js"></script>
+  <button id="login-btn" class="login-btn">Login</button>
+
+</div>
+
+<script src="login.js"></script>
+
 </body>
 </html>

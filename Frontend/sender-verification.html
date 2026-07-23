@@ -3,84 +3,138 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sender Verification</title>
+  <title>Sender Verification – Flexago</title>
   <link rel="stylesheet" href="sender-verification.css" />
+  <link rel="stylesheet" href="css/auth.css" />
 </head>
 
 <body>
 
-  <!-- SIDEBAR -->
-  <aside class="sidebar">
-    <div class="logo">Flexago</div>
+<!-- ========================================================= -->
+<!-- TOP NAVBAR — Unified FlexaGo Banner                       -->
+<!-- ========================================================= -->
+<header class="top-nav">
+  <div class="top-nav-left">
 
-    <nav>
-      <a href="sender.html">Create Delivery</a>
-      <a href="sender-tracking.html">Track Delivery</a>
-      <a href="sender-payments.html">Payments</a>
-      <a class="active" href="sender-verification.html">Verification</a>
-      <a href="support.html">Support</a>
+    <!-- ⭐ FLEXAGO LOGO -->
+    <div class="flexago-logo">
+      <img src="IMG/flexago-logo.JPG" alt="Flexago Logo" class="flexago-logo-img">
+    </div>
+
+    <!-- Title (Sender Verification-specific) -->
+    <div class="top-nav-title">
+      <div class="top-nav-title-main">
+        Sender Verification
+      </div>
+      <div class="top-nav-title-sub">
+        Logistics marketplace for travelers & senders
+      </div>
+    </div>
+
+  </div>
+
+  <div class="top-nav-right">
+
+    <!-- Navigation -->
+    <nav class="top-nav-links">
+      <a href="Sender.html" class="top-nav-link">Sender</a>
+      <a href="Traveler.html" class="top-nav-link">Traveler</a>
+      <a href="about.html" class="top-nav-link">About</a>
     </nav>
-  </aside>
 
-  <!-- MAIN CONTENT -->
-  <main class="content">
+    <!-- Language Selector -->
+    <select class="lang-select" id="languageSelector">
+      <option value="en">EN</option>
+      <option value="es">ES</option>
+      <option value="fr">FR</option>
+      <option value="ht">HT</option>
+      <option value="zh">ZH</option>
+      <option value="pt">PT</option>
+    </select>
 
-    <h1>Identity Verification</h1>
-    <p class="subtitle">For safety and compliance, all senders must verify their identity.</p>
+  </div>
+</header>
 
-    <!-- OVERALL STATUS -->
-    <section class="card" id="overallStatusCard">
-      <h2>Verification Status</h2>
-      <span id="overallStatusBadge" class="badge badge-unverified">Unverified</span>
-      <p id="overallStatusText">You must complete verification before creating a delivery.</p>
-    </section>
 
-    <!-- ID VERIFICATION -->
-    <section class="card">
-      <h2>Government ID</h2>
-      <span id="idStatusBadge" class="badge badge-unverified">Unverified</span>
+<!-- ========================================================= -->
+<!-- SIDEBAR                                                   -->
+<!-- ========================================================= -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <img src="IMG/flexago-logo.JPG" alt="Flexago Logo" class="flexago-logo-img">
+  </div>
 
-      <label class="uploadLabel">Upload ID (Front)
-        <input type="file" id="idFrontInput" accept="image/*" />
-      </label>
+  <nav>
+    <a href="sender.html">Create Delivery</a>
+    <a href="sender-tracking.html">Track Delivery</a>
+    <a href="sender-payments.html">Payments</a>
+    <a class="active" href="sender-verification.html">Verification</a>
+    <a href="support.html">Support</a>
+  </nav>
+</aside>
 
-      <label class="uploadLabel">Upload ID (Back)
-        <input type="file" id="idBackInput" accept="image/*" />
-      </label>
 
-      <button id="submitIDBtn" class="btn">Submit ID</button>
-    </section>
+<!-- ========================================================= -->
+<!-- MAIN CONTENT                                              -->
+<!-- ========================================================= -->
+<main class="content">
 
-    <!-- SELFIE VERIFICATION -->
-    <section class="card">
-      <h2>Selfie Verification</h2>
-      <span id="selfieStatusBadge" class="badge badge-unverified">Unverified</span>
+  <h1>Identity Verification</h1>
+  <p class="subtitle">For safety and compliance, all senders must verify their identity.</p>
 
-      <label class="uploadLabel">Upload Selfie
-        <input type="file" id="selfieInput" accept="image/*" />
-      </label>
+  <!-- OVERALL STATUS -->
+  <section class="card" id="overallStatusCard">
+    <h2>Verification Status</h2>
+    <span id="overallStatusBadge" class="badge badge-unverified">Unverified</span>
+    <p id="overallStatusText">You must complete verification before creating a delivery.</p>
+  </section>
 
-      <button id="submitSelfieBtn" class="btn">Submit Selfie</button>
-    </section>
+  <!-- ID VERIFICATION -->
+  <section class="card">
+    <h2>Government ID</h2>
+    <span id="idStatusBadge" class="badge badge-unverified">Unverified</span>
 
-    <!-- EMAIL VERIFICATION -->
-    <section class="card">
-      <h2>Email Verification</h2>
-      <span id="emailStatusBadge" class="badge badge-unverified">Unverified</span>
+    <label class="uploadLabel">Upload ID (Front)
+      <input type="file" id="idFrontInput" accept="image/*" />
+    </label>
 
-      <button id="sendEmailVerificationBtn" class="btn">Send Verification Email</button>
-    </section>
+    <label class="uploadLabel">Upload ID (Back)
+      <input type="file" id="idBackInput" accept="image/*" />
+    </label>
 
-    <!-- PHONE VERIFICATION (OPTIONAL) -->
-    <section class="card">
-      <h2>Phone Verification</h2>
-      <span id="phoneStatusBadge" class="badge badge-unverified">Unverified</span>
+    <button id="submitIDBtn" class="btn">Submit ID</button>
+  </section>
 
-      <button id="verifyPhoneBtn" class="btn">Verify Phone Number</button>
-    </section>
+  <!-- SELFIE VERIFICATION -->
+  <section class="card">
+    <h2>Selfie Verification</h2>
+    <span id="selfieStatusBadge" class="badge badge-unverified">Unverified</span>
 
-  </main>
+    <label class="uploadLabel">Upload Selfie
+      <input type="file" id="selfieInput" accept="image/*" />
+    </label>
 
-  <script src="sender-verification.js"></script>
+    <button id="submitSelfieBtn" class="btn">Submit Selfie</button>
+  </section>
+
+  <!-- EMAIL VERIFICATION -->
+  <section class="card">
+    <h2>Email Verification</h2>
+    <span id="emailStatusBadge" class="badge badge-unverified">Unverified</span>
+
+    <button id="sendEmailVerificationBtn" class="btn">Send Verification Email</button>
+  </section>
+
+  <!-- PHONE VERIFICATION -->
+  <section class="card">
+    <h2>Phone Verification</h2>
+    <span id="phoneStatusBadge" class="badge badge-unverified">Unverified</span>
+
+    <button id="verifyPhoneBtn" class="btn">Verify Phone Number</button>
+  </section>
+
+</main>
+
+<script src="sender-verification.js"></script>
 </body>
 </html>

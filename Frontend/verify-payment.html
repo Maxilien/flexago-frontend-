@@ -56,6 +56,17 @@
       font-size: 1rem;
       cursor: pointer;
       margin-top: 12px;
+      transition: background 0.2s;
+    }
+
+    .primary-btn:hover {
+      background: #1e4fc7;
+    }
+
+    .error {
+      color: #dc2626;
+      margin-top: 10px;
+      font-size: 0.9rem;
     }
   </style>
 </head>
@@ -68,13 +79,15 @@
   <p>Senders must add a payment method before creating deliveries.</p>
 
   <input id="cardName" class="input-field" placeholder="Name on card" />
-  <input id="cardNumber" class="input-field" placeholder="Card number" />
-  <input id="expiry" class="input-field" placeholder="MM/YY" />
-  <input id="cvc" class="input-field" placeholder="CVC" />
+  <input id="cardNumber" class="input-field" placeholder="Card number" maxlength="19" />
+  <input id="expiry" class="input-field" placeholder="MM/YY" maxlength="5" />
+  <input id="cvc" class="input-field" placeholder="CVC" maxlength="4" />
 
   <button id="savePaymentBtn" class="primary-btn">
     Save Payment Method
   </button>
+
+  <div id="errorMsg" class="error"></div>
 
 </div>
 
@@ -88,16 +101,41 @@
     window.location.href = "/traveler.html";
   }
 
+  const errorMsg = document.getElementById("errorMsg");
+
+  function showError(msg) {
+    errorMsg.textContent = msg;
+  }
+
   document.getElementById("savePaymentBtn").onclick = async () => {
     const cardName = document.getElementById("cardName").value.trim();
     const cardNumber = document.getElementById("cardNumber").value.trim();
     const expiry = document.getElementById("expiry").value.trim();
     const cvc = document.getElementById("cvc").value.trim();
 
+    // Basic validation
     if (!cardName || !cardNumber || !expiry || !cvc) {
-      alert("Please fill out all fields.");
+      showError("Please fill out all fields.");
       return;
     }
+
+    if (!/^\d{13,19}$/.test(cardNumber.replace(/\s/g, ""))) {
+      showError("Invalid card number.");
+      return;
+    }
+
+    if (!/^\d{2}\/\d{2}$/.test(expiry)) {
+      showError("Expiry must be in MM/YY format.");
+      return;
+    }
+
+    if (!/^\d{3,4}$/.test(cvc)) {
+      showError("Invalid CVC.");
+      return;
+    }
+
+    // Clear error
+    showError("");
 
     const res = await fetch("https://flexago-backend.onrender.com/api/verify/payment", {
       method: "POST",
@@ -117,10 +155,10 @@
       user.paymentMethodAdded = true;
       localStorage.setItem("flexagoUser", JSON.stringify(user));
 
-      // ⭐ Sender is now fully verified
+      // Sender is now fully verified
       window.location.href = "/Sender.html";
     } else {
-      alert("Unable to save payment method. Try again.");
+      showError("Unable to save payment method. Try again.");
     }
   };
 </script>
