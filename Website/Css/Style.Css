@@ -365,3 +365,84 @@ a {
     text-align: center;
   }
 }
+/* TOP NAVBAR — DARK FLEXAGO BANNER */
+.top-nav {
+  background: #0f172a;
+  color: #fff;
+  padding: 16px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.top-nav-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.flexago-logo-img {
+  height: 80px;
+  width: auto;
+  object-fit: contain;
+}
+
+.top-nav-title-main {
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.top-nav-title-sub {
+  font-size: 0.85rem;
+  opacity: 0.8;
+}
+
+.top-nav-right {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.top-nav-link {
+  color: #fff;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.nav-btn {
+  background: #2563eb;
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+}
+
+.nav-btn.signup {
+  background: #10b981;
+}
+.top-nav-links {
+  display: flex;
+  align-items: center;
+  gap: 22px; /* spacing between links */
+}
+
+.top-nav-link {
+  color: #fff;
+  font-weight: 500;
+  text-transform: uppercase;
+  position: relative;
+  padding-right: 18px; /* space for separator */
+}
+
+.top-nav-link:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 18px;
+  width: 2px;
+  background: rgba(255, 255, 255, 0.45); /* subtle white line */
+  border-radius: 2px;
+}
