@@ -2,7 +2,8 @@
    1. GLOBAL THEME — DARK TRAVELER UI
    ============================================================ */
 :root {
-  --sidebar-width: 260px;
+  --sidebar-width: 260px;        /* Desktop width */
+  --sidebar-width-mobile: 100%;  /* Mobile override */
   --panel-radius: 14px;
   --panel-bg: radial-gradient(circle at top left, #020617 0, #020617 70%);
   --border-color: #1f2937;
@@ -39,6 +40,13 @@ select {
   transition: all 0.18s ease-out;
 }
 
+/* Mobile override for sidebar width */
+@media (max-width: 768px) {
+  :root {
+    --sidebar-width: var(--sidebar-width-mobile);
+  }
+}
+
 /* ============================================================
    2. MAIN APP LAYOUT
    ============================================================ */
@@ -49,10 +57,29 @@ select {
   overflow: hidden;
 }
 
+/* Mobile fix: allow scrolling + avoid 100vh bug */
+@media (max-width: 768px) {
+  .app-shell {
+    height: auto;
+    min-height: 100vh;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+}
+
 .main-layout {
   display: flex;
   flex: 1;
   overflow: hidden;
+}
+
+/* Mobile fix: allow main content to scroll */
+@media (max-width: 768px) {
+  .main-layout {
+    overflow-y: auto;
+    overflow-x: hidden;
+    flex-direction: column;
+  }
 }
 
 /* ============================================================
@@ -69,6 +96,7 @@ select {
   z-index: 50;
 }
 
+/* Shared desktop styles */
 .top-nav-left,
 .top-nav-center,
 .top-nav-right {
@@ -106,6 +134,46 @@ select {
 }
 
 /* ============================================================
+   MOBILE FIXES — FULL RESPONSIVENESS
+   ============================================================ */
+@media (max-width: 768px) {
+
+  .top-nav {
+    height: auto;
+    padding: 0.75rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .top-nav-left,
+  .top-nav-center,
+  .top-nav-right {
+    width: 100%;
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+
+  .top-nav-search {
+    width: 100%;
+    padding: 8px 12px;
+  }
+
+  .top-nav-search input {
+    width: 100%;
+    font-size: 0.9rem;
+  }
+
+  .top-nav-title-main {
+    font-size: 1.1rem;
+  }
+
+  .top-nav-title-sub {
+    font-size: 0.8rem;
+  }
+}
+
+/* ============================================================
    4. SIDEBAR
    ============================================================ */
 .sidebar {
@@ -114,6 +182,16 @@ select {
   border-right: 1px solid var(--border-color);
   padding: 1rem 0.75rem;
   overflow-y: auto;
+}
+
+/* Mobile: sidebar becomes full-width and stacks above content */
+@media (max-width: 768px) {
+  .sidebar {
+    width: var(--sidebar-width-mobile); /* 100% */
+    border-right: none;
+    border-bottom: 1px solid var(--border-color);
+    padding: 0.75rem 1rem;
+  }
 }
 
 .sidebar-header {
@@ -168,6 +246,24 @@ select {
   color: var(--text-muted);
 }
 
+/* Mobile: tighten spacing */
+@media (max-width: 768px) {
+  .sidebar-item {
+    padding: 10px 12px;
+    font-size: 0.85rem;
+  }
+
+  .sidebar-item svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .sidebar-footer {
+    margin-top: 1.5rem;
+    font-size: 0.7rem;
+  }
+}
+
 /* ============================================================
    5. CONTENT AREA
    ============================================================ */
@@ -178,8 +274,24 @@ select {
   background: transparent;
 }
 
+/* Mobile: prevent double scrolling and allow natural height */
+@media (max-width: 768px) {
+  .content-area {
+    overflow-y: visible;
+    padding: 0.75rem;
+  }
+}
+
 .main-content {
   height: 100%;
+}
+
+/* Mobile: avoid forced height that breaks layout */
+@media (max-width: 768px) {
+  .main-content {
+    height: auto;
+    min-height: 100%;
+  }
 }
 
 /* ============================================================
@@ -194,14 +306,23 @@ select {
 
 .top-columns {
   display: grid;
-  grid-template-columns: 1.2fr 1fr;
+  grid-template-columns: 1.2fr 1fr; /* Desktop: 2 columns */
   gap: 1.2rem;
   width: 100%;
+}
+
+/* Mobile: stack columns vertically */
+@media (max-width: 768px) {
+  .top-columns {
+    grid-template-columns: 1fr; /* Single column */
+    gap: 1rem;
+  }
 }
 
 /* ============================================================
    7. PANEL BASE STYLE
    ============================================================ */
+
 .panel {
   background: var(--panel-bg);
   border: 1px solid var(--border-color);
@@ -210,6 +331,13 @@ select {
   display: flex;
   flex-direction: column;
   box-shadow: 0 14px 35px rgba(15,23,42,0.95);
+}
+
+/* Mobile: reduce padding for better spacing */
+@media (max-width: 768px) {
+  .panel {
+    padding: 0.75rem;
+  }
 }
 
 .panel-header {
@@ -233,6 +361,14 @@ select {
   overflow-y: auto;
 }
 
+/* Mobile: avoid double scrolling inside panels */
+@media (max-width: 768px) {
+  .panel-body {
+    overflow-y: visible;
+    padding-top: 0.6rem;
+  }
+}
+
 /* ============================================================
    8. ROUTE PLANNER
    ============================================================ */
@@ -240,6 +376,14 @@ select {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 1rem;
+}
+
+/* Mobile: ensure single-column layout on small screens */
+@media (max-width: 768px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 0.85rem;
+  }
 }
 
 .form-field {
@@ -268,6 +412,13 @@ select {
   border-radius: 8px;
 }
 
+/* Mobile: tighter spacing + better readability */
+@media (max-width: 768px) {
+  .input-shell {
+    padding: 0.5rem 0.65rem;
+  }
+}
+
 .input-shell input,
 .input-shell select {
   flex: 1;
@@ -278,15 +429,33 @@ select {
   font-size: 0.85rem;
 }
 
+/* Mobile: slightly larger font for readability */
+@media (max-width: 768px) {
+  .input-shell input,
+  .input-shell select {
+    font-size: 0.9rem;
+  }
+}
+
 /* ============================================================
    9. SEARCH BUTTON
    ============================================================ */
 #generate-matches-btn {
-  width: fit-content;
+  width: fit-content; /* Desktop */
   padding: 0.55rem 1rem;
   display: flex;
   align-items: center;
   gap: 0.4rem;
+}
+
+/* Mobile: full-width button for better UX */
+@media (max-width: 768px) {
+  #generate-matches-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 0.65rem 1rem;
+    font-size: 1rem;
+  }
 }
 
 #generate-matches-btn i {
@@ -298,14 +467,36 @@ select {
    ============================================================ */
 #travelerMap {
   width: 100%;
-  height: 260px;
+  height: 260px; /* Desktop */
   border-radius: 10px;
   margin-top: 1rem;
   overflow: hidden;
   background: #000;
   box-shadow: 0 10px 25px rgba(15,23,42,0.9);
-  position: relative; /* FIXED */
+  position: relative;
   z-index: 1;
+}
+
+/* Mobile: reduce height for small screens */
+@media (max-width: 768px) {
+  #travelerMap {
+    height: 200px;
+    margin-top: 0.75rem;
+  }
+}
+
+/* Very small devices (iPhone SE, older Android) */
+@media (max-width: 480px) {
+  #travelerMap {
+    height: 170px;
+  }
+}
+
+/* Tablets: increase height slightly */
+@media (min-width: 769px) and (max-width: 1024px) {
+  #travelerMap {
+    height: 300px;
+  }
 }
 
 /* ============================================================
@@ -314,7 +505,7 @@ select {
 #jobsPanel {
   display: flex;
   flex-direction: column;
-  max-height: calc(100vh - 80px);
+  max-height: calc(100vh - 80px); /* Desktop */
   overflow-y: auto;
   background: var(--panel-bg);
   border: 1px solid var(--border-color);
@@ -322,6 +513,16 @@ select {
   padding: 1rem;
   box-shadow: 0 14px 35px rgba(15,23,42,0.95);
 }
+
+/* Mobile: remove forced height + remove scroll lock */
+@media (max-width: 768px) {
+  #jobsPanel {
+    max-height: none;
+    overflow-y: visible;
+    padding: 0.75rem;
+  }
+}
+
 #jobsCount {
   font-size: 0.75rem;
   color: var(--text-muted);
@@ -331,6 +532,14 @@ select {
   flex: 1;
   overflow-y: auto;
   padding-top: 1rem;
+}
+
+/* Mobile: avoid double scrolling inside jobs panel */
+@media (max-width: 768px) {
+  #jobsPanel .panel-body {
+    overflow-y: visible;
+    padding-top: 0.75rem;
+  }
 }
 
 /* ============================================================
@@ -348,11 +557,29 @@ select {
   box-shadow: 0 14px 35px rgba(15,23,42,0.95);
 }
 
+/* Mobile: reduce padding for better spacing */
+@media (max-width: 768px) {
+  .earnings-summary {
+    padding: 0.75rem;
+    gap: 0.5rem;
+  }
+}
+
 .summary-row {
   display: flex;
   justify-content: space-between;
   font-size: 0.9rem;
   color: var(--text-light);
+}
+
+/* Mobile: stack rows vertically for readability */
+@media (max-width: 768px) {
+  .summary-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+    font-size: 0.95rem; /* slightly larger for mobile */
+  }
 }
 
 .summary-row strong {
@@ -369,6 +596,14 @@ select {
   margin-bottom: 1rem;
 }
 
+/* Mobile: stack tabs vertically */
+@media (max-width: 768px) {
+  .jobs-tabs {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}
+
 .jobs-tab {
   flex: 1;
   padding: 0.55rem 0.75rem;
@@ -380,6 +615,14 @@ select {
   text-align: center;
   font-size: 0.85rem;
   letter-spacing: 0.02em;
+}
+
+/* Mobile: better tap target + readability */
+@media (max-width: 768px) {
+  .jobs-tab {
+    padding: 0.65rem 0.85rem;
+    font-size: 0.95rem;
+  }
 }
 
 .jobs-tab:hover {
@@ -402,26 +645,52 @@ select {
   flex-direction: column;
   gap: 0.75rem;
   padding-right: 4px;
-  height: 100%;          /* ⭐ REQUIRED */
-  overflow-y: auto;      /* ⭐ REQUIRED */
+  height: 100%;          /* Desktop */
+  overflow-y: auto;      /* Desktop */
 }
 
+/* Mobile: remove forced height + remove scroll lock */
+@media (max-width: 768px) {
+  .jobs-list {
+    height: auto;
+    overflow-y: visible;
+    padding-right: 0;
+  }
+}
 
 #jobsAvailableList,
 #jobsAcceptedList,
 #jobsCompletedList {
   overflow-y: auto;
-  max-height: calc(100vh - 420px); /* ⭐ MATCHES YOUR PANEL HEIGHT */
+  max-height: calc(100vh - 420px); /* Desktop */
   padding-right: 6px;
   scrollbar-width: thin;
 }
 
+/* Mobile: remove max-height + remove nested scrolling */
+@media (max-width: 768px) {
+  #jobsAvailableList,
+  #jobsAcceptedList,
+  #jobsCompletedList {
+    max-height: none;
+    overflow-y: visible;
+    padding-right: 0;
+  }
+}
 
 .empty-state {
   text-align: center;
   padding: 1rem;
   color: var(--text-muted);
   font-size: 0.9rem;
+}
+
+/* Mobile: tighten spacing */
+@media (max-width: 768px) {
+  .empty-state {
+    padding: 0.75rem;
+    font-size: 0.85rem;
+  }
 }
 
 /* ============================================================
@@ -440,6 +709,14 @@ select {
   overflow: hidden;
 }
 
+/* Mobile: tighten spacing + improve readability */
+@media (max-width: 768px) {
+  .job-card {
+    padding: 0.75rem;
+    gap: 0.6rem;
+  }
+}
+
 .job-card::before {
   content: "";
   position: absolute;
@@ -453,8 +730,9 @@ select {
 .job-card:hover::before {
   opacity: 1;
 }
+
 /* ============================================================
-   NEW: ICONS (Pickup, Dropoff, Money)
+   16. NEW: ICONS (Pickup, Dropoff, Money)
    ============================================================ */
 .icon-pin {
   width: 10px;
@@ -477,7 +755,7 @@ select {
 }
 
 /* ============================================================
-   NEW: DISTANCE BADGES
+   17. NEW: DISTANCE BADGES
    ============================================================ */
 .badge {
   padding: 4px 8px;
@@ -499,6 +777,15 @@ select {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 0.5rem;
+}
+
+/* Mobile: stack header elements */
+@media (max-width: 768px) {
+  .job-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.4rem;
+  }
 }
 
 .details-btn {
@@ -524,6 +811,14 @@ select {
   gap: 1rem;
 }
 
+/* Mobile: stack route + meta vertically */
+@media (max-width: 768px) {
+  .job-main {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+}
+
 .job-route {
   display: flex;
   flex-direction: column;
@@ -547,13 +842,8 @@ select {
   border-radius: 999px;
 }
 
-.job-pickup::before {
-  background: #22c55e;
-}
-
-.job-dropoff::before {
-  background: #ef4444;
-}
+.job-pickup::before { background: #22c55e; }
+.job-dropoff::before { background: #ef4444; }
 
 /* ============================================================
    17. JOB META (DISTANCE, PRICE, SIZE)
@@ -565,6 +855,14 @@ select {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
+}
+
+/* Mobile: left-align meta for readability */
+@media (max-width: 768px) {
+  .job-meta {
+    text-align: left;
+    font-size: 0.9rem;
+  }
 }
 
 .job-price {
@@ -584,11 +882,18 @@ select {
 }
 
 /* ============================================================
-   18. ACCEPT / DECLINE BUTTONS
+   20. ACCEPT / DECLINE BUTTONS
    ============================================================ */
 .job-actions {
   display: flex;
   gap: 0.6rem;
+}
+
+/* Mobile: stack buttons vertically */
+@media (max-width: 768px) {
+  .job-actions {
+    flex-direction: column;
+  }
 }
 
 .accept-btn {
@@ -626,7 +931,7 @@ select {
 }
 
 /* ============================================================
-   19. VEHICLE COMPATIBILITY FLAG
+   21. VEHICLE COMPATIBILITY FLAG
    ============================================================ */
 .vehicle-compatibility {
   margin-top: 0.25rem;
@@ -638,6 +943,13 @@ select {
   display: inline-flex;
   align-items: center;
   gap: 6px;
+}
+
+/* Mobile: slightly larger text */
+@media (max-width: 768px) {
+  .vehicle-compatibility {
+    font-size: 0.85rem;
+  }
 }
 
 .vehicle-compatibility::before {
@@ -654,7 +966,7 @@ select {
 }
 
 /* ============================================================
-   20. ACCEPTED JOB — EXPANDED DETAILS SECTION
+   22. ACCEPTED JOB — EXPANDED DETAILS SECTION
    ============================================================ */
 .accepted-expanded {
   margin-top: 0.75rem;
@@ -664,6 +976,13 @@ select {
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 1rem;
   font-size: 0.8rem;
+}
+
+/* Mobile: tighter grid spacing */
+@media (max-width: 768px) {
+  .accepted-expanded {
+    gap: 0.75rem;
+  }
 }
 
 .detail-block {
@@ -717,7 +1036,7 @@ select {
 }
 
 /* ============================================================
-   21. ITEM PHOTO
+   23. ITEM PHOTO
    ============================================================ */
 .item-photo {
   width: 100%;
@@ -728,8 +1047,15 @@ select {
   display: none;
 }
 
+/* Mobile: larger preview */
+@media (max-width: 768px) {
+  .item-photo {
+    max-width: 160px;
+  }
+}
+
 /* ============================================================
-   22. STATUS BUTTONS (ON MY WAY → DELIVERED)
+   24. STATUS BUTTONS (ON MY WAY → DELIVERED)
    ============================================================ */
 .traveler-status-buttons {
   display: flex;
@@ -753,36 +1079,28 @@ select {
   color: white;
 }
 
-.on-my-way-pickup-btn {
-  background: #0ea5e9;
-}
-.on-my-way-pickup-btn:hover {
-  background: #0284c7;
-}
-
-.picked-up-btn {
-  background: #22c55e;
-}
-.picked-up-btn:hover {
-  background: #16a34a;
+/* Mobile: larger tap targets */
+@media (max-width: 768px) {
+  .status-btn {
+    padding: 0.7rem 1rem;
+    font-size: 0.9rem;
+  }
 }
 
-.on-my-way-dropoff-btn {
-  background: #f59e0b;
-}
-.on-my-way-dropoff-btn:hover {
-  background: #d97706;
-}
+.on-my-way-pickup-btn { background: #0ea5e9; }
+.on-my-way-pickup-btn:hover { background: #0284c7; }
 
-.delivered-btn {
-  background: #8b5cf6;
-}
-.delivered-btn:hover {
-  background: #7c3aed;
-}
+.picked-up-btn { background: #22c55e; }
+.picked-up-btn:hover { background: #16a34a; }
+
+.on-my-way-dropoff-btn { background: #f59e0b; }
+.on-my-way-dropoff-btn:hover { background: #d97706; }
+
+.delivered-btn { background: #8b5cf6; }
+.delivered-btn:hover { background: #7c3aed; }
 
 /* ============================================================
-   23. DELIVERY PHOTO UPLOAD SECTION
+   25. DELIVERY PHOTO UPLOAD SECTION
    ============================================================ */
 .delivery-photo-section {
   margin-top: 1rem;
@@ -813,8 +1131,15 @@ select {
   display: none;
 }
 
+/* Mobile: larger preview */
+@media (max-width: 768px) {
+  .delivery-photo-preview {
+    max-width: 180px;
+  }
+}
+
 /* ============================================================
-   24. SIGNATURE PAD
+   26. SIGNATURE PAD
    ============================================================ */
 .signature-section {
   margin-top: 0.75rem;
@@ -827,6 +1152,13 @@ select {
   background: #ffffff;
   border-radius: 6px;
   border: 1px solid #ccc;
+}
+
+/* Mobile: larger pad */
+@media (max-width: 768px) {
+  .signature-pad {
+    height: 200px;
+  }
 }
 
 .clear-signature-btn,
@@ -865,8 +1197,9 @@ select {
   color: var(--text-light);
   font-size: 0.85rem;
 }
+
 /* ============================================================
-   25. CHAT WIDGET — FLOATING BUBBLE
+   27. CHAT WIDGET — FLOATING BUBBLE
    ============================================================ */
 #chatBubble {
   position: fixed;
@@ -962,7 +1295,7 @@ select {
 }
 
 /* ============================================================
-   26. SUPPORT PANEL
+   28. SUPPORT PANEL
    ============================================================ */
 #supportPanel {
   position: fixed;
@@ -1007,7 +1340,7 @@ select {
 }
 
 /* ============================================================
-   27. MODALS (GLOBAL)
+   29. MODALS (GLOBAL)
    ============================================================ */
 .modal {
   position: fixed;
@@ -1020,7 +1353,7 @@ select {
   justify-content: center;
   align-items: center;
   z-index: 9999;
-  pointer-events: none; /* FIXED */
+  pointer-events: none;
 }
 
 .modal.hidden {
@@ -1028,7 +1361,7 @@ select {
 }
 
 .modal:not(.hidden) {
-  pointer-events: auto; /* FIXED */
+  pointer-events: auto;
 }
 
 .modal-content {
@@ -1058,195 +1391,7 @@ select {
 }
 
 /* ============================================================
-   NEW: JOB DETAILS MODAL
-   ============================================================ */
-#jobDetailsModal .modal-content {
-  padding: 24px;
-  border-radius: 16px;
-  max-height: 90vh;        /* NEW */
-  overflow-y: auto;        /* NEW */
-}
-
-
-#jobDetailsModal .modal-title {
-  font-size: 1.25rem;
-  font-weight: 700;
-  margin-bottom: 1rem;
-}
-
-#jobDetailsModal p {
-  font-size: 0.9rem;
-  margin: 0.4rem 0;
-}
-
-#jobDetailsModal strong {
-  color: var(--blue);
-}
-
-#jobDetailsModal .close-btn {
-  background: none;
-  border: none;
-  color: var(--text-muted);
-  font-size: 1.4rem;
-  cursor: pointer;
-  float: right;
-}
-.job-details-modal {
-  max-height: 90vh;
-  overflow-y: auto;
-}
-
-.modal {
-  backdrop-filter: blur(4px);
-}
-
-.modal-body {
-  max-height: 80vh;
-  overflow-y: auto;
-  padding-right: 6px;
-}
-
-/* ============================================================
-   28. VERIFICATION PANELS
-   ============================================================ */
-.upload-box {
-  background: #0f172a;
-  border: 1px dashed #334155;
-  padding: 20px;
-  border-radius: 12px;
-  text-align: center;
-  color: var(--text-muted);
-  cursor: pointer;
-  transition: 0.2s ease;
-  margin-bottom: 10px;
-}
-
-.upload-box:hover {
-  background: #1e293b;
-  border-color: var(--blue);
-  color: var(--text-light);
-}
-
-.upload-preview {
-  width: 100%;
-  border-radius: 10px;
-  border: 1px solid var(--border-color);
-  margin-top: 0.5rem;
-}
-
-.verification-progress {
-  width: 100%;
-  height: 8px;
-  background: #1e293b;
-  border-radius: 6px;
-  margin-bottom: 25px;
-  overflow: hidden;
-}
-
-#verificationProgressFill {
-  height: 100%;
-  width: 0%;
-  background: var(--blue);
-  transition: width 0.3s ease;
-}
-
-.success-icon {
-  font-size: 48px;
-  text-align: center;
-  margin-bottom: 20px;
-  color: #22c55e;
-}
-
-.error-icon {
-  font-size: 48px;
-  text-align: center;
-  margin-bottom: 20px;
-  color: #ef4444;
-}
-
-/* ============================================================
-   29. PAYOUTS PANEL
-   ============================================================ */
-.payout-method-card {
-  background: var(--panel-bg);
-  border: 1px solid var(--border-color);
-  border-radius: 14px;
-  padding: 1rem;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 1rem;
-  cursor: pointer;
-}
-
-.payout-method-icon {
-  font-size: 1.4rem;
-}
-
-.payout-method-info strong {
-  color: var(--text-light);
-}
-
-.payout-method-info span {
-  color: var(--text-muted);
-  font-size: 0.85rem;
-}
-
-/* ============================================================
-   30. ACCOUNT PAGE
-   ============================================================ */
-.profile-photo-large {
-  width: 110px;
-  height: 110px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid rgba(255,255,255,0.1);
-}
-
-.input-field {
-  width: 100%;
-  padding: 0.55rem 0.75rem;
-  background: #1e293b;
-  border: 1px solid #334155;
-  border-radius: 6px;
-  color: var(--text-light);
-  margin-bottom: 0.75rem;
-  font-size: 0.85rem;
-}
-
-#saveAccountBtn {
-  margin-top: 0.5rem;
-}
-
-/* ============================================================
-   31. RESPONSIVE RULES
-   ============================================================ */
-@media (max-width: 900px) {
-  .top-columns {
-    grid-template-columns: 1fr;
-  }
-
-  #travelerMap {
-    height: 220px;
-  }
-
-  .sidebar {
-    width: 100%;
-    border-right: none;
-    border-bottom: 1px solid var(--border-color);
-  }
-
-  #chatBubble,
-  #supportPanel {
-    width: 90%;
-    left: 50%;
-    transform: translateX(-50%);
-    right: auto;
-  }
-}
-
-/* ============================================================
-   FIX: Restore Traveler sidebar colors
+   35. FIX: Restore Traveler sidebar colors
    ============================================================ */
 .sidebar,
 .sidebar * {
@@ -1277,8 +1422,9 @@ select {
   opacity: 0.65;
   color: #e5e7eb !important;
 }
+
 /* ============================================================
-   FIX: Ensure Delivery Details modal scrolls
+   36. FIX: Ensure Delivery Details modal scrolls
    ============================================================ */
 #jobDetailsModal,
 #jobDetailsModal .modal-content,
@@ -1288,8 +1434,9 @@ select {
   overflow-y: auto !important;
   padding-right: 6px;
 }
+
 /* ============================================================
-  LOGO
+   37. LOGO
    ============================================================ */
 .flexago-logo {
   display: flex;
@@ -1304,7 +1451,7 @@ select {
 }
 
 /* ============================================================
-  LOGOUT
+   38. LOGOUT
    ============================================================ */
 .logout-btn {
   background: #ef4444;
@@ -1322,7 +1469,7 @@ select {
 }
 
 /* ============================================================
-   FINAL Z-INDEX FIXES
+   39. FINAL Z-INDEX FIXES
    ============================================================ */
 #traveler-job-panel,
 #traveler-job-controls,
@@ -1333,6 +1480,7 @@ select {
   z-index: 1; /* lower than modal */
   pointer-events: auto;
 }
+
 /* Push ONLY the form fields behind the modal */
 #routePanel .form-field,
 #routePanel .form-field * {
@@ -1350,35 +1498,53 @@ select {
 .modal {
   z-index: 99999 !important;
 }
-/* ============================================
-   RESPONSIVE FIXES FOR ALL DEVICES
-   ============================================ */
 
-/* Mobile layout */
+/* ============================================================
+   40. FINAL MOBILE FIXES FOR TRAVELER PAGE
+   ============================================================ */
 @media (max-width: 768px) {
 
-  body {
-    padding: 0 12px;
-  }
-
+  /* Top Nav */
   .top-nav {
     flex-direction: column;
     align-items: flex-start;
-    gap: 12px;
-  }
-
-  .nav-links {
-    flex-wrap: wrap;
+    padding: 10px;
     gap: 10px;
   }
 
-  .nav-actions {
+  .top-nav-left,
+  .top-nav-center,
+  .top-nav-right {
     width: 100%;
     display: flex;
     justify-content: space-between;
+    flex-wrap: wrap;
   }
 
-  /* Traveler workspace layout */
+  .top-nav-right {
+    gap: 10px;
+  }
+
+  .logout-btn {
+    padding: 6px 12px;
+    font-size: 14px;
+  }
+
+  .lang-select {
+    font-size: 14px;
+    padding: 6px;
+  }
+
+  /* Search Bar */
+  .top-nav-search {
+    width: 100%;
+  }
+
+  .top-nav-search input {
+    width: 100%;
+  }
+
+  /* Workspace Panels */
   .workspace-container {
     flex-direction: column;
     gap: 20px;
@@ -1388,41 +1554,20 @@ select {
     width: 100% !important;
   }
 
-  .stats-row {
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .stat-box {
-    width: 100%;
-  }
-
-  /* Forms */
-  form input,
-  form select {
-    width: 100% !important;
-  }
-
   /* Map */
   .map-container {
     width: 100% !important;
     height: 300px !important;
+    margin-top: 20px;
+  }
+
+  /* Form Inputs */
+  .input-shell {
+    width: 100% !important;
+  }
+
+  form input,
+  form select {
+    width: 100% !important;
   }
 }
-
-/* Extra small screens */
-@media (max-width: 480px) {
-  .logo {
-    font-size: 20px;
-  }
-
-  .top-nav {
-    gap: 8px;
-  }
-
-  .nav-actions a {
-    padding: 6px 10px;
-    font-size: 14px;
-  }
-}
-
