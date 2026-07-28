@@ -31,5 +31,5 @@ async function signup() {
   localStorage.setItem("signupTimestamp", Date.now().toString());
 
   // 🔄 Redirect to create-account page (role selection happens there)
-  window.location.href = "create-account.html";
+  window.location.href = "verify-email.html";
 }
