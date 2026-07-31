@@ -1,4 +1,6 @@
+// ============================================================
 // ELEMENTS
+// ============================================================
 const countryCode = document.getElementById("countryCode");
 const phoneInput = document.getElementById("phoneInput");
 const smsCodeInput = document.getElementById("smsCodeInput");
@@ -8,11 +10,12 @@ const verifyPhoneBtn = document.getElementById("verifyPhoneBtn");
 const resendPhoneBtn = document.getElementById("resendPhoneBtn");
 const nextBtn = document.getElementById("nextBtn");
 
+// ============================================================
 // AUTO FORMAT PHONE BY COUNTRY
+// ============================================================
 phoneInput.addEventListener("input", () => {
   const raw = phoneInput.value.replace(/\D/g, "");
   const code = countryCode.value;
-
   let formatted = raw;
 
   // 🇺🇸 US
@@ -82,7 +85,9 @@ phoneInput.addEventListener("input", () => {
   phoneInput.value = formatted;
 });
 
+// ============================================================
 // STEP 1 — SEND SMS CODE
+// ============================================================
 sendSmsBtn.addEventListener("click", async () => {
   const raw = phoneInput.value.replace(/\D/g, "");
   const fullPhone = `${countryCode.value}${raw}`;
@@ -91,6 +96,9 @@ sendSmsBtn.addEventListener("click", async () => {
     alert("Please enter your phone number.");
     return;
   }
+
+  // Twilio compliance logging
+  console.log("User consented to SMS messaging per CTA on verify-phone page.");
 
   localStorage.setItem("tempPhone", fullPhone);
 
@@ -115,7 +123,9 @@ sendSmsBtn.addEventListener("click", async () => {
   }
 });
 
+// ============================================================
 // STEP 2 — VERIFY SMS CODE
+// ============================================================
 verifyPhoneBtn.addEventListener("click", async () => {
   const phone = localStorage.getItem("tempPhone");
   const code = smsCodeInput.value.trim();
@@ -152,7 +162,9 @@ verifyPhoneBtn.addEventListener("click", async () => {
   }
 });
 
+// ============================================================
 // STEP 3 — RESEND SMS CODE
+// ============================================================
 resendPhoneBtn.addEventListener("click", async () => {
   const phone = localStorage.getItem("tempPhone");
 
@@ -175,7 +187,9 @@ resendPhoneBtn.addEventListener("click", async () => {
   }
 });
 
+// ============================================================
 // STEP 4 — NEXT BUTTON → Identity Verification
+// ============================================================
 nextBtn.addEventListener("click", () => {
   window.location.href = "verify-identity.html";
 });

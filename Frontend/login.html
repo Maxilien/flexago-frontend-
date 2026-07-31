@@ -51,6 +51,73 @@
       cursor: pointer;
       margin-top: 10px;
     }
+
+    /* ============================================================
+       UPDATED — PURE BLACK BANNER
+    ============================================================ */
+    .top-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #000000; /* PURE BLACK */
+      padding: 14px 20px;
+      color: #fff;
+    }
+
+    .top-nav-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .top-nav-right {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .flexago-logo-img {
+      height: 80px;
+      width: auto;
+      object-fit: contain;
+      background: #000000; /* sync with banner */
+      padding: 4px;
+      border-radius: 6px;
+    }
+
+    .top-nav-title-main {
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .top-nav-title-sub {
+      font-size: 13px;
+      opacity: 0.8;
+    }
+
+    .top-nav-links {
+      display: flex;
+      gap: 16px;
+    }
+
+    .top-nav-link {
+      color: #fff;
+      text-decoration: none;
+      font-size: 14px;
+      opacity: 0.9;
+    }
+
+    .top-nav-link:hover {
+      opacity: 1;
+    }
+
+    .lang-select {
+      background: #1e293b;
+      color: #fff;
+      border: 1px solid #334155;
+      padding: 6px 10px;
+      border-radius: 6px;
+    }
   </style>
 </head>
 
@@ -62,9 +129,9 @@
 <header class="top-nav">
   <div class="top-nav-left">
 
-    <!-- ⭐ FLEXAGO LOGO -->
+    <!-- ⭐ FLEXAGO LOGO (lowercase img/) -->
     <div class="flexago-logo">
-      <img src="IMG/flexago-logo.JPG" alt="Flexago Logo" class="flexago-logo-img">
+      <img src="img/flexago-logo.JPG" alt="Flexago Logo" class="flexago-logo-img">
     </div>
 
     <!-- Title (Login-specific) -->

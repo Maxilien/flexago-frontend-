@@ -15,6 +15,59 @@
       padding: 0;
     }
 
+    /* ============================================================
+       TOP NAV — PURE BLACK BANNER
+    ============================================================ */
+    .top-nav {
+      background: #000000;
+      color: white;
+      padding: 14px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .top-nav-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .flexago-logo-img {
+      height: 48px;
+      width: auto;
+      background: #000000; /* sync with banner */
+      padding: 4px;
+      border-radius: 6px;
+    }
+
+    .top-nav-title-main {
+      font-size: 1.2rem;
+      font-weight: 600;
+    }
+
+    .top-nav-title-sub {
+      font-size: 0.8rem;
+      opacity: 0.8;
+    }
+
+    .top-nav-links a {
+      color: white;
+      text-decoration: none;
+      margin-right: 16px;
+      font-size: 0.95rem;
+    }
+
+    .lang-select {
+      padding: 6px;
+      border-radius: 6px;
+      border: none;
+      font-size: 0.9rem;
+    }
+
+    /* ============================================================
+       VERIFY CONTAINER
+    ============================================================ */
     .verify-container {
       max-width: 420px;
       margin: 60px auto;
@@ -106,6 +159,22 @@
       opacity: 1;
       cursor: pointer;
     }
+
+    /* ============================================================
+       ⭐ REQUIRED TWILIO CTA (SHORT VERSION)
+    ============================================================ */
+    .sms-cta {
+      font-size: 0.85rem;
+      color: #6b7280;
+      margin-top: -10px;
+      margin-bottom: 18px;
+      line-height: 1.4;
+    }
+
+    .sms-cta a {
+      color: #2563eb;
+      text-decoration: none;
+    }
   </style>
 </head>
 
@@ -117,33 +186,26 @@
 <header class="top-nav">
   <div class="top-nav-left">
 
-    <!-- ⭐ FLEXAGO LOGO -->
+    <!-- ⭐ FLEXAGO LOGO (lowercase img/) -->
     <div class="flexago-logo">
-      <img src="IMG/flexago-logo.JPG" alt="Flexago Logo" class="flexago-logo-img">
+      <img src="img/flexago-logo.JPG" alt="Flexago Logo" class="flexago-logo-img">
     </div>
 
-    <!-- Title (Verify Phone-specific) -->
+    <!-- Title -->
     <div class="top-nav-title">
-      <div class="top-nav-title-main">
-        Verify Your Phone
-      </div>
-      <div class="top-nav-title-sub">
-        Logistics marketplace for travelers & senders
-      </div>
+      <div class="top-nav-title-main">Verify Your Phone</div>
+      <div class="top-nav-title-sub">Logistics marketplace for travelers & senders</div>
     </div>
 
   </div>
 
   <div class="top-nav-right">
-
-    <!-- Navigation -->
     <nav class="top-nav-links">
-      <a href="Sender.html" class="top-nav-link">Sender</a>
-      <a href="Traveler.html" class="top-nav-link">Traveler</a>
-      <a href="about.html" class="top-nav-link">About</a>
+      <a href="Sender.html">Sender</a>
+      <a href="Traveler.html">Traveler</a>
+      <a href="about.html">About</a>
     </nav>
 
-    <!-- Language Selector -->
     <select class="lang-select" id="languageSelector">
       <option value="en">EN</option>
       <option value="es">ES</option>
@@ -152,7 +214,6 @@
       <option value="zh">ZH</option>
       <option value="pt">PT</option>
     </select>
-
   </div>
 </header>
 
@@ -182,26 +243,25 @@
       <input id="phoneInput" class="input-field" placeholder="555 123 4567" />
     </div>
 
-    <button id="sendSmsBtn" class="primary-btn">
-      Send SMS Code
-    </button>
+    <!-- ⭐ REQUIRED TWILIO CTA -->
+    <p class="sms-cta">
+      By continuing, you agree to receive SMS messages from FlexaGo for account verification and login security.
+      Message & data rates may apply. Reply STOP to unsubscribe, HELP for help.
+      <a href="privacy.html">Privacy Policy</a> |
+      <a href="terms.html">Terms of Service</a>
+    </p>
+
+    <button id="sendSmsBtn" class="primary-btn">Send SMS Code</button>
 
     <!-- ENTER SMS CODE -->
     <label>Enter SMS Code</label>
     <input id="smsCodeInput" class="input-field" placeholder="123456" />
 
-    <button id="verifyPhoneBtn" class="primary-btn">
-      Verify Phone
-    </button>
-
-    <button id="resendPhoneBtn" class="secondary-btn">
-      Resend Code
-    </button>
+    <button id="verifyPhoneBtn" class="primary-btn">Verify Phone</button>
+    <button id="resendPhoneBtn" class="secondary-btn">Resend Code</button>
 
     <!-- NEXT BUTTON -->
-    <button id="nextBtn" class="next-btn" disabled>
-      Next
-    </button>
+    <button id="nextBtn" class="next-btn" disabled>Next</button>
 
   </div>
 

@@ -83,12 +83,12 @@ select {
 }
 
 /* ============================================================
-   3. TOP NAVIGATION BAR
+   3. TOP NAVIGATION BAR — PURE BLACK
    ============================================================ */
 .top-nav {
   height: 56px;
-  background: #0f172a;
-  border-bottom: 1px solid var(--border-color);
+  background: #000000; /* UPDATED TO PURE BLACK */
+  border-bottom: 1px solid #000000;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -108,31 +108,31 @@ select {
 .top-nav-title-main {
   font-size: 1rem;
   font-weight: 600;
+  color: #ffffff; /* updated for black background */
 }
 
 .top-nav-title-sub {
   font-size: 0.75rem;
-  color: var(--text-muted);
+  color: #d1d5db; /* lighter muted text for black banner */
 }
 
 .top-nav-search {
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  background: #1e293b;
+  background: #1e293b; /* dark search box to match black theme */
   padding: 6px 10px;
   border-radius: 8px;
-  border: 1px solid var(--border-color);
+  border: 1px solid #334155;
 }
 
 .top-nav-search input {
   background: transparent;
   border: none;
-  color: var(--text-light);
+  color: #ffffff; /* updated for black banner */
   outline: none;
   font-size: 0.85rem;
 }
-
 /* ============================================================
    MOBILE FIXES — FULL RESPONSIVENESS
    ============================================================ */

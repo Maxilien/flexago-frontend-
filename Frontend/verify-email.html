@@ -5,18 +5,71 @@
   <title>Verify Your Email – Flexago</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="css/auth.css" />
+
+  <style>
+    /* ============================================================
+       TOP NAV — PURE BLACK BANNER
+    ============================================================ */
+    .top-nav {
+      background: #000000;
+      color: white;
+      padding: 14px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .top-nav-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .flexago-logo-img {
+      height: 48px;
+      width: auto;
+      background: #000000; /* sync with banner */
+      padding: 4px;
+      border-radius: 6px;
+    }
+
+    .top-nav-title-main {
+      font-size: 1.2rem;
+      font-weight: 600;
+    }
+
+    .top-nav-title-sub {
+      font-size: 0.8rem;
+      opacity: 0.8;
+    }
+
+    .top-nav-links a {
+      color: white;
+      text-decoration: none;
+      margin-right: 16px;
+      font-size: 0.95rem;
+    }
+
+    .lang-select {
+      padding: 6px;
+      border-radius: 6px;
+      border: none;
+      font-size: 0.9rem;
+    }
+  </style>
 </head>
 
 <body>
+
 <!-- ========================================================= -->
 <!-- TOP NAVBAR — Unified FlexaGo Banner                       -->
 <!-- ========================================================= -->
 <header class="top-nav">
   <div class="top-nav-left">
 
-    <!-- ⭐ FLEXAGO LOGO -->
+    <!-- ⭐ FLEXAGO LOGO (lowercase img/) -->
     <div class="flexago-logo">
-      <img src="IMG/flexago-logo.JPG" alt="Flexago Logo" class="flexago-logo-img">
+      <img src="img/flexago-logo.JPG" alt="Flexago Logo" class="flexago-logo-img">
     </div>
 
     <!-- Title (Verify Email-specific) -->
@@ -53,37 +106,35 @@
   </div>
 </header>
 
-  <main class="signup-container">
-    <h2>Verify Your Email</h2>
+<main class="signup-container">
+  <h2>Verify Your Email</h2>
 
-    <div class="signup-form">
+  <div class="signup-form">
 
-      <!-- ENTER EMAIL -->
-      <label class="role-label">Enter Email</label>
-      <input id="verifyEmailInput" class="input-field" placeholder="you@example.com" />
+    <!-- ENTER EMAIL -->
+    <label class="role-label">Enter Email</label>
+    <input id="verifyEmailInput" class="input-field" placeholder="you@example.com" />
 
-      <button id="getCodeBtn" class="blue-btn">Get Verification Code</button>
+    <button id="getCodeBtn" class="blue-btn">Get Verification Code</button>
 
-      <!-- ENTER VERIFICATION CODE -->
-      <label class="role-label">Enter Verification Code</label>
-      <input id="verificationCode" class="input-field" placeholder="123456" />
+    <!-- ENTER VERIFICATION CODE -->
+    <label class="role-label">Enter Verification Code</label>
+    <input id="verificationCode" class="input-field" placeholder="123456" />
 
-      <button id="verifyCodeBtn" class="blue-btn">Verify Email</button>
+    <button id="verifyCodeBtn" class="blue-btn">Verify Email</button>
 
-      <!-- CREATE PASSWORD -->
-      <label class="role-label">Create Password</label>
-      <input id="password" class="input-field" type="password" placeholder="Enter password" disabled />
+    <!-- CREATE PASSWORD -->
+    <label class="role-label">Create Password</label>
+    <input id="password" class="input-field" type="password" placeholder="Enter password" disabled />
 
-      <label class="role-label">Confirm Password</label>
-      <input id="confirmPassword" class="input-field" type="password" placeholder="Re-enter password" disabled />
+    <label class="role-label">Confirm Password</label>
+    <input id="confirmPassword" class="input-field" type="password" placeholder="Re-enter password" disabled />
 
-      <button id="nextBtn" class="blue-btn" disabled>Next</button>
+    <button id="nextBtn" class="blue-btn" disabled>Next</button>
 
-    </div>
-  </main>
+  </div>
+</main>
 
- <!-- NOTE: verify-email.js is in the same Frontend folder -->
-  <script src="verify-email.js"></script>
+<script src="verify-email.js"></script>
 </body>
 </html>
-

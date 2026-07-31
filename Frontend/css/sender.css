@@ -72,12 +72,12 @@ select {
 }
 
 /* ============================================================
-   3. TOP NAVIGATION BAR — SKY BLUE (RESPONSIVE)
+   3. TOP NAVIGATION BAR — PURE BLACK (RESPONSIVE)
 ============================================================ */
 .top-nav {
   height: 56px;
-  background: var(--sky);
-  border-bottom: 1px solid rgba(255,255,255,0.15);
+  background: #000000; /* UPDATED TO PURE BLACK */
+  border-bottom: 1px solid #000000;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -87,23 +87,23 @@ select {
 
 .top-nav-title-main,
 .top-nav-title-sub {
-  color: #0f172a;
+  color: #ffffff; /* text now visible on black */
 }
 
 .top-nav-search {
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  background: #e0f7ff;
+  background: #1e293b; /* darker search box to match black theme */
   padding: 6px 10px;
   border-radius: 8px;
-  border: 1px solid rgba(0,0,0,0.1);
+  border: 1px solid rgba(255,255,255,0.15);
 }
 
 .top-nav-search input {
   background: transparent;
   border: none;
-  color: #0f172a;
+  color: #ffffff;
   outline: none;
   font-size: 0.85rem;
 }
@@ -122,7 +122,6 @@ select {
     font-size: 0.75rem;
   }
 }
-
 /* ============================================================
    4. SIDEBAR — RESPONSIVE + COLLAPSING
 ============================================================ */
