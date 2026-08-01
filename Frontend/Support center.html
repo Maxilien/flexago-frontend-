@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>FlexaGo Support Center</title>
+  <title>FlexaGoo Support Center</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="css/support.css" />
   <style>
@@ -54,6 +54,24 @@
       padding: 20px;
       margin-top: 60px;
     }
+    #chatWidget {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #000;
+      color: white;
+      border-radius: 12px;
+      padding: 16px;
+      width: 280px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    }
+    #chatWidget input {
+      width: 100%;
+      padding: 8px;
+      border-radius: 6px;
+      border: none;
+      margin-top: 8px;
+    }
   </style>
 </head>
 <body>
@@ -81,6 +99,12 @@
     </div>
   </main>
 
+  <div id="chatWidget">
+    <div id="chatLog">👋 Hi! I’m FlexaGo Support. How can I help you?</div>
+    <input id="chatInput" placeholder="Type your message..." />
+  </div>
+
   <footer>© 2026 FlexaGo Logistics Marketplace</footer>
+  <script src="chatAgent.js"></script>
 </body>
 </html>
