@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>FlexaGo Support Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body { font-family: Inter, sans-serif; margin: 0; background: #f3f4f6; }
+    header { background: #000; color: white; padding: 16px 32px; font-weight: 700; }
+    .dashboard { display: flex; padding: 20px; gap: 20px; }
+    .sidebar { width: 220px; background: #1e293b; color: white; padding: 20px; border-radius: 8px; }
+    .content { flex: 1; background: white; border-radius: 8px; padding: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
+    .ticket { border-bottom: 1px solid #e5e7eb; padding: 10px 0; }
+  </style>
+</head>
+<body>
+  <header>FlexaGo Support Dashboard</header>
+  <div class="dashboard">
+    <div class="sidebar">
+      <h3>Filters</h3>
+      <p>Role: Sender / Traveler</p>
+      <p>Status: Open / Escalated / Closed</p>
+    </div>
+    <div class="content">
+      <h2>Recent Tickets</h2>
+      <div id="ticketList"></div>
+    </div>
+  </div>
+  <script>
+    async function loadTickets() {
+      const res = await fetch("/api/support/tickets");
+      const tickets = await res.json();
+      const list = document.getElementById("ticketList");
+      list.innerHTML = tickets.map(t => `
+        <div class="ticket">
+          <h3>#${t.id} – ${t.subject}</h3>
+          <p>${t.role} | ${t.status}</p>
+        </div>`).join("");
+    }
+    loadTickets();
+  </script>
+</body>
+</html>
