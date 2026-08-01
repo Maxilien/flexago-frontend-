@@ -54,26 +54,70 @@
       padding: 20px;
       margin-top: 60px;
     }
-    #chatWidget {
+
+    /* Alice Chat Widget */
+    #alice-chat-button {
       position: fixed;
       bottom: 20px;
       right: 20px;
       background: #000;
       color: white;
-      border-radius: 12px;
-      padding: 16px;
-      width: 280px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      padding: 14px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 22px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      z-index: 9999;
     }
-    #chatWidget input {
+
+    #alice-chat-window {
+      position: fixed;
+      bottom: 80px;
+      right: 20px;
+      width: 320px;
+      height: 420px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+      display: none;
+      flex-direction: column;
+      z-index: 9999;
+    }
+
+    #alice-header {
+      background: #000;
+      color: white;
+      padding: 12px;
+      font-weight: bold;
+      border-radius: 12px 12px 0 0;
+    }
+
+    #alice-messages {
+      flex: 1;
+      padding: 10px;
+      overflow-y: auto;
+      font-size: 14px;
+    }
+
+    #alice-menu {
+      padding: 10px;
+    }
+
+    .alice-btn {
+      display: block;
       width: 100%;
-      padding: 8px;
-      border-radius: 6px;
+      padding: 10px;
+      margin: 6px 0;
+      background: #000;
+      color: white;
       border: none;
-      margin-top: 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
     }
   </style>
 </head>
+
 <body>
   <header>
     <div class="logo">FlexaGo Support</div>
@@ -99,12 +143,52 @@
     </div>
   </main>
 
-  <div id="chatWidget">
-    <div id="chatLog">👋 Hi! I’m FlexaGo Support. How can I help you?</div>
-    <input id="chatInput" placeholder="Type your message..." />
+  <!-- Alice Chat Widget -->
+  <div id="alice-chat-button">💬</div>
+
+  <div id="alice-chat-window">
+    <div id="alice-header">Alice — FlexaGo Support</div>
+    <div id="alice-messages"></div>
+    <div id="alice-menu"></div>
   </div>
 
   <footer>© 2026 FlexaGo Logistics Marketplace</footer>
-  <script src="chatAgent.js"></script>
+
+  <script>
+    const chatButton = document.getElementById("alice-chat-button");
+    const chatWindow = document.getElementById("alice-chat-window");
+    const messages = document.getElementById("alice-messages");
+    const menu = document.getElementById("alice-menu");
+
+    chatButton.onclick = () => {
+      chatWindow.style.display = chatWindow.style.display === "flex" ? "none" : "flex";
+      if (!messages.innerHTML) showGreetingMenu();
+    };
+
+    function showGreetingMenu() {
+      messages.innerHTML = `
+        <div><strong>Alice:</strong> Hi, I’m Alice, I'm here to support you! How can I help you today?</div>
+        <div><em>Select any of the following:</em></div>
+      `;
+
+      menu.innerHTML = `
+        <button class="alice-btn" onclick="selectCategory('sender')">I’m a Sender</button>
+        <button class="alice-btn" onclick="selectCategory('traveler')">I’m a Traveler</button>
+        <button class="alice-btn" onclick="selectCategory('new')">I’m New to FlexaGo</button>
+      `;
+    }
+
+    function selectCategory(type) {
+      let reply = "";
+
+      if (type === "sender") reply = "Great! As a Sender, you can create delivery requests, track your items, and manage your deliveries.";
+      if (type === "traveler") reply = "Awesome! As a Traveler, you can accept jobs, complete deliveries, and earn payouts instantly.";
+      if (type === "new") reply = "Welcome! FlexaGo connects senders with travelers already heading that way for fast, secure delivery.";
+
+      messages.innerHTML += `<div><strong>Alice:</strong> ${reply}</div>`;
+      messages.scrollTop = messages.scrollHeight;
+    }
+  </script>
+
 </body>
 </html>
