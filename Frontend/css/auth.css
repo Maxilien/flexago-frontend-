@@ -28,7 +28,7 @@
 }
 
 /* ============================================================
-   INPUT FIELDS
+   INPUT FIELDS — FINAL FIX
 ============================================================ */
 .input-field {
   width: 100%;
@@ -41,16 +41,16 @@
 
 /* Disabled fields */
 .input-field:disabled {
-  pointer-events: none;
-  opacity: 0.6;
-  background-color: #e9e9e9;
+  pointer-events: none !important;
+  opacity: 0.6 !important;
+  background-color: #e9e9e9 !important;
 }
 
 /* Enabled fields */
 .input-field:not(:disabled) {
-  pointer-events: auto;
-  opacity: 1;
-  background-color: #ffffff;
+  pointer-events: auto !important;
+  opacity: 1 !important;
+  background-color: #ffffff !important;
 }
 
 /* ============================================================
