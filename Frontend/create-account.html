@@ -307,9 +307,10 @@
   window.onload = initAutocomplete;
 </script>
 
-<!-- ⭐ LOCATION + LANGUAGE DETECTION -->
-<script>
-  const languageMap = {
+ // ⭐ Auto-select language
+      const lang = languageMap[country] || "en";
+
+      const langText = {
         en: "English",
         es: "Español",
         fr: "Français",
