@@ -8,6 +8,13 @@ const getCodeBtn = document.getElementById("getCodeBtn");
 const verifyCodeBtn = document.getElementById("verifyCodeBtn");
 const nextBtn = document.getElementById("nextBtn");
 
+// ⭐ Prevent toggling password before fields are enabled
+function togglePassword(id) {
+  const field = document.getElementById(id);
+  if (!field || field.disabled) return; // prevents toggle before verification
+  field.type = field.type === "password" ? "text" : "password";
+}
+
 // STEP 1 — SEND VERIFICATION CODE
 getCodeBtn.addEventListener("click", async () => {
   const email = emailInput.value.trim().toLowerCase();
@@ -64,9 +71,11 @@ verifyCodeBtn.addEventListener("click", async () => {
 
     alert("Email verified successfully!");
 
-    // Unlock password fields
+    // ⭐ Unlock password fields
     passwordInput.disabled = false;
     confirmPasswordInput.disabled = false;
+
+    // ⭐ Enable Next button
     nextBtn.disabled = false;
 
   } catch (err) {
@@ -90,9 +99,9 @@ nextBtn.addEventListener("click", () => {
     return;
   }
 
-  // Save password for final account creation page
+  // ⭐ Save password for final account creation page
   localStorage.setItem("tempPassword", password);
 
-  // Redirect to phone verification page
+  // ⭐ Redirect to phone verification page
   window.location.href = "verify-phone.html";
 });
