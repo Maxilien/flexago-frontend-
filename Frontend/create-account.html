@@ -176,7 +176,7 @@
     <input id="firstName" type="text" placeholder="First Name" />
     <input id="lastName" type="text" placeholder="Last Name" />
 
-    <!-- ⭐ LOCATION AUTOCOMPLETE (CLEAN VERSION) -->
+    <!-- ⭐ GLOBAL LOCATION AUTOCOMPLETE -->
     <input id="address" type="text" placeholder="Address (Start typing…)" />
 
     <input id="city" type="text" placeholder="City" readonly />
@@ -213,7 +213,7 @@
 <script src="create-account.js"></script>
 
 <!-- ⭐ GOOGLE AUTOCOMPLETE -->
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBhFXLfZHwpdaGkprcpKgKZiQDw2Vg_ArI&libraries=places,geometry&v=beta&callback=initMap"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places"></script>
 
 <script>
   let autocomplete;
@@ -221,10 +221,7 @@
   function initAutocomplete() {
     autocomplete = new google.maps.places.Autocomplete(
       document.getElementById("address"),
-      {
-        types: ["address"],
-        componentRestrictions: { country: ["us"] }
-      }
+      { types: ["address"] }
     );
 
     autocomplete.addListener("place_changed", fillAddressFields);
@@ -233,6 +230,8 @@
   function fillAddressFields() {
     const place = autocomplete.getPlace();
 
+    let streetNumber = "";
+    let streetName = "";
     let city = "";
     let state = "";
     let zipcode = "";
@@ -241,11 +240,16 @@
     place.address_components.forEach(component => {
       const types = component.types;
 
+      if (types.includes("street_number")) streetNumber = component.long_name;
+      if (types.includes("route")) streetName = component.long_name;
       if (types.includes("locality")) city = component.long_name;
       if (types.includes("administrative_area_level_1")) state = component.short_name;
       if (types.includes("postal_code")) zipcode = component.long_name;
       if (types.includes("country")) country = component.long_name;
     });
+
+    // ⭐ Street-only address (no city/state/zip/country)
+    document.getElementById("address").value = `${streetNumber} ${streetName}`.trim();
 
     document.getElementById("city").value = city;
     document.getElementById("state").value = state;
