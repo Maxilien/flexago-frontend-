@@ -307,37 +307,40 @@
   window.onload = initAutocomplete;
 </script>
 
- // ⭐ Auto-select language
-      const lang = languageMap[country] || "en";
-
-      const langText = {
-        en: "English",
-        es: "Español",
-        fr: "Français",
-        ht: "Kreyòl",
-        zh: "中文",
-        pt: "Português"
+  // ⭐ Country → Language map (your exact languages)
+  const languageMap = {
+    "United States": "en",
+    "Spain": "es",
+    "France": "fr",
+    "Haiti": "ht",
+    "China": "zh",
+    "Portugal": "pt"
   };
 
+  // ⭐ Detect user location
   fetch("https://ipapi.co/json/")
     .then(res => res.json())
     .then(data => {
       const city = data.city;
       const country = data.country_name;
 
-      // ⭐ Show location in footer
+      // ⭐ Show city in footer
       document.getElementById("footerLocation").innerText = city;
 
-      // ⭐ Auto-select language
+      // ⭐ Determine language from country
       const lang = languageMap[country] || "en";
+
+      // ⭐ Update language selector dropdown
       document.getElementById("languageSelector").value = lang;
 
-      // ⭐ Show language in footer
-      const langText = document.querySelector(`#languageSelector option[value="${lang}"]`).innerText;
-      document.getElementById("footerLanguage").innerText = langText;
+      // ⭐ Get FULL language name from your <select> options
+      const fullLanguageName =
+        document.querySelector(`#languageSelector option[value="${lang}"]`).innerText;
+
+      // ⭐ Show full language name in footer
+      document.getElementById("footerLanguage").innerText = fullLanguageName;
     })
     .catch(err => console.error("Location detection failed:", err));
 </script>
-
 </body>
 </html>
