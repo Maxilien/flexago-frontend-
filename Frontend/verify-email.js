@@ -11,7 +11,7 @@ const nextBtn = document.getElementById("nextBtn");
 // ⭐ Prevent toggling password before fields are enabled
 function togglePassword(id) {
   const field = document.getElementById(id);
-  if (!field || field.disabled) return; // prevents toggle before verification
+  if (!field || field.disabled) return;
   field.type = field.type === "password" ? "text" : "password";
 }
 
@@ -84,7 +84,7 @@ verifyCodeBtn.addEventListener("click", async () => {
   }
 });
 
-// STEP 3 — SAVE PASSWORD AND REDIRECT TO PHONE VERIFICATION
+// STEP 3 — SAVE PASSWORD AND REDIRECT
 nextBtn.addEventListener("click", () => {
   const password = passwordInput.value;
   const confirmPassword = confirmPasswordInput.value;
@@ -99,9 +99,6 @@ nextBtn.addEventListener("click", () => {
     return;
   }
 
-  // ⭐ Save password for final account creation page
   localStorage.setItem("tempPassword", password);
-
-  // ⭐ Redirect to phone verification page
   window.location.href = "verify-phone.html";
 });
