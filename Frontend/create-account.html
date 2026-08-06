@@ -129,6 +129,39 @@
       padding: 6px 10px;
       border-radius: 6px;
     }
+
+    /* ⭐ Uber-style footer */
+    .footer {
+      background: #000;
+      color: #fff;
+      padding: 30px 20px;
+      margin-top: 60px;
+      text-align: center;
+    }
+
+    .footer-row {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-bottom: 12px;
+      font-size: 0.95rem;
+    }
+
+    .footer-link {
+      color: #fff;
+      opacity: 0.85;
+      text-decoration: none;
+    }
+
+    .footer-link:hover {
+      opacity: 1;
+    }
+
+    .footer-location {
+      margin-top: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+    }
   </style>
 </head>
 
@@ -210,6 +243,22 @@
 
 </div>
 
+<!-- ⭐ UBER-STYLE FOOTER -->
+<div class="footer">
+  <div class="footer-row">
+    <span id="footerLanguage">English</span>
+    <span id="footerLocation">Detecting location…</span>
+  </div>
+
+  <div class="footer-row">
+    <a href="privacy.html" class="footer-link">Privacy</a>
+    <a href="terms.html" class="footer-link">Terms</a>
+    <a href="about.html" class="footer-link">About</a>
+  </div>
+
+  <div>© 2026 FlexaGo</div>
+</div>
+
 <script src="create-account.js"></script>
 
 <!-- ⭐ GOOGLE AUTOCOMPLETE -->
@@ -248,9 +297,7 @@
       if (types.includes("country")) country = component.long_name;
     });
 
-    // ⭐ Street-only address (no city/state/zip/country)
     document.getElementById("address").value = `${streetNumber} ${streetName}`.trim();
-
     document.getElementById("city").value = city;
     document.getElementById("state").value = state;
     document.getElementById("zipcode").value = zipcode;
@@ -258,6 +305,37 @@
   }
 
   window.onload = initAutocomplete;
+</script>
+
+<!-- ⭐ LOCATION + LANGUAGE DETECTION -->
+<script>
+  const languageMap = {
+    "United States": "en",
+    "Mexico": "es",
+    "France": "fr",
+    "Haiti": "ht",
+    "China": "zh",
+    "Brazil": "pt"
+  };
+
+  fetch("https://ipapi.co/json/")
+    .then(res => res.json())
+    .then(data => {
+      const city = data.city;
+      const country = data.country_name;
+
+      // ⭐ Show location in footer
+      document.getElementById("footerLocation").innerText = city;
+
+      // ⭐ Auto-select language
+      const lang = languageMap[country] || "en";
+      document.getElementById("languageSelector").value = lang;
+
+      // ⭐ Show language in footer
+      const langText = document.querySelector(`#languageSelector option[value="${lang}"]`).innerText;
+      document.getElementById("footerLanguage").innerText = langText;
+    })
+    .catch(err => console.error("Location detection failed:", err));
 </script>
 
 </body>
