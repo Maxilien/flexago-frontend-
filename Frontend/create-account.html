@@ -311,11 +311,20 @@
 <script>
   const languageMap = {
     "United States": "en",
-    "Mexico": "es",
+    "Spain": "es",
     "France": "fr",
     "Haiti": "ht",
     "China": "zh",
-    "Brazil": "pt"
+    "Portugal": "pt"
+  };
+
+  const fullLanguageNames = {
+    en: "English",
+    es: "Español",
+    fr: "Français",
+    ht: "Kreyòl",
+    zh: "中文",
+    pt: "Português"
   };
 
   fetch("https://ipapi.co/json/")
@@ -324,19 +333,22 @@
       const city = data.city;
       const country = data.country_name;
 
-      // ⭐ Show location in footer
+      // ⭐ Show city
       document.getElementById("footerLocation").innerText = city;
 
-      // ⭐ Auto-select language
+      // ⭐ Determine language
       const lang = languageMap[country] || "en";
-      document.getElementById("languageSelector").value = lang;
 
-      // ⭐ Show language in footer
-      const langText = document.querySelector(`#languageSelector option[value="${lang}"]`).innerText;
-      document.getElementById("footerLanguage").innerText = langText;
+      // ⭐ Update dropdown
+      const selector = document.getElementById("languageSelector");
+      if (selector) selector.value = lang;
+
+      // ⭐ Show FULL language name
+      document.getElementById("footerLanguage").innerText = fullLanguageNames[lang];
     })
     .catch(err => console.error("Location detection failed:", err));
 </script>
+
 
 </body>
 </html>
