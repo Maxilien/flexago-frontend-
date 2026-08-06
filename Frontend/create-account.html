@@ -66,14 +66,11 @@
       color: #dc2626;
     }
 
-    /* ============================================================
-       UPDATED — PURE BLACK BANNER
-    ============================================================ */
     .top-nav {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: #000000; /* PURE BLACK */
+      background: #000000;
       padding: 14px 20px;
       color: #fff;
     }
@@ -94,7 +91,7 @@
       height: 80px;
       width: auto;
       object-fit: contain;
-      background: #000000; /* sync with banner */
+      background: #000000;
       padding: 4px;
       border-radius: 6px;
     }
@@ -137,39 +134,25 @@
 
 <body>
 
-<!-- ========================================================= -->
-<!-- TOP NAVBAR — Unified FlexaGo Banner                       -->
-<!-- ========================================================= -->
 <header class="top-nav">
   <div class="top-nav-left">
-
-    <!-- ⭐ FLEXAGO LOGO (lowercase img/) -->
     <div class="flexago-logo">
       <img src="IMG/flexago-logo.JPG" alt="Flexago Logo" class="flexago-logo-img">
     </div>
 
-    <!-- Title (Create Account-specific) -->
     <div class="top-nav-title">
-      <div class="top-nav-title-main">
-        Create Your FlexaGo Account
-      </div>
-      <div class="top-nav-title-sub">
-        Logistics marketplace for travelers & senders
-      </div>
+      <div class="top-nav-title-main">Create Your FlexaGo Account</div>
+      <div class="top-nav-title-sub">Logistics marketplace for travelers & senders</div>
     </div>
-
   </div>
 
   <div class="top-nav-right">
-
-    <!-- Navigation -->
     <nav class="top-nav-links">
       <a href="Sender.html" class="top-nav-link">Sender</a>
       <a href="Traveler.html" class="top-nav-link">Traveler</a>
       <a href="about.html" class="top-nav-link">About</a>
     </nav>
 
-    <!-- Language Selector -->
     <select class="lang-select" id="languageSelector">
       <option value="en">EN</option>
       <option value="es">ES</option>
@@ -178,10 +161,8 @@
       <option value="zh">ZH</option>
       <option value="pt">PT</option>
     </select>
-
   </div>
 </header>
-
 
 <div class="create-container">
 
@@ -194,10 +175,18 @@
 
     <input id="firstName" type="text" placeholder="First Name" />
     <input id="lastName" type="text" placeholder="Last Name" />
+
+    <!-- ⭐ NEW — LOCATION FIELDS WITH GOOGLE AUTOCOMPLETE -->
+    <input id="address" type="text" placeholder="Address (Start typing…)" />
+
+    <input id="city" type="text" placeholder="City" readonly />
+    <input id="state" type="text" placeholder="State" readonly />
+    <input id="zipcode" type="text" placeholder="Zipcode" readonly />
+
+    <!-- Existing fields -->
     <input id="email" type="email" placeholder="Email" />
     <input id="phone" type="text" placeholder="Phone Number" />
 
-    <!-- Password + Confirm Password -->
     <input id="password" type="password" placeholder="Password (min 6 chars)" />
     <input id="confirmPassword" type="password" placeholder="Confirm Password" />
 
@@ -206,17 +195,15 @@
       <option value="traveler">Traveler</option>
       <option value="sender">Sender</option>
     </select>
-    <!-- ⭐ REQUIRED TWILIO CTA -->
+
     <p class="sms-cta">
-      By clicking "Create Account," you agree to receive SMS messages from Flexago for account verification, login  security, delivery notifications, and important account updates. Message frequency varies. Message and data rates may apply. Reply STOP to opt out and HELP for assistance.
-    <a href="https://www.flexagoo.com/privacy.html" target="_blank">Privacy Policy</a>
-     and
-    <a href="https://www.flexagoo.com/terms.html" target="_blank">Terms of Service</a>.
+      By clicking "Create Account," you agree to receive SMS messages from Flexago for account verification, login security, delivery notifications, and important account updates. Message frequency varies. Message and data rates may apply. Reply STOP to opt out and HELP for assistance.
+      <a href="https://www.flexagoo.com/privacy.html" target="_blank">Privacy Policy</a>
+      and
+      <a href="https://www.flexagoo.com/terms.html" target="_blank">Terms of Service</a>.
     </p>
 
-    <button id="createBtn" class="primary-btn" type="submit">
-      Create Account
-    </button>
+    <button id="createBtn" class="primary-btn" type="submit">Create Account</button>
 
   </form>
 
@@ -224,5 +211,47 @@
 
 <script src="create-account.js"></script>
 
+<!-- ⭐ GOOGLE AUTOCOMPLETE -->
+<script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places"></script>
+
+<script>
+  let autocomplete;
+
+  function initAutocomplete() {
+    autocomplete = new google.maps.places.Autocomplete(
+      document.getElementById("address"),
+      {
+        types: ["address"],
+        componentRestrictions: { country: ["us"] }
+      }
+    );
+
+    autocomplete.addListener("place_changed", fillAddressFields);
+  }
+
+  function fillAddressFields() {
+    const place = autocomplete.getPlace();
+
+    let city = "";
+    let state = "";
+    let zipcode = "";
+
+    place.address_components.forEach(component => {
+      const types = component.types;
+
+      if (types.includes("locality")) city = component.long_name;
+      if (types.includes("administrative_area_level_1")) state = component.short_name;
+      if (types.includes("postal_code")) zipcode = component.long_name;
+    });
+
+    document.getElementById("city").value = city;
+    document.getElementById("state").value = state;
+    document.getElementById("zipcode").value = zipcode;
+  }
+
+  window.onload = initAutocomplete;
+</script>
+
 </body>
 </html>
+
