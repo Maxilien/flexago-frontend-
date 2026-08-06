@@ -231,7 +231,7 @@
     </select>
 
     <p class="sms-cta">
-      By clicking "Create Account," you agree to receive SMS messages from Flexago for account verification, login security, delivery notifications, and important account updates. Message frequency varies. Message and data rates may apply. Reply STOP to opt out and HELP for assistance.
+      By submitting your phone number to create your account, you are agreeing to receive SMS messages from Flexago for account verification, login security, delivery notifications, and important account updates. Message frequency varies. Message and data rates may apply. Reply STOP to opt out and HELP for assistance.
       <a href="https://www.flexagoo.com/privacy.html" target="_blank">Privacy Policy</a>
       and
       <a href="https://www.flexagoo.com/terms.html" target="_blank">Terms of Service</a>.
@@ -243,7 +243,7 @@
 
 </div>
 
-<!-- ⭐ UBER-STYLE FOOTER -->
+<!-- ⭐ Flexago-STYLE FOOTER -->
 <div class="footer">
   <div class="footer-row">
     <span id="footerLanguage">English</span>
@@ -305,42 +305,35 @@
   }
 
   window.onload = initAutocomplete;
+</script>
+
+<!-- ⭐ LOCATION + LANGUAGE DETECTION -->
 <script>
-  // ⭐ Country → Language map (your exact languages)
   const languageMap = {
     "United States": "en",
-    "Spain": "es",
+    "Mexico": "es",
     "France": "fr",
     "Haiti": "ht",
     "China": "zh",
-    "Portugal": "pt"
+    "Brazil": "pt"
   };
 
-  // ⭐ Detect user location
   fetch("https://ipapi.co/json/")
     .then(res => res.json())
     .then(data => {
       const city = data.city;
       const country = data.country_name;
 
-      // ⭐ Show city in footer
-      const locEl = document.getElementById("footerLocation");
-      if (locEl) locEl.innerText = city;
+      // ⭐ Show location in footer
+      document.getElementById("footerLocation").innerText = city;
 
-      // ⭐ Determine language from country
+      // ⭐ Auto-select language
       const lang = languageMap[country] || "en";
+      document.getElementById("languageSelector").value = lang;
 
-      // ⭐ Update language selector dropdown
-      const selector = document.getElementById("languageSelector");
-      if (selector) selector.value = lang;
-
-      // ⭐ Get FULL language name from your <select> options
-      const fullLanguageName =
-        document.querySelector(`#languageSelector option[value="${lang}"]`).innerText;
-
-      // ⭐ Show full language name in footer
-      const langEl = document.getElementById("footerLanguage");
-      if (langEl) langEl.innerText = fullLanguageName;
+      // ⭐ Show language in footer
+      const langText = document.querySelector(`#languageSelector option[value="${lang}"]`).innerText;
+      document.getElementById("footerLanguage").innerText = langText;
     })
     .catch(err => console.error("Location detection failed:", err));
 </script>
