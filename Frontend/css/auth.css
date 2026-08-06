@@ -1,4 +1,6 @@
-/* Container */
+/* ============================================================
+   CONTAINER
+============================================================ */
 .signup-container {
   max-width: 400px;
   margin: 60px auto;
@@ -9,7 +11,9 @@
   text-align: center;
 }
 
-/* Form */
+/* ============================================================
+   FORM
+============================================================ */
 .signup-form {
   display: flex;
   flex-direction: column;
@@ -22,39 +26,60 @@
   text-align: left;
 }
 
-/* Inputs */
+/* ============================================================
+   INPUT FIELDS
+============================================================ */
 .input-field {
   padding: 12px;
   border: 1px solid #ccc;
   border-radius: 8px;
   font-size: 16px;
+  width: 100%;
 }
 
-/* Buttons */
-.primary-btn {
-  background-color: #007bff;
-  color: white;
-  padding: 12px;
+/* Disabled fields */
+.input-field:disabled {
+  pointer-events: none !important;
+  opacity: 0.6 !important;
+  background-color: #e9e9e9 !important;
+}
+
+/* Enabled fields */
+.input-field:not(:disabled) {
+  pointer-events: auto !important;
+  opacity: 1 !important;
+  background-color: #ffffff !important;
+}
+
+/* ============================================================
+   FLEXAGO BLUE BUTTONS
+============================================================ */
+.blue-btn {
+  background: #0A4DFF !important;
+  color: #fff !important;
   border: none;
+  padding: 12px 18px;
   border-radius: 8px;
-  cursor: pointer;
   font-size: 16px;
+  cursor: pointer;
+  width: 100%;
+  margin-top: 10px;
+  transition: opacity 0.3s ease;
 }
 
-.primary-btn:hover {
-  background-color: #0056b3;
+.blue-btn:hover {
+  opacity: 0.85;
 }
 
-/* Status text */
-.status-text {
-  font-size: 14px;
-  color: #555;
-  margin-top: -10px;
+.blue-btn:disabled {
+  background: #9bb8ff !important;
+  cursor: not-allowed;
+  opacity: 0.7;
 }
+
 /* ============================================================
    TOP NAV — Unified FlexaGo Banner
-   ============================================================ */
-
+============================================================ */
 .top-nav {
   display: flex;
   justify-content: space-between;
@@ -115,77 +140,3 @@
   padding: 6px 10px;
   border-radius: 6px;
 }
-/* ⭐ FIX: allow typing when JS enables the field */
-.input-field:not(:disabled) {
-  pointer-events: auto !important;
-  opacity: 1 !important;
-  background-color: #ffffff !important;
-}
-
-/* ⭐ Disabled fields look disabled */
-.input-field:disabled {
-  pointer-events: none !important;
-  opacity: 0.6 !important;
-  background-color: #e9e9e9 !important;
-}
-
-/* ⭐ Restore FlexaGo blue buttons */
-.blue-btn {
-  background: #0A4DFF !important;
-  color: #fff !important;
-  border: none;
-  padding: 12px 18px;
-  border-radius: 8px;
-  font-size: 16px;
-  cursor: pointer;
-  width: 100%;
-  margin-top: 10px;
-  transition: opacity 0.3s ease;
-}
-
-.blue-btn:hover {
-  opacity: 0.85;
-}
-
-.blue-btn:disabled {
-  background: #9bb8ff !important;
-  cursor: not-allowed;
-  opacity: 0.7;
-}
-/* ⭐ FLEXAGO BLUE BUTTONS */
-.blue-btn {
-  background: #0A4DFF !important;
-  color: #fff !important;
-  border: none;
-  padding: 12px 18px;
-  border-radius: 8px;
-  font-size: 16px;
-  cursor: pointer;
-  width: 100%;
-  margin-top: 10px;
-  transition: opacity 0.3s ease;
-}
-
-.blue-btn:hover {
-  opacity: 0.85;
-}
-
-.blue-btn:disabled {
-  background: #9bb8ff !important;
-  cursor: not-allowed;
-  opacity: 0.7;
-}
-/* ⭐ FIX: allow typing when JS enables the field */
-.input-field:not(:disabled) {
-  pointer-events: auto !important;
-  opacity: 1 !important;
-  background-color: #ffffff !important;
-}
-
-/* ⭐ Disabled fields look disabled */
-.input-field:disabled {
-  pointer-events: none !important;
-  opacity: 0.6 !important;
-  background-color: #e9e9e9 !important;
-}
-
