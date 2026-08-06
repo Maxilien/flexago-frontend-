@@ -176,12 +176,13 @@
     <input id="firstName" type="text" placeholder="First Name" />
     <input id="lastName" type="text" placeholder="Last Name" />
 
-    <!-- ⭐ NEW — LOCATION FIELDS WITH GOOGLE AUTOCOMPLETE -->
+    <!-- ⭐ LOCATION AUTOCOMPLETE (CLEAN VERSION) -->
     <input id="address" type="text" placeholder="Address (Start typing…)" />
 
     <input id="city" type="text" placeholder="City" readonly />
     <input id="state" type="text" placeholder="State" readonly />
     <input id="zipcode" type="text" placeholder="Zipcode" readonly />
+    <input id="country" type="text" placeholder="Country" readonly />
 
     <!-- Existing fields -->
     <input id="email" type="email" placeholder="Email" />
@@ -212,7 +213,7 @@
 <script src="create-account.js"></script>
 
 <!-- ⭐ GOOGLE AUTOCOMPLETE -->
-<script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBhFXLfZHwpdaGkprcpKgKZiQDw2Vg_ArI&libraries=places,geometry&v=beta&callback=initMap"></script>
 
 <script>
   let autocomplete;
@@ -235,6 +236,7 @@
     let city = "";
     let state = "";
     let zipcode = "";
+    let country = "";
 
     place.address_components.forEach(component => {
       const types = component.types;
@@ -242,11 +244,13 @@
       if (types.includes("locality")) city = component.long_name;
       if (types.includes("administrative_area_level_1")) state = component.short_name;
       if (types.includes("postal_code")) zipcode = component.long_name;
+      if (types.includes("country")) country = component.long_name;
     });
 
     document.getElementById("city").value = city;
     document.getElementById("state").value = state;
     document.getElementById("zipcode").value = zipcode;
+    document.getElementById("country").value = country;
   }
 
   window.onload = initAutocomplete;
@@ -254,4 +258,3 @@
 
 </body>
 </html>
-
