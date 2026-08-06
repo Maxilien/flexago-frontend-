@@ -305,8 +305,7 @@
   }
 
   window.onload = initAutocomplete;
-</script>
-
+<script>
   // ⭐ Country → Language map (your exact languages)
   const languageMap = {
     "United States": "en",
@@ -325,22 +324,26 @@
       const country = data.country_name;
 
       // ⭐ Show city in footer
-      document.getElementById("footerLocation").innerText = city;
+      const locEl = document.getElementById("footerLocation");
+      if (locEl) locEl.innerText = city;
 
       // ⭐ Determine language from country
       const lang = languageMap[country] || "en";
 
       // ⭐ Update language selector dropdown
-      document.getElementById("languageSelector").value = lang;
+      const selector = document.getElementById("languageSelector");
+      if (selector) selector.value = lang;
 
       // ⭐ Get FULL language name from your <select> options
       const fullLanguageName =
         document.querySelector(`#languageSelector option[value="${lang}"]`).innerText;
 
       // ⭐ Show full language name in footer
-      document.getElementById("footerLanguage").innerText = fullLanguageName;
+      const langEl = document.getElementById("footerLanguage");
+      if (langEl) langEl.innerText = fullLanguageName;
     })
     .catch(err => console.error("Location detection failed:", err));
 </script>
+
 </body>
 </html>
