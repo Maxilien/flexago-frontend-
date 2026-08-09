@@ -855,35 +855,88 @@ function openProofOfDeliveryModal(job) {
   const modal = document.getElementById("proofOfDeliveryModal");
   if (!modal) return;
 
-  // Reset Signed By
+  // ── Reset Signed By ──────────────────────────────────────
   const signedByInput = modal.querySelector(".signed-by-input");
   if (signedByInput) signedByInput.value = "";
 
-  // Reset Photo
+  // ── Reset Photo ──────────────────────────────────────────
+  const photoInput   = modal.querySelector(".delivery-photo-input");
   const photoPreview = modal.querySelector(".delivery-photo-preview");
-  if (photoPreview) photoPreview.style.display = "none";
+  if (photoInput)   photoInput.value = "";
+  if (photoPreview) { photoPreview.src = ""; photoPreview.style.display = "none"; }
 
-  const photoInput = modal.querySelector(".delivery-photo-input");
-  if (photoInput) photoInput.value = "";
-
-  // Reset Signature Pad
-  const canvas = modal.querySelector(".signature-pad");
-  if (canvas) {
-    const ctx = canvas.getContext("2d");
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-  }
-
-  // Show modal
-  modal.classList.remove("hidden");
-
-  // Attach submit handler
-  const submitBtn = modal.querySelector(".complete-delivery-btn");
-  if (submitBtn) {
-    submitBtn.onclick = () => {
-      completeJob(job._id);
-      modal.classList.add("hidden");
+  // ── Photo preview on file select ─────────────────────────
+  if (photoInput) {
+    photoInput.onchange = () => {
+      const file = photoInput.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        photoPreview.src = e.target.result;
+        photoPreview.style.display = "block";
+      };
+      reader.readAsDataURL(file);
     };
   }
+
+  // ── Signature Pad (mouse + touch) ────────────────────────
+  const canvas = modal.querySelector(".signature-pad");
+  if (canvas) {
+    // Clone to remove any previously attached listeners
+    const fresh = canvas.cloneNode(true);
+    canvas.parentNode.replaceChild(fresh, canvas);
+
+    const ctx = fresh.getContext("2d");
+    ctx.strokeStyle = "#000";
+    ctx.lineWidth   = 2;
+    ctx.lineCap     = "round";
+    ctx.lineJoin    = "round";
+    ctx.clearRect(0, 0, fresh.width, fresh.height);
+
+    let isDrawing = false;
+
+    function getPos(e) {
+      const rect = fresh.getBoundingClientRect();
+      const src  = e.touches ? e.touches[0] : e;
+      return { x: src.clientX - rect.left, y: src.clientY - rect.top };
+    }
+    function startDraw(e) {
+      e.preventDefault();
+      isDrawing = true;
+      const p = getPos(e);
+      ctx.beginPath();
+      ctx.moveTo(p.x, p.y);
+    }
+    function draw(e) {
+      if (!isDrawing) return;
+      e.preventDefault();
+      const p = getPos(e);
+      ctx.lineTo(p.x, p.y);
+      ctx.stroke();
+    }
+    function stopDraw() { isDrawing = false; }
+
+    fresh.addEventListener("mousedown",  startDraw);
+    fresh.addEventListener("mousemove",  draw);
+    fresh.addEventListener("mouseup",    stopDraw);
+    fresh.addEventListener("mouseleave", stopDraw);
+    fresh.addEventListener("touchstart", startDraw, { passive: false });
+    fresh.addEventListener("touchmove",  draw,       { passive: false });
+    fresh.addEventListener("touchend",   stopDraw);
+
+    // Clear button
+    const clearBtn = modal.querySelector(".clear-signature-btn");
+    if (clearBtn) clearBtn.onclick = () => ctx.clearRect(0, 0, fresh.width, fresh.height);
+  }
+
+  // ── Wire Complete Delivery button ────────────────────────
+  const submitBtn = modal.querySelector(".complete-delivery-btn");
+  if (submitBtn) {
+    submitBtn.onclick = () => completeJob(job._id);
+  }
+
+  // ── Show modal ───────────────────────────────────────────
+  modal.classList.remove("hidden");
 }
 
 /* ============================================================
