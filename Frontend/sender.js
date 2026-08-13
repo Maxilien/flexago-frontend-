@@ -682,7 +682,12 @@ async function loadSenderDeliveries() {
     const all = json.data;
 
     // Filter deliveries created by this sender
-    const mine = all.filter(d => d.sender?.email === window.senderEmail);
+  const mine = all.filter(d =>
+  d.sender === window.senderId ||
+  d.sender?._id === window.senderId ||
+  d.sender?.email === window.senderEmail
+);
+
 
     // Enrich deliveries with traveler details if assigned
     for (let d of mine) {
@@ -853,16 +858,7 @@ if (!delivery.traveler || typeof delivery.traveler !== "string" || delivery.trav
   return;
 }
 
-// ⭐ TEMPORARY TEST: SHOW TRAVELER DETAILS DIRECTLY (NO FETCH)
-travelerSection.innerHTML = `
-  <p><strong>Traveler :</strong> ${delivery.traveler}</p>
-  <p><strong>Traveler First Name:</strong> ${delivery.travelerDetail.firstName}</p>
-  <p><strong>Traveler Last Name:</strong> ${delivery.travelerDetail.lastName}</p>
-  <p><strong>Traveler Email:</strong> ${delivery.travelerDetail.email}</p>
-`;
 
-// ⭐ STOP HERE — DO NOT FETCH TRAVELER DETAILS
-return;
 
 
 
