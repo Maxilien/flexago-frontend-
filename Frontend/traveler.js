@@ -766,7 +766,7 @@ function renderJobCard(job, status, listElement) {
       ${status === "accepted" ? `
         <div class="action-row">
           <button class="chat-bubble-btn" data-id="${deliveryId}" title="Chat with Sender">
-            <i data-lucide="message-circle"></i>
+            <i data-lucide="message-square"></i>
           </button>
           <button class="primary-btn pickup-btn" data-id="${deliveryId}">Pick Up</button>
         </div>
@@ -775,7 +775,7 @@ function renderJobCard(job, status, listElement) {
           ${status === "picked_up" ? `
         <div class="action-row">
           <button class="chat-bubble-btn" data-id="${deliveryId}" title="Chat with Sender">
-            <i data-lucide="message-circle"></i>
+            <i data-lucide="message-square"></i>
           </button>
           <button class="primary-btn complete-delivery-btn" data-id="${deliveryId}">Complete Delivery</button>
         </div>
