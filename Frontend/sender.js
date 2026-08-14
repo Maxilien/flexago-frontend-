@@ -681,19 +681,18 @@ async function loadSenderDeliveries() {
 
     const all = json.data;
 
-    // Filter deliveries created by this sender
-  const mine = all.filter(d =>
-  d.sender === window.senderId ||
-  d.sender?._id === window.senderId ||
-  d.sender?.email === window.senderEmail
-);
+    // Filter deliveries created by this sender (NEW SCHEMA: senderId)
+    const mine = all.filter(d =>
+      d.senderId === window.senderId ||
+      d.sender?._id === window.senderId ||
+      d.sender?.email === window.senderEmail
+    );
 
-
-    // Enrich deliveries with traveler details if assigned
+    // Enrich deliveries with traveler details if assigned (NEW SCHEMA: travelerId)
     for (let d of mine) {
-      if (d.traveler) {
+      if (d.travelerId) {
         try {
-          const tRes = await fetch(`${BASE_URL}/api/travelers/${d.traveler}`);
+          const tRes = await fetch(`${BASE_URL}/api/travelers/${d.travelerId}`);
           const tJson = await tRes.json();
 
           if (tJson.success) {
@@ -710,6 +709,7 @@ async function loadSenderDeliveries() {
     console.error("Error loading sender deliveries:", err);
   }
 }
+
 /* ============================================================
    RENDER DELIVERY LIST (with traveler details)
 ============================================================ */
@@ -736,26 +736,26 @@ function renderMyDeliveries(list) {
 
       <div class="delivery-row">
         <span>Pickup:</span>
-        <span>${d.pickup?.address}</span>
+        <span>${d.pickup?.address || "N/A"}</span>
       </div>
 
       <div class="delivery-row">
         <span>Dropoff:</span>
-        <span>${d.dropoff?.address}</span>
+        <span>${d.dropoff?.address || "N/A"}</span>
       </div>
     `;
 
-    // ⭐ ADD TRAVELER DETAILS HERE
-    if (d.travelerDetails) {
+    // Traveler details (from travelerDetails attached above)
+    if (d.travelerDetails?.user) {
       html += `
         <div class="delivery-row traveler-info">
           <span><strong>Traveler:</strong></span>
-          <span>${d.travelerDetails.user.name}</span>
+          <span>${d.travelerDetails.user.firstName} ${d.travelerDetails.user.lastName}</span>
         </div>
 
         <div class="delivery-row traveler-info">
           <span><strong>Phone:</strong></span>
-          <span>${d.travelerDetails.user.phone}</span>
+          <span>${d.travelerDetails.user.phone || "N/A"}</span>
         </div>
       `;
     }
@@ -774,6 +774,7 @@ function renderMyDeliveries(list) {
     container.appendChild(div);
   });
 }
+
 function formatDeliveryStatus(status) {
   switch (status) {
     case "available": return "Available";
@@ -782,7 +783,7 @@ function formatDeliveryStatus(status) {
     case "delivered": return "Delivered";
     case "payout_pending": return "Awaiting Payout";
     case "payout_completed": return "Payout Completed";
-    default: return status;
+    default: return status || "Unknown";
   }
 }
 
@@ -790,92 +791,72 @@ function formatDeliveryStatus(status) {
    OPEN DELIVERY STATUS VIEW (with traveler details)
 ============================================================ */
 async function openDeliveryStatus(delivery) {
-
-  // ⭐ FIRST: fetch the latest delivery from backend
-  let fresh = delivery;
-  try {
-    const res = await fetch(`${BASE_URL}/api/deliveries/${delivery._id}`);
-    const json = await res.json();
-    if (json.success) {
-      fresh = json.data; // overwrite stale object
-    }
-  } catch (err) {
-    console.warn("Failed to refresh delivery:", err);
-  }
-
-  // ⭐ NOW use ONLY the fresh delivery object
-  delivery = fresh;
-
+  // For now, use the delivery object we already have (no GET /api/deliveries/:id)
   const container = document.getElementById("deliveryStatusContent");
-container.innerHTML = `
-  <h3 style="margin-bottom:1rem;">Delivery #${delivery._id}</h3>
 
-  <p><strong>Status:</strong> ${formatDeliveryStatus(delivery.status)}</p>
-  <p><strong>Pickup:</strong> ${delivery.pickup?.address}</p>
-  <p><strong>Dropoff:</strong> ${delivery.dropoff?.address}</p>
+  container.innerHTML = `
+    <h3 style="margin-bottom:1rem;">Delivery #${delivery._id}</h3>
 
-<!-- ⭐ Proof of Delivery -->
-<p><strong>Signed By:</strong> ${delivery.proofOfDelivery?.signedBy || "Not provided"}</p>
+    <p><strong>Status:</strong> ${formatDeliveryStatus(delivery.status)}</p>
+    <p><strong>Pickup:</strong> ${delivery.pickup?.address || "N/A"}</p>
+    <p><strong>Dropoff:</strong> ${delivery.dropoff?.address || "N/A"}</p>
 
-${delivery.proofOfDelivery?.photoUrl ? `
-  <div style="margin-top:1rem;">
-    <strong>Delivery Photo:</strong><br>
-    <img src="${delivery.proofOfDelivery.photoUrl}"
-         style="max-width:160px; border-radius:8px; margin-top:0.4rem;">
-  </div>
-` : ""}
+    <!-- Proof of Delivery -->
+    <p><strong>Signed By:</strong> ${delivery.proofOfDelivery?.signedBy || "Not provided"}</p>
 
-${delivery.proofOfDelivery?.signatureUrl ? `
-  <div style="margin-top:1rem;">
-    <strong>Signature:</strong><br>
-    <img src="${delivery.proofOfDelivery.signatureUrl}"
-         style="max-width:160px; background:#fff; padding:6px; border-radius:6px; margin-top:0.4rem;">
-  </div>
-` : ""}
+    ${delivery.proofOfDelivery?.photoUrl ? `
+      <div style="margin-top:1rem;">
+        <strong>Delivery Photo:</strong><br>
+        <img src="${delivery.proofOfDelivery.photoUrl}"
+             style="max-width:160px; border-radius:8px; margin-top:0.4rem;">
+      </div>
+    ` : ""}
 
+    ${delivery.proofOfDelivery?.signatureUrl ? `
+      <div style="margin-top:1rem;">
+        <strong>Signature:</strong><br>
+        <img src="${delivery.proofOfDelivery.signatureUrl}"
+             style="max-width:160px; background:#fff; padding:6px; border-radius:6px; margin-top:0.4rem;">
+      </div>
+    ` : ""}
 
-  <div id="dsTravelerInfo" class="delivery-status-section">
-    <p><strong>Traveler:</strong> Loading...</p>
-  </div>
+    <div id="dsTravelerInfo" class="delivery-status-section">
+      <p><strong>Traveler:</strong> Loading...</p>
+    </div>
 
-  <p><strong>Price:</strong> $${delivery.price}</p>
-  <p><strong>Payout:</strong> $${delivery.payoutAmount}</p>
+    <p><strong>Price:</strong> $${delivery.price ?? "0.00"}</p>
+    <p><strong>Payout:</strong> $${delivery.payoutAmount ?? "0.00"}</p>
 
-  <hr style="margin:1rem 0; opacity:0.3;">
+    <hr style="margin:1rem 0; opacity:0.3;">
 
-  <button class="primary-btn" onclick="showSenderView('myDeliveriesView')">
-    Back to My Deliveries
-  </button>
-`;
+    <button class="primary-btn" onclick="showSenderView('myDeliveriesView')">
+      Back to My Deliveries
+    </button>
+  `;
 
   showSenderView("deliveryStatusView");
 
   const travelerSection = document.getElementById("dsTravelerInfo");
 
-// ⭐ CHECK AFTER REFRESH
-if (!delivery.traveler || typeof delivery.traveler !== "string" || delivery.traveler.length < 10) {
-  travelerSection.innerHTML = `<p><strong>Traveler:</strong> Not assigned yet</p>`;
-  return;
-}
+  // Check traveler assignment using NEW SCHEMA: travelerId
+  if (!delivery.travelerId || typeof delivery.travelerId !== "string" || delivery.travelerId.length < 10) {
+    travelerSection.innerHTML = `<p><strong>Traveler:</strong> Not assigned yet</p>`;
+    return;
+  }
 
-
-
-
-
-  // ⭐ FETCH TRAVELER DETAILS
+  // Fetch traveler details
   try {
-    const tRes = await fetch(`${BASE_URL}/api/travelers/${delivery.traveler}`);
+    const tRes = await fetch(`${BASE_URL}/api/travelers/${delivery.travelerId}`);
     const tJson = await tRes.json();
 
     if (tJson.success) {
       const t = tJson.data;
 
-travelerSection.innerHTML = `
-  <p><strong>Traveler:</strong> ${t.user.firstName} ${t.user.lastName}</p>
-  <p><strong>Phone:</strong> ${t.user.phone || "N/A"}</p>
-  <p><strong>Email:</strong> ${t.user.email}</p>
-`;
-
+      travelerSection.innerHTML = `
+        <p><strong>Traveler:</strong> ${t.user.firstName} ${t.user.lastName}</p>
+        <p><strong>Phone:</strong> ${t.user.phone || "N/A"}</p>
+        <p><strong>Email:</strong> ${t.user.email}</p>
+      `;
     } else {
       travelerSection.innerHTML = `<p>Traveler info unavailable</p>`;
     }
