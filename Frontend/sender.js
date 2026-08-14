@@ -729,9 +729,15 @@ function renderMyDeliveries(list) {
     div.className = "delivery-card";
 
     let html = `
-      <!-- TITLE + STATUS -->
+      <!-- ITEM DESCRIPTION -->
       <div class="delivery-row">
-        <strong>${d.package?.description || "Package"}</strong>
+        <span><strong>Item Description:</strong></span>
+        <span>${d.package?.description || "Package"}</span>
+      </div>
+
+      <!-- STATUS -->
+      <div class="delivery-row">
+        <span><strong>Status:</strong></span>
         <span class="delivery-status status-${d.status}">
           ${formatDeliveryStatus(d.status)}
         </span>
@@ -749,12 +755,13 @@ function renderMyDeliveries(list) {
         <span>${d.dropoff?.address || "N/A"}</span>
       </div>
 
-      <!-- PRICE + PAYOUT -->
+      <!-- PRICE -->
       <div class="delivery-row">
         <span>Price:</span>
         <span>$${d.price?.toFixed(2) || "0.00"}</span>
       </div>
 
+      <!-- PAYOUT -->
       <div class="delivery-row">
         <span>Payout:</span>
         <span>$${d.payoutAmount?.toFixed(2) || "0.00"}</span>
