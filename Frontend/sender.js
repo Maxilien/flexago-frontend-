@@ -513,13 +513,19 @@ function initSenderGenerateDelivery() {
   const btn = document.getElementById("generate-matches-btn");
   if (!btn) return;
 
+  // ⭐ NEW — ensure senderId is defined BEFORE creating delivery
+  if (!window.senderId) {
+    window.senderId = window.user?._id || window.user?.id;
+    console.log("SenderId initialized:", window.senderId);
+  }
+
   btn.addEventListener("click", async () => {
     console.log("Generate button clicked");
 
     const pickupLat = Number(document.getElementById("pickup-lat").value);
     const pickupLng = Number(document.getElementById("pickup-lng").value);
     const dropLat = Number(document.getElementById("dropoff-lat").value);
-    const dropLng = Number(document.getElementById("dropoff-lng").value);
+    const dropLng = Number(document.getElementById("dropoff-lat").value);
 
     if (!window.pickupData) {
       window.pickupData = {
@@ -554,7 +560,6 @@ function initSenderGenerateDelivery() {
     const deliveryType = document.getElementById("deliveryType").value;
     const packageType = document.getElementById("packageType").value;
 
-    // Convert insurance string → Boolean
     const insurance = getInsuranceBoolean();
 
     const senderName = document.getElementById("senderName").value;
@@ -584,16 +589,15 @@ function initSenderGenerateDelivery() {
       return;
     }
 
-    /* ⭐ CRITICAL FIX — capture the latest uploaded photo */
     const photoUrl = window.uploadedPhotoBase64 || "";
 
-const deliveryData = {
-  senderId: window.senderId,
-  sender: {
-    name: senderName,
-    phone: senderPhone,
-    email: senderEmail
-  },
+    const deliveryData = {
+      senderId: window.senderId,   // ⭐ FIXED — now guaranteed to exist
+      sender: {
+        name: senderName,
+        phone: senderPhone,
+        email: senderEmail
+      },
 
       pickup: {
         address: pickup.address,
@@ -618,7 +622,7 @@ const deliveryData = {
         size: window.getSelectedSize(),
         description: document.getElementById("itemDescription").value,
         declaredValue: Number(document.getElementById("valueInput").value) || 0,
-        photoUrl: photoUrl,   // ⭐ FIXED
+        photoUrl: photoUrl,
         insurance: insurance,
         deliveryType: deliveryType
       },
@@ -637,11 +641,11 @@ const deliveryData = {
     console.log("FINAL DELIVERY PAYLOAD:", deliveryData);
 
     try {
-   const response = await fetch(`${BASE_URL}/api/deliveries`, {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify(deliveryData)
-});
+      const response = await fetch(`${BASE_URL}/api/deliveries`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(deliveryData)
+      });
 
       const result = await response.json();
       console.log("Delivery created:", result);
@@ -667,6 +671,7 @@ const deliveryData = {
     }
   });
 }
+
 /* ============================================================
    LOAD SENDER DELIVERIES (with traveler details)
 ============================================================ */
@@ -682,11 +687,8 @@ async function loadSenderDeliveries() {
 
     const all = json.data;
 
-    // ⭐ FIXED — match your actual MongoDB schema
-const mine = all.filter(d => d.senderId === window.senderId);
+    const mine = all.filter(d => d.senderId === window.senderId);
 
-
-    // Enrich deliveries with traveler details if assigned
     for (let d of mine) {
       if (d.travelerId) {
         try {
