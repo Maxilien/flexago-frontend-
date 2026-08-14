@@ -813,17 +813,26 @@ function renderMyDeliveries(list) {
 }
 
 /* ============================================================
-   STATUS FORMATTER
+   STATUS FORMATTER (corrected)
 ============================================================ */
 function formatDeliveryStatus(status) {
   switch (status) {
-    case "available": return "Available";
-    case "accepted": return "Accepted";
-    case "in_transit": return "Picked Up";
-    case "delivered": return "Delivered";
-    case "payout_pending": return "Awaiting Payout";
-    case "payout_completed": return "Payout Completed";
-    default: return status || "Unknown";
+    case "created":
+      return "Created";
+    case "available":
+      return "Available";
+    case "accepted":
+      return "Accepted";
+    case "in_transit":
+      return "In Transit";
+    case "delivered":
+      return "Delivered";
+    case "payout_pending":
+      return "Payout Pending";
+    case "payout_completed":
+      return "Payout Completed";
+    default:
+      return status || "Unknown";
   }
 }
 
