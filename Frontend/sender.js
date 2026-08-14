@@ -681,14 +681,14 @@ async function loadSenderDeliveries() {
 
     const all = json.data;
 
-    // Filter deliveries created by this sender (NEW SCHEMA: senderId)
+    // ⭐ FIXED — match your actual MongoDB schema
     const mine = all.filter(d =>
-      d.senderId === window.senderId ||
-      d.sender?._id === window.senderId ||
-      d.sender?.email === window.senderEmail
+      d.sender?.email === window.senderEmail ||
+      d.sender?.phone === window.senderPhone ||
+      d.sender?.name === window.senderName
     );
 
-    // Enrich deliveries with traveler details if assigned (NEW SCHEMA: travelerId)
+    // Enrich deliveries with traveler details if assigned
     for (let d of mine) {
       if (d.travelerId) {
         try {
@@ -696,7 +696,7 @@ async function loadSenderDeliveries() {
           const tJson = await tRes.json();
 
           if (tJson.success) {
-            d.travelerDetails = tJson.data; // attach traveler info
+            d.travelerDetails = tJson.data;
           }
         } catch (err) {
           console.warn("Failed to load traveler details for delivery:", d._id, err);
@@ -745,7 +745,6 @@ function renderMyDeliveries(list) {
       </div>
     `;
 
-    // Traveler details (from travelerDetails attached above)
     if (d.travelerDetails?.user) {
       html += `
         <div class="delivery-row traveler-info">
@@ -768,7 +767,6 @@ function renderMyDeliveries(list) {
 
     div.innerHTML = html;
 
-    // Click → open Delivery Status panel
     div.onclick = () => openDeliveryStatus(d);
 
     container.appendChild(div);
@@ -788,10 +786,9 @@ function formatDeliveryStatus(status) {
 }
 
 /* ============================================================
-   OPEN DELIVERY STATUS VIEW (with traveler details)
+   OPEN DELIVERY STATUS VIEW
 ============================================================ */
 async function openDeliveryStatus(delivery) {
-  // For now, use the delivery object we already have (no GET /api/deliveries/:id)
   const container = document.getElementById("deliveryStatusContent");
 
   container.innerHTML = `
@@ -801,7 +798,6 @@ async function openDeliveryStatus(delivery) {
     <p><strong>Pickup:</strong> ${delivery.pickup?.address || "N/A"}</p>
     <p><strong>Dropoff:</strong> ${delivery.dropoff?.address || "N/A"}</p>
 
-    <!-- Proof of Delivery -->
     <p><strong>Signed By:</strong> ${delivery.proofOfDelivery?.signedBy || "Not provided"}</p>
 
     ${delivery.proofOfDelivery?.photoUrl ? `
@@ -838,13 +834,11 @@ async function openDeliveryStatus(delivery) {
 
   const travelerSection = document.getElementById("dsTravelerInfo");
 
-  // Check traveler assignment using NEW SCHEMA: travelerId
-  if (!delivery.travelerId || typeof delivery.travelerId !== "string" || delivery.travelerId.length < 10) {
+  if (!delivery.travelerId) {
     travelerSection.innerHTML = `<p><strong>Traveler:</strong> Not assigned yet</p>`;
     return;
   }
 
-  // Fetch traveler details
   try {
     const tRes = await fetch(`${BASE_URL}/api/travelers/${delivery.travelerId}`);
     const tJson = await tRes.json();
@@ -861,10 +855,10 @@ async function openDeliveryStatus(delivery) {
       travelerSection.innerHTML = `<p>Traveler info unavailable</p>`;
     }
   } catch (err) {
-    console.error("Failed to load traveler details:", err);
     travelerSection.innerHTML = `<p>Error loading traveler info</p>`;
   }
 }
+
 /* ============================================================
    LOGOUT — CLEAR AUTH + REDIRECT (OLD SYSTEM)
    ============================================================ */
