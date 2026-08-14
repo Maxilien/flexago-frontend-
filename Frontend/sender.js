@@ -587,12 +587,13 @@ function initSenderGenerateDelivery() {
     /* ⭐ CRITICAL FIX — capture the latest uploaded photo */
     const photoUrl = window.uploadedPhotoBase64 || "";
 
-    const deliveryData = {
-      sender: {
-        name: senderName,
-        phone: senderPhone,
-        email: senderEmail
-      },
+const deliveryData = {
+  senderId: window.senderId,
+  sender: {
+    name: senderName,
+    phone: senderPhone,
+    email: senderEmail
+  },
 
       pickup: {
         address: pickup.address,
@@ -682,11 +683,8 @@ async function loadSenderDeliveries() {
     const all = json.data;
 
     // ⭐ FIXED — match your actual MongoDB schema
-    const mine = all.filter(d =>
-      d.sender?.email === window.senderEmail ||
-      d.sender?.phone === window.senderPhone ||
-      d.sender?.name === window.senderName
-    );
+const mine = all.filter(d => d.senderId === window.senderId);
+
 
     // Enrich deliveries with traveler details if assigned
     for (let d of mine) {
