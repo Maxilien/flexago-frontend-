@@ -16,13 +16,13 @@ if (user.role !== "sender") {
   window.location.href = "login.html";
 }
 
-// ⭐ NEW — store full sender profile globally
-window.sender = user;
-
-// 3. Must have senderId
+// ⭐ CORRECT — load senderId from the actual user object
 window.senderId = user._id;
 window.senderEmail = user.email;
 
+console.log("SenderId loaded:", window.senderId);
+
+// 3. Must have senderId
 if (!window.senderId) {
   alert("Error: Sender ID missing. Please log in again.");
   window.location.href = "login.html";
