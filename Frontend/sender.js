@@ -729,6 +729,7 @@ function renderMyDeliveries(list) {
     div.className = "delivery-card";
 
     let html = `
+      <!-- TITLE + STATUS -->
       <div class="delivery-row">
         <strong>${d.package?.description || "Package"}</strong>
         <span class="delivery-status status-${d.status}">
@@ -736,17 +737,43 @@ function renderMyDeliveries(list) {
         </span>
       </div>
 
+      <!-- PICKUP -->
       <div class="delivery-row">
         <span>Pickup:</span>
         <span>${d.pickup?.address || "N/A"}</span>
       </div>
 
+      <!-- DROPOFF -->
       <div class="delivery-row">
         <span>Dropoff:</span>
         <span>${d.dropoff?.address || "N/A"}</span>
       </div>
+
+      <!-- PRICE + PAYOUT -->
+      <div class="delivery-row">
+        <span>Price:</span>
+        <span>$${d.price?.toFixed(2) || "0.00"}</span>
+      </div>
+
+      <div class="delivery-row">
+        <span>Payout:</span>
+        <span>$${d.payoutAmount?.toFixed(2) || "0.00"}</span>
+      </div>
+
+      <!-- DELIVERY TYPE -->
+      <div class="delivery-row">
+        <span>Type:</span>
+        <span>${d.package?.deliveryType || "N/A"}</span>
+      </div>
+
+      <!-- INSURANCE -->
+      <div class="delivery-row">
+        <span>Insurance:</span>
+        <span>${d.package?.insurance ? "Yes" : "No"}</span>
+      </div>
     `;
 
+    /* TRAVELER DETAILS (if assigned) */
     if (d.travelerDetails?.user) {
       html += `
         <div class="delivery-row traveler-info">
@@ -761,6 +788,16 @@ function renderMyDeliveries(list) {
       `;
     }
 
+    /* PHOTO PREVIEW */
+    if (d.package?.photoUrl) {
+      html += `
+        <div class="delivery-row">
+          <img src="${d.package.photoUrl}" alt="Package Photo" class="delivery-photo-preview">
+        </div>
+      `;
+    }
+
+    /* CREATED DATE */
     html += `
       <div class="delivery-row">
         <small>${new Date(d.createdAt).toLocaleString()}</small>
@@ -775,6 +812,9 @@ function renderMyDeliveries(list) {
   });
 }
 
+/* ============================================================
+   STATUS FORMATTER
+============================================================ */
 function formatDeliveryStatus(status) {
   switch (status) {
     case "available": return "Available";
