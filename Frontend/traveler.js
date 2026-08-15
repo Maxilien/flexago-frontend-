@@ -1920,9 +1920,6 @@ function initSupportPage() {
 }
 
 /* ============================================================
-   TRAVELER ID LOADING — FINAL VERSION (WITH JOB LOADING)
-   ============================================================ */
-/* ============================================================
    TRAVELER ID LOADING — FINAL VERSION
    ============================================================ */
 async function loadTravelerIdentity() {
@@ -1946,13 +1943,6 @@ async function loadTravelerIdentity() {
     // 🔑 This must be the actual traveler ID field
     window.travelerId = traveler._id;
     console.log("Traveler ID loaded:", window.travelerId);
-
-    // (rest of your profile-to-UI mapping stays the same)
-
-  } catch (err) {
-    console.error("Error loading traveler profile:", err);
-  }
-}
 
     /* ============================================================
        LOAD TRAVELER PROFILE INTO UI (NO FALLBACK "T")
