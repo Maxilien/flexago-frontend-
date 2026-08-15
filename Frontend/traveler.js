@@ -272,33 +272,26 @@ async function getRealMiles(pickupAddress, dropoffAddress) {
    ============================================================ */
 async function acceptJob(jobId) {
   try {
-    console.log("Traveler ID at accept:", window.travelerId);
+    console.log("Traveler ID at accept:", window.userId);
 
     const res = await fetch(`${BASE_URL}/api/deliveries/${jobId}/accept`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ traveler: window.travelerId }) // ⭐ FIXED
+      body: JSON.stringify({ traveler: window.userId }) 
     });
 
     const json = await res.json();
 
-    if (res.status !== 200 || json.success === false) {
+    if (!res.ok || json.success === false) {
       console.error("Accept failed:", json.error || json.message);
       alert("Failed to accept job");
       return;
     }
 
-    // Update local state
     acceptedJobs.push(json.data);
     availableJobs = availableJobs.filter(j => j._id !== jobId);
 
-    // Close modal
     closeJobDetailsModal();
-
-    // Start WebSocket for this job
-    initJobSocket(jobId);
-
-    // Refresh UI
     refreshJobs();
 
   } catch (err) {
@@ -306,6 +299,7 @@ async function acceptJob(jobId) {
     alert("Error accepting job");
   }
 }
+
 async function declineJob(jobId) {
   try {
     const res = await fetch(`${BASE_URL}/api/deliveries/${jobId}/decline`, {
