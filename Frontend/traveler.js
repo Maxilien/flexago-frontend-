@@ -22,11 +22,16 @@ if (!window.userId) {
   window.location.href = "login.html";
 }
 
-// ⭐ REMOVE THIS (WRONG)
-// window.travelerId = user._id;
-
-// ⭐ ADD THIS (CORRECT)
+// ⭐ Correct — load traveler profile
 loadTravelerIdentity();
+
+/* ============================================================
+   AFTER IDENTITY LOADS, LOAD JOBS
+   ============================================================ */
+
+setTimeout(() => {
+  loadJobs();
+}, 300);   // ⭐ ensures travelerId is loaded first
 
 /* ============================================================
    FLEXAGO TRAVELER — FINAL VERSION
