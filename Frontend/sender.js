@@ -780,17 +780,29 @@ function renderMyDeliveries(list) {
       </div>
     `;
 
-    /* TRAVELER DETAILS (if assigned) */
-    if (d.travelerDetails?.user) {
+    /* ============================================================
+       TRAVELER DETAILS (NEW — clean, correct)
+    ============================================================ */
+    if (d.travelerDetails) {
       html += `
         <div class="delivery-row traveler-info">
           <span><strong>Traveler:</strong></span>
-          <span>${d.travelerDetails.user.firstName} ${d.travelerDetails.user.lastName}</span>
+          <span>${d.travelerDetails.name || "N/A"}</span>
         </div>
 
         <div class="delivery-row traveler-info">
           <span><strong>Phone:</strong></span>
-          <span>${d.travelerDetails.user.phone || "N/A"}</span>
+          <span>${d.travelerDetails.phone || "N/A"}</span>
+        </div>
+
+        <div class="delivery-row traveler-info">
+          <span><strong>Email:</strong></span>
+          <span>${d.travelerDetails.email || "N/A"}</span>
+        </div>
+
+        <div class="delivery-row traveler-info">
+          <span><strong>Rating:</strong></span>
+          <span>${d.travelerDetails.rating || "N/A"}</span>
         </div>
       `;
     }
