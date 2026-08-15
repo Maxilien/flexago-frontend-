@@ -1931,20 +1931,28 @@ async function loadTravelerIdentity() {
 
     console.log("Loading traveler for userId:", window.userId);
 
-    const res = await fetch(`${BASE_URL}/api/traveler/user/${window.userId}`);
-    if (!res.ok) {
-      console.warn("Failed to load traveler for user:", window.userId);
+    // ⭐ Correct route — list all travelers
+    const res = await fetch(`${BASE_URL}/api/traveler`);
+    const json = await res.json();
+
+    if (!json.success || !Array.isArray(json.data)) {
+      console.error("Traveler API returned unexpected format:", json);
       return;
     }
 
-    const traveler = await res.json();
-    console.log("Traveler object from API:", traveler);
+    // ⭐ Find traveler whose "user" matches the logged-in userId
+    const traveler = json.data.find(t => t.user === window.userId);
 
-    // 🔑 This must be the actual traveler ID field
+    if (!traveler) {
+      console.error("No traveler profile found for user:", window.userId);
+      return;
+    }
+
+    // ⭐ Set travelerId correctly
     window.travelerId = traveler._id;
     console.log("Traveler ID loaded:", window.travelerId);
 
-    /* ============================================================
+ /* ============================================================
        LOAD TRAVELER PROFILE INTO UI (NO FALLBACK "T")
        ============================================================ */
 
