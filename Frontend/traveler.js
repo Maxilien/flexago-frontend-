@@ -277,7 +277,8 @@ async function acceptJob(jobId) {
     const res = await fetch(`${BASE_URL}/api/deliveries/${jobId}/accept`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ traveler: window.userId }) 
+      body: JSON.stringify({ travelerId: window.userId })
+
     });
 
     const json = await res.json();
