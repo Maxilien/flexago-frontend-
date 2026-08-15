@@ -1922,12 +1922,17 @@ function initSupportPage() {
 /* ============================================================
    TRAVELER ID LOADING — FINAL VERSION (WITH JOB LOADING)
    ============================================================ */
+/* ============================================================
+   TRAVELER ID LOADING — FINAL VERSION
+   ============================================================ */
 async function loadTravelerIdentity() {
   try {
     if (!window.userId) {
       console.warn("No userId on window — cannot load traveler");
       return;
     }
+
+    console.log("Loading traveler for userId:", window.userId);
 
     const res = await fetch(`${BASE_URL}/api/traveler/user/${window.userId}`);
     if (!res.ok) {
@@ -1936,8 +1941,18 @@ async function loadTravelerIdentity() {
     }
 
     const traveler = await res.json();
+    console.log("Traveler object from API:", traveler);
+
+    // 🔑 This must be the actual traveler ID field
     window.travelerId = traveler._id;
     console.log("Traveler ID loaded:", window.travelerId);
+
+    // (rest of your profile-to-UI mapping stays the same)
+
+  } catch (err) {
+    console.error("Error loading traveler profile:", err);
+  }
+}
 
     /* ============================================================
        LOAD TRAVELER PROFILE INTO UI (NO FALLBACK "T")
