@@ -22,13 +22,11 @@ if (!window.userId) {
   window.location.href = "login.html";
 }
 
-// 4. Traveler ID (used for acceptJob)
-window.travelerId = user._id;
+// ⭐ REMOVE THIS (WRONG)
+// window.travelerId = user._id;
 
-if (!window.travelerId) {
-  alert("Error: Traveler ID missing. Please log in again.");
-  window.location.href = "login.html";
-}
+// ⭐ ADD THIS (CORRECT)
+loadTravelerIdentity();
 
 /* ============================================================
    FLEXAGO TRAVELER — FINAL VERSION
