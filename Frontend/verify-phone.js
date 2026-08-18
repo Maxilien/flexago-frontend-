@@ -1,5 +1,5 @@
 // ============================================================
-// ELEMENTS
+// ELEMENTS Added phone
 // ============================================================
 const countryCode = document.getElementById("countryCode");
 const phoneInput = document.getElementById("phoneInput");
