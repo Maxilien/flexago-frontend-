@@ -717,16 +717,25 @@ function renderJobCard(job, status, listElement) {
     job.id ||
     job._id;
 
-  /* ============================================================
-     MILES — REAL DISTANCE FROM BACKEND
-  ============================================================ */
-  const miles =
-    job.realMiles ??
-    job.distanceMiles ??
-    ((job._distance?.pickupStartMiles || 0) +
-     (job._distance?.dropoffDestMiles || 0));
+/* ============================================================
+   MILES — REAL DISTANCE (BACKEND OR GOOGLE API)
+============================================================ */
+let miles = 0;
 
-  const milesDisplay = Number(miles).toFixed(1);
+// If backend already computed miles
+if (job._distance) {
+  miles =
+    (job._distance.pickupStartMiles || 0) +
+    (job._distance.dropoffDestMiles || 0);
+} else {
+  // Compute miles manually using Google API
+  miles = await computeMiles(
+    job.pickupAddress || job.pickup?.address,
+    job.dropoffAddress || job.dropoff?.address
+  );
+}
+
+const milesDisplay = Number(miles).toFixed(1);
 
   /* ============================================================
      PAYOUT — EXACT VALUE FROM SENDER
