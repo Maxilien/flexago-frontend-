@@ -824,8 +824,6 @@ function renderJobCard(job, status, listElement) {
   /* ============================================================
      STATUS HANDLERS
 ============================================================ */
-}
-
   if (status === "available") {
     card.querySelector(".accept-btn").addEventListener("click", () => acceptJob(deliveryId));
     card.querySelector(".decline-btn").addEventListener("click", () => declineJob(deliveryId));
