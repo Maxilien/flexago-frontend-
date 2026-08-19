@@ -641,13 +641,21 @@ select {
    14. JOB LISTS (SCROLL FIX APPLIED)
    ============================================================ */
 .jobs-list {
+  flex: 1 1 auto;
+  min-height: 0;          /* CRITICAL: allows scrolling instead of shrinking */
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
   padding-right: 4px;
-  height: 100%;          /* Desktop */
-  overflow-y: auto;      /* Desktop */
 }
+#jobsPanel .panel-body {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;          /* CRITICAL */
+}
+
 
 /* Mobile: remove forced height + remove scroll lock */
 @media (max-width: 768px) {
@@ -656,26 +664,7 @@ select {
     overflow-y: visible;
     padding-right: 0;
   }
-}
 
-#jobsAvailableList,
-#jobsAcceptedList,
-#jobsCompletedList {
-  overflow-y: auto;
-  max-height: calc(100vh - 420px); /* Desktop */
-  padding-right: 6px;
-  scrollbar-width: thin;
-}
-
-/* Mobile: remove max-height + remove nested scrolling */
-@media (max-width: 768px) {
-  #jobsAvailableList,
-  #jobsAcceptedList,
-  #jobsCompletedList {
-    max-height: none;
-    overflow-y: visible;
-    padding-right: 0;
-  }
 }
 
 .empty-state {
@@ -1615,6 +1604,19 @@ select {
   overflow-x: hidden;
   padding-right: 6px;     /* prevents scrollbar overlap */
 }
+/* Make the jobs panel body a column layout */
+#jobsPanel .panel-body {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* Make the job list take remaining space and scroll */
+.jobs-list {
+  flex: 1 1 auto;
+  min-height: 0;          /* CRITICAL: allows scrolling instead of shrinking */
+}
+
 
 .job-card {
   background: #1e1e1e;
