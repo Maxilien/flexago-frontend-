@@ -1,5 +1,5 @@
 /* ============================================================
-   GOOGLE MAPS — DISTANCE MATRIX HELPER
+   GOOGLE MAPS — DISTANCE MATRIX (ADDRESS-BASED)
 ============================================================ */
 async function computeMiles(pickupAddress, dropoffAddress) {
   return new Promise(resolve => {
@@ -530,13 +530,17 @@ async function loadAvailableJobs() {
     const data = await res.json();
     availableJobs = Array.isArray(data.data) ? data.data : [];
 
-    // Enrich jobs
-    await Promise.all(
-      availableJobs.map(async (job) => {
-        job.realMiles = await computeMiles(job.pickup, job.dropoff);
-        job.payout = calculatePayout(job, job.realMiles);
-      })
-    );
+// Enrich jobs with real miles + payout
+await Promise.all(
+  availableJobs.map(async (job) => {
+    const pickup = job.pickupAddress || job.pickup?.address;
+    const dropoff = job.dropoffAddress || job.dropoff?.address;
+
+    job.realMiles = await computeMiles(pickup, dropoff);
+    job.payoutAmount = job.payoutAmount ?? job.payout ?? job.price ?? 0;
+  })
+);
+
 
     refreshJobs();
     refreshEarnings();
