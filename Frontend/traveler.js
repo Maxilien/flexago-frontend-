@@ -698,7 +698,7 @@ function openProofOfDeliveryModal(job) {
 }
 
 /* ============================================================
-   JOB CARD RENDERING — TRAVELER VERSION (UPDATED + FIXED)
+   JOB CARD RENDERING — TRAVELER VERSION (FINAL UPDATED)
 ============================================================ */
 function renderJobCard(job, status, listElement) {
   if (!listElement) return;
@@ -708,31 +708,52 @@ function renderJobCard(job, status, listElement) {
   const card = document.createElement("div");
   card.className = "job-card";
 
+  /* ============================================================
+     DELIVERY ID
+  ============================================================ */
   const deliveryId =
     job.deliveryId ||
     job.delivery?._id ||
     job.id ||
     job._id;
 
+  /* ============================================================
+     MILES — REAL DISTANCE FROM BACKEND
+  ============================================================ */
   const miles =
     job.realMiles ??
     job.distanceMiles ??
-    job.distance ??
     ((job._distance?.pickupStartMiles || 0) +
      (job._distance?.dropoffDestMiles || 0));
 
-  const payout =
-    job.payout != null ? Number(job.payout).toFixed(2) : "0.00";
+  const milesDisplay = Number(miles).toFixed(1);
 
+  /* ============================================================
+     PAYOUT — EXACT VALUE FROM SENDER
+  ============================================================ */
+  const payout =
+    job.payoutAmount ??
+    job.payout ??
+    job.price ??
+    0;
+
+  const payoutDisplay = Number(payout).toFixed(2);
+
+  /* ============================================================
+     BADGE COLOR
+  ============================================================ */
   const badgeColor =
     miles < 10 ? "green" :
     miles < 50 ? "orange" :
     "red";
 
+  /* ============================================================
+     CARD HTML
+  ============================================================ */
   card.innerHTML = `
     <div class="job-header">
       <span class="badge badge-${badgeColor}">
-        ${miles.toFixed(1)} mi
+        ${milesDisplay} mi
       </span>
       <button class="details-btn" data-id="${deliveryId}">View Details</button>
     </div>
@@ -749,7 +770,7 @@ function renderJobCard(job, status, listElement) {
 
     <div class="job-row">
       <div class="job-label"><span class="icon-money"></span> Payout:</div>
-      <div class="job-value">$${payout}</div>
+      <div class="job-value">$${payoutDisplay}</div>
     </div>
 
     <div class="job-actions">
@@ -767,7 +788,7 @@ function renderJobCard(job, status, listElement) {
         </div>
       ` : ""}
 
-          ${status === "picked_up" ? `
+      ${status === "picked_up" ? `
         <div class="action-row">
           <button class="chat-bubble-btn" data-id="${deliveryId}" title="Chat with Sender">
             <i data-lucide="message-square"></i>
@@ -784,13 +805,13 @@ function renderJobCard(job, status, listElement) {
     </div>
 
     <div class="delivery-photo-section hidden">
-<label class="form-label">Signed By</label>
-<input 
-  type="text" 
-  id="receiverNameInput"
-  class="input-shell"
-  placeholder="Who signed for the delivery?"
-/>
+      <label class="form-label">Signed By</label>
+      <input 
+        type="text" 
+        id="receiverNameInput"
+        class="input-shell"
+        placeholder="Who signed for the delivery?"
+      />
 
       <button class="primary-btn delivered-btn" style="margin-top:0.8rem;">
         Delivered
@@ -803,6 +824,7 @@ function renderJobCard(job, status, listElement) {
   /* ============================================================
      STATUS HANDLERS
 ============================================================ */
+}
 
   if (status === "available") {
     card.querySelector(".accept-btn").addEventListener("click", () => acceptJob(deliveryId));
