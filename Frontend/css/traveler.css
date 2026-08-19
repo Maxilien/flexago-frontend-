@@ -686,7 +686,8 @@ select {
    15. JOB CARD — BASE STYLE (CONTRAST FIX APPLIED)
    ============================================================ */
 .job-card {
-  background: #0b1220; /* FIXED for clarity */
+  flex: 0 0 auto;        /* prevents shrinking — CRITICAL */
+  background: #0b1220;   /* clarity */
   border: 1px solid #1e293b;
   border-radius: 14px;
   padding: 0.9rem;
