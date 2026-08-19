@@ -299,27 +299,29 @@
 
 
         <!-- JOB LISTS -->
-        <div id="jobsAvailableList" class="jobs-list">
-          <div class="empty-state" data-i18n="traveler.jobs.empty_available">
-            No matching jobs yet — adjust your route or refresh.
-          </div>
-        </div>
+       <div id="jobsAvailableList" class="jobs-list jobs-scroll">
+  <div class="empty-state" data-i18n="traveler.jobs.empty_available">
+    No matching jobs yet — adjust your route or refresh.
+  </div>
+</div>
 
-        <div id="jobsAcceptedList" class="jobs-list hidden">
-          <div class="empty-state" data-i18n="traveler.jobs.empty_accepted">
-            You haven’t accepted any jobs yet.
-          </div>
-        </div>
-<div id="jobsPickedUpList" class="jobs-list hidden">
+<div id="jobsAcceptedList" class="jobs-list jobs-scroll hidden">
+  <div class="empty-state" data-i18n="traveler.jobs.empty_accepted">
+    You haven’t accepted any jobs yet.
+  </div>
+</div>
+
+<div id="jobsPickedUpList" class="jobs-list jobs-scroll hidden">
   <div class="empty-state">
     No picked-up jobs yet.
   </div>
 </div>
-        <div id="jobsCompletedList" class="jobs-list hidden">
-          <div class="empty-state" data-i18n="traveler.jobs.empty_completed">
-            Completed jobs will appear here.
-          </div>
-        </div>
+
+<div id="jobsCompletedList" class="jobs-list jobs-scroll hidden">
+  <div class="empty-state" data-i18n="traveler.jobs.empty_completed">
+    Completed jobs will appear here.
+  </div>
+</div>
 
       </div> <!-- end .panel-body -->
     </section> <!-- end #jobsPanel -->

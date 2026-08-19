@@ -1609,3 +1609,17 @@ select {
 .chat-bubble-btn:hover svg {
   stroke: white;
 }
+.jobs-list-scroll {
+  max-height: 420px;      /* adjust based on your layout */
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 6px;     /* prevents scrollbar overlap */
+}
+
+.job-card {
+  background: #1e1e1e;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 12px;
+  border: 1px solid #333;
+}
