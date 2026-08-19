@@ -1,4 +1,39 @@
 /* ============================================================
+   GOOGLE MAPS — DISTANCE MATRIX HELPER
+============================================================ */
+async function computeMiles(pickupAddress, dropoffAddress) {
+  return new Promise(resolve => {
+    const service = new google.maps.DistanceMatrixService();
+
+    service.getDistanceMatrix(
+      {
+        origins: [pickupAddress],
+        destinations: [dropoffAddress],
+        travelMode: google.maps.TravelMode.DRIVING,
+        unitSystem: google.maps.UnitSystem.IMPERIAL
+      },
+      (response, status) => {
+        if (status !== "OK") {
+          console.warn("DistanceMatrix failed:", status);
+          return resolve(0);
+        }
+
+        const element = response.rows[0].elements[0];
+
+        if (!element || element.status !== "OK") {
+          return resolve(0);
+        }
+
+        const meters = element.distance.value;
+        const miles = meters / 1609.34;
+
+        resolve(miles);
+      }
+    );
+  });
+}
+
+/* ============================================================
    AUTH GUARD — TRAVELER ONLY
    ============================================================ */
 
@@ -717,25 +752,11 @@ function renderJobCard(job, status, listElement) {
     job.id ||
     job._id;
 
-/* ============================================================
-   MILES — REAL DISTANCE (BACKEND OR GOOGLE API)
-============================================================ */
-let miles = 0;
-
-// If backend already computed miles
-if (job._distance) {
-  miles =
-    (job._distance.pickupStartMiles || 0) +
-    (job._distance.dropoffDestMiles || 0);
-} else {
-  // Compute miles manually using Google API
-  miles = await computeMiles(
-    job.pickupAddress || job.pickup?.address,
-    job.dropoffAddress || job.dropoff?.address
-  );
-}
-
-const milesDisplay = Number(miles).toFixed(1);
+  /* ============================================================
+     MILES — PRECOMPUTED BEFORE RENDER
+     (NEVER async here — prevents map break)
+  ============================================================ */
+  const milesDisplay = Number(job.realMiles || 0).toFixed(1);
 
   /* ============================================================
      PAYOUT — EXACT VALUE FROM SENDER
@@ -752,8 +773,8 @@ const milesDisplay = Number(miles).toFixed(1);
      BADGE COLOR
   ============================================================ */
   const badgeColor =
-    miles < 10 ? "green" :
-    miles < 50 ? "orange" :
+    job.realMiles < 10 ? "green" :
+    job.realMiles < 50 ? "orange" :
     "red";
 
   /* ============================================================
@@ -829,6 +850,11 @@ const milesDisplay = Number(miles).toFixed(1);
   `;
 
   listElement.appendChild(card);
+
+  /* ============================================================
+     STATUS HANDLERS
+============================================================ */
+}
 
   /* ============================================================
      STATUS HANDLERS
