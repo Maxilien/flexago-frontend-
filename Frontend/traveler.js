@@ -460,29 +460,36 @@ window.initMap = function () {
 
 /* ============================================================
    JOB FETCHING (CLEAN + GUARDED + OPTIMIZED)
-   ============================================================ */
+============================================================ */
 
-// Compute real driving miles safely
-async function computeMiles(pickup, dropoff) {
+// Compute real driving miles using addresses (NOT lat/lng)
+async function computeMiles(pickupAddress, dropoffAddress) {
   return new Promise(resolve => {
-    if (!pickup?.lat || !pickup?.lng || !dropoff?.lat || !dropoff?.lng) {
-      console.warn("Skipping computeMiles — missing coordinates");
-      return resolve(0);
-    }
-
     const service = new google.maps.DistanceMatrixService();
 
     service.getDistanceMatrix(
       {
-        origins: [{ lat: pickup.lat, lng: pickup.lng }],
-        destinations: [{ lat: dropoff.lat, lng: dropoff.lng }],
-        travelMode: "DRIVING"
+        origins: [pickupAddress],
+        destinations: [dropoffAddress],
+        travelMode: google.maps.TravelMode.DRIVING,
+        unitSystem: google.maps.UnitSystem.IMPERIAL
       },
-      (res, status) => {
-        if (status !== "OK") return resolve(0);
+      (response, status) => {
+        if (status !== "OK") {
+          console.warn("DistanceMatrix failed:", status);
+          return resolve(0);
+        }
 
-        const meters = res.rows[0].elements[0].distance.value;
-        resolve(meters / 1609.34);
+        const element = response.rows[0].elements[0];
+
+        if (!element || element.status !== "OK") {
+          return resolve(0);
+        }
+
+        const meters = element.distance.value;
+        const miles = meters / 1609.34;
+
+        resolve(miles);
       }
     );
   });
@@ -530,17 +537,16 @@ async function loadAvailableJobs() {
     const data = await res.json();
     availableJobs = Array.isArray(data.data) ? data.data : [];
 
-// Enrich jobs with real miles + payout
-await Promise.all(
-  availableJobs.map(async (job) => {
-    const pickup = job.pickupAddress || job.pickup?.address;
-    const dropoff = job.dropoffAddress || job.dropoff?.address;
+    // Enrich jobs with real miles + payout
+    await Promise.all(
+      availableJobs.map(async (job) => {
+        const pickupAddress = job.pickupAddress || job.pickup?.address;
+        const dropoffAddress = job.dropoffAddress || job.dropoff?.address;
 
-    job.realMiles = await computeMiles(pickup, dropoff);
-    job.payoutAmount = job.payoutAmount ?? job.payout ?? job.price ?? 0;
-  })
-);
-
+        job.realMiles = await computeMiles(pickupAddress, dropoffAddress);
+        job.payoutAmount = job.payoutAmount ?? job.payout ?? job.price ?? 0;
+      })
+    );
 
     refreshJobs();
     refreshEarnings();
@@ -554,7 +560,8 @@ await Promise.all(
 
 /* ============================================================
    ROUTE MATCHING (PLACEHOLDER)
-   ============================================================ */
+============================================================ */
+
 function isJobOnRoute(job) {
   return true;
 }
