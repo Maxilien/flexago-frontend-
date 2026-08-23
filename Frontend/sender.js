@@ -783,28 +783,28 @@ function renderMyDeliveries(list) {
     `;
 
     /* ============================================================
-       TRAVELER DETAILS (NEW — clean, correct)
+       TRAVELER DETAILS (CORRECT — uses travelerId)
     ============================================================ */
-    if (d.travelerDetails) {
+    if (d.travelerId) {
       html += `
         <div class="delivery-row traveler-info">
           <span><strong>Traveler:</strong></span>
-          <span>${d.travelerDetails.name || "N/A"}</span>
+          <span>${d.travelerId.firstName || ""} ${d.travelerId.lastName || ""}</span>
         </div>
 
         <div class="delivery-row traveler-info">
           <span><strong>Phone:</strong></span>
-          <span>${d.travelerDetails.phone || "N/A"}</span>
+          <span>${d.travelerId.phone || "N/A"}</span>
         </div>
 
         <div class="delivery-row traveler-info">
           <span><strong>Email:</strong></span>
-          <span>${d.travelerDetails.email || "N/A"}</span>
+          <span>${d.travelerId.email || "N/A"}</span>
         </div>
 
         <div class="delivery-row traveler-info">
           <span><strong>Rating:</strong></span>
-          <span>${d.travelerDetails.rating || "N/A"}</span>
+          <span>${d.travelerId.rating || "N/A"}</span>
         </div>
       `;
     }
