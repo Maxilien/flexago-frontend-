@@ -677,7 +677,7 @@ function initSenderGenerateDelivery() {
 }
 
 /* ============================================================
-   LOAD SENDER DELIVERIES (with traveler details)
+   LOAD SENDER DELIVERIES (FINAL — matches your backend)
 ============================================================ */
 async function loadSenderDeliveries() {
   try {
@@ -691,20 +691,16 @@ async function loadSenderDeliveries() {
 
     const all = json.data;
 
+    // Filter deliveries belonging to this sender
     const mine = all.filter(d => d.senderId === window.senderId);
 
+    // ⭐ Your backend stores traveler under "traveler", NOT "travelerId"
     for (let d of mine) {
-      if (d.travelerId) {
-        try {
-          const tRes = await fetch(`${BASE_URL}/api/travelers/${d.travelerId}`);
-          const tJson = await tRes.json();
-
-          if (tJson.success) {
-            d.travelerDetails = tJson.data;
-          }
-        } catch (err) {
-          console.warn("Failed to load traveler details for delivery:", d._id, err);
-        }
+      if (d.traveler) {
+        // traveler is already a string ID — but backend does NOT expose traveler API
+        // so we cannot fetch traveler profile here
+        // Instead, we attach the raw traveler ID
+        d.travelerDetails = { id: d.traveler };
       }
     }
 
@@ -783,33 +779,30 @@ function renderMyDeliveries(list) {
     `;
 
 /* ============================================================
-   TRAVELER DETAILS (robust — supports multiple shapes)
+   TRAVELER DETAILS (FINAL — matches your backend)
 ============================================================ */
-const traveler =
-  d.travelerDetails ||          // if you ever send travelerDetails
-  d.traveler ||                 // if backend uses "traveler"
-  d.travelerId || null;         // if populated under travelerId
+if (d.travelerDetails && typeof d.travelerDetails === "object") {
+  const t = d.travelerDetails;
 
-if (traveler && typeof traveler === "object") {
   html += `
     <div class="delivery-row traveler-info">
       <span><strong>Traveler:</strong></span>
-      <span>${traveler.firstName || traveler.name || ""} ${traveler.lastName || ""}</span>
+      <span>${t.firstName || ""} ${t.lastName || ""}</span>
     </div>
 
     <div class="delivery-row traveler-info">
       <span><strong>Phone:</strong></span>
-      <span>${traveler.phone || "N/A"}</span>
+      <span>${t.phone || "N/A"}</span>
     </div>
 
     <div class="delivery-row traveler-info">
       <span><strong>Email:</strong></span>
-      <span>${traveler.email || "N/A"}</span>
+      <span>${t.email || "N/A"}</span>
     </div>
 
     <div class="delivery-row traveler-info">
       <span><strong>Rating:</strong></span>
-      <span>${traveler.rating || "N/A"}</span>
+      <span>${t.rating || "N/A"}</span>
     </div>
   `;
 }
