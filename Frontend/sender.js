@@ -637,7 +637,9 @@ function initSenderGenerateDelivery() {
         instructions: receiverInstructions
       },
 
-      notes
+      notes,
+  // ⭐ REQUIRED — send estimated cost to backend
+  price: window.currentPrice
     };
 
     console.log("FINAL DELIVERY PAYLOAD:", deliveryData);
