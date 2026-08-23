@@ -782,32 +782,37 @@ function renderMyDeliveries(list) {
       </div>
     `;
 
-    /* ============================================================
-       TRAVELER DETAILS (CORRECT — uses travelerId)
-    ============================================================ */
-    if (d.travelerId) {
-      html += `
-        <div class="delivery-row traveler-info">
-          <span><strong>Traveler:</strong></span>
-          <span>${d.travelerId.firstName || ""} ${d.travelerId.lastName || ""}</span>
-        </div>
+/* ============================================================
+   TRAVELER DETAILS (robust — supports multiple shapes)
+============================================================ */
+const traveler =
+  d.travelerDetails ||          // if you ever send travelerDetails
+  d.traveler ||                 // if backend uses "traveler"
+  d.travelerId || null;         // if populated under travelerId
 
-        <div class="delivery-row traveler-info">
-          <span><strong>Phone:</strong></span>
-          <span>${d.travelerId.phone || "N/A"}</span>
-        </div>
+if (traveler && typeof traveler === "object") {
+  html += `
+    <div class="delivery-row traveler-info">
+      <span><strong>Traveler:</strong></span>
+      <span>${traveler.firstName || traveler.name || ""} ${traveler.lastName || ""}</span>
+    </div>
 
-        <div class="delivery-row traveler-info">
-          <span><strong>Email:</strong></span>
-          <span>${d.travelerId.email || "N/A"}</span>
-        </div>
+    <div class="delivery-row traveler-info">
+      <span><strong>Phone:</strong></span>
+      <span>${traveler.phone || "N/A"}</span>
+    </div>
 
-        <div class="delivery-row traveler-info">
-          <span><strong>Rating:</strong></span>
-          <span>${d.travelerId.rating || "N/A"}</span>
-        </div>
-      `;
-    }
+    <div class="delivery-row traveler-info">
+      <span><strong>Email:</strong></span>
+      <span>${traveler.email || "N/A"}</span>
+    </div>
+
+    <div class="delivery-row traveler-info">
+      <span><strong>Rating:</strong></span>
+      <span>${traveler.rating || "N/A"}</span>
+    </div>
+  `;
+}
 
     /* PHOTO PREVIEW */
     if (d.package?.photoUrl) {
