@@ -1096,29 +1096,23 @@ function openTravelerDetails(job) {
     photo.style.display = "none";
   }
 
-// STATUS BUTTONS
+  // STATUS BUTTONS
+  panel.querySelector(".verify-code-btn").onclick = () => verifyPickup(job._id);
+  panel.querySelector(".pickup-btn").onclick = () => pickupJob(job._id);
+  panel.querySelector(".dropoff-btn").onclick = () => onMyWayDropoff(job._id);
+  panel.querySelector(".delivered-btn").onclick = () => completeJob(job._id);
 
-// ⭐ NEW — Verify Pickup Code
-panel.querySelector(".verify-code-btn").onclick = () => verifyPickup(job._id);
+  // BUTTON VISIBILITY LOGIC
+  const verifyBtn = panel.querySelector(".verify-code-btn");
+  const pickupBtn = panel.querySelector(".pickup-btn");
 
-panel.querySelector(".pickup-btn").onclick = () => pickupJob(job._id);
-panel.querySelector(".dropoff-btn").onclick = () => onMyWayDropoff(job._id);
-panel.querySelector(".delivered-btn").onclick = () => completeJob(job._id);
-
-// ⭐ BUTTON VISIBILITY LOGIC (SECURE PICKUP WORKFLOW)
-const verifyBtn  = panel.querySelector(".verify-code-btn");
-const pickupBtn  = panel.querySelector(".pickup-btn");
-
-// CASE 1: Pickup NOT verified yet
-if (!job.pickupVerified) {
-    verifyBtn.classList.remove("hidden");   // show Verify Code
-    pickupBtn.classList.add("hidden");       // hide Pick Up
-}
-
-// CASE 2: Pickup already verified
-else {
-    verifyBtn.classList.add("hidden");       // hide Verify Code
-    pickupBtn.classList.remove("hidden");    // show Pick Up
+  if (!job.pickupVerified) {
+    verifyBtn.classList.remove("hidden");
+    pickupBtn.classList.add("hidden");
+  } else {
+    verifyBtn.classList.add("hidden");
+    pickupBtn.classList.remove("hidden");
+  }
 }
 
 /* ============================================================
