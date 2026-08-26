@@ -364,6 +364,50 @@ async function declineJob(jobId) {
   }
 }
 /* ============================================================
+   VERIFY PICKUP (Traveler enters pickup code)
+============================================================ */
+async function verifyPickup(jobId) {
+  try {
+    // Ask traveler to enter the pickup code
+    const code = prompt("Enter the pickup verification code:");
+
+    if (!code) {
+      alert("Pickup code is required.");
+      return;
+    }
+
+    const res = await fetch(`${BASE_URL}/api/deliveries/${jobId}/verifyPickup`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code })
+    });
+
+    const json = await res.json();
+
+    if (!res.ok || json.success === false) {
+      alert(json.error || "Invalid pickup code");
+      return;
+    }
+
+    // Update local job state
+    const updatedJob = json.data;
+
+    // Replace the job in acceptedJobs
+    const idx = acceptedJobs.findIndex(j => j._id === jobId);
+    if (idx !== -1) {
+      acceptedJobs[idx] = updatedJob;
+    }
+
+    alert("Pickup verified successfully!");
+    refreshJobs();
+
+  } catch (err) {
+    console.error("Pickup verification error:", err);
+    alert("Error verifying pickup");
+  }
+}
+
+/* ============================================================
    JOB LOADING (FETCH ALL JOBS FOR THIS TRAVELER)
    ============================================================ */
 async function loadJobs() {
@@ -1052,10 +1096,29 @@ function openTravelerDetails(job) {
     photo.style.display = "none";
   }
 
-  // STATUS BUTTONS
-  panel.querySelector(".pickup-btn").onclick = () => pickupJob(job._id);
-  panel.querySelector(".dropoff-btn").onclick = () => onMyWayDropoff(job._id);
-  panel.querySelector(".delivered-btn").onclick = () => completeJob(job._id);
+// STATUS BUTTONS
+
+// ⭐ NEW — Verify Pickup Code
+panel.querySelector(".verify-code-btn").onclick = () => verifyPickup(job._id);
+
+panel.querySelector(".pickup-btn").onclick = () => pickupJob(job._id);
+panel.querySelector(".dropoff-btn").onclick = () => onMyWayDropoff(job._id);
+panel.querySelector(".delivered-btn").onclick = () => completeJob(job._id);
+
+// ⭐ BUTTON VISIBILITY LOGIC (SECURE PICKUP WORKFLOW)
+const verifyBtn  = panel.querySelector(".verify-code-btn");
+const pickupBtn  = panel.querySelector(".pickup-btn");
+
+// CASE 1: Pickup NOT verified yet
+if (!job.pickupVerified) {
+    verifyBtn.classList.remove("hidden");   // show Verify Code
+    pickupBtn.classList.add("hidden");       // hide Pick Up
+}
+
+// CASE 2: Pickup already verified
+else {
+    verifyBtn.classList.add("hidden");       // hide Verify Code
+    pickupBtn.classList.remove("hidden");    // show Pick Up
 }
 
 /* ============================================================

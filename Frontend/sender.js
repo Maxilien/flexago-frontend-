@@ -807,6 +807,21 @@ if (d.travelerDetails && typeof d.travelerDetails === "object") {
   `;
 }
 
+/* ============================================================
+   PICKUP VERIFICATION (Step C)
+============================================================ */
+html += `
+  <div class="delivery-row">
+    <span><strong>Pickup Code:</strong></span>
+    <span>${d.pickupCode || "—"}</span>
+  </div>
+
+  <div class="delivery-row">
+    <span><strong>Verified:</strong></span>
+    <span>${d.pickupVerified ? "Yes" : "No"}</span>
+  </div>
+`;
+
     /* PHOTO PREVIEW */
     if (d.package?.photoUrl) {
       html += `
@@ -861,44 +876,49 @@ function formatDeliveryStatus(status) {
 async function openDeliveryStatus(delivery) {
   const container = document.getElementById("deliveryStatusContent");
 
-  container.innerHTML = `
-    <h3 style="margin-bottom:1rem;">Delivery #${delivery._id}</h3>
+container.innerHTML = `
+  <h3 style="margin-bottom:1rem;">Delivery #${delivery._id}</h3>
 
-    <p><strong>Status:</strong> ${formatDeliveryStatus(delivery.status)}</p>
-    <p><strong>Pickup:</strong> ${delivery.pickup?.address || "N/A"}</p>
-    <p><strong>Dropoff:</strong> ${delivery.dropoff?.address || "N/A"}</p>
+  <p><strong>Status:</strong> ${formatDeliveryStatus(delivery.status)}</p>
+  <p><strong>Pickup:</strong> ${delivery.pickup?.address || "N/A"}</p>
+  <p><strong>Dropoff:</strong> ${delivery.dropoff?.address || "N/A"}</p>
 
-    <p><strong>Signed By:</strong> ${delivery.proofOfDelivery?.signedBy || "Not provided"}</p>
+  <!-- ⭐ PICKUP VERIFICATION (Step C) -->
+  <p><strong>Pickup Code:</strong> ${delivery.pickupCode || "—"}</p>
+  <p><strong>Verified:</strong> ${delivery.pickupVerified ? "Yes" : "No"}</p>
 
-    ${delivery.proofOfDelivery?.photoUrl ? `
-      <div style="margin-top:1rem;">
-        <strong>Delivery Photo:</strong><br>
-        <img src="${delivery.proofOfDelivery.photoUrl}"
-             style="max-width:160px; border-radius:8px; margin-top:0.4rem;">
-      </div>
-    ` : ""}
+  <p><strong>Signed By:</strong> ${delivery.proofOfDelivery?.signedBy || "Not provided"}</p>
 
-    ${delivery.proofOfDelivery?.signatureUrl ? `
-      <div style="margin-top:1rem;">
-        <strong>Signature:</strong><br>
-        <img src="${delivery.proofOfDelivery.signatureUrl}"
-             style="max-width:160px; background:#fff; padding:6px; border-radius:6px; margin-top:0.4rem;">
-      </div>
-    ` : ""}
-
-    <div id="dsTravelerInfo" class="delivery-status-section">
-      <p><strong>Traveler:</strong> Loading...</p>
+  ${delivery.proofOfDelivery?.photoUrl ? `
+    <div style="margin-top:1rem;">
+      <strong>Delivery Photo:</strong><br>
+      <img src="${delivery.proofOfDelivery.photoUrl}"
+           style="max-width:160px; border-radius:8px; margin-top:0.4rem;">
     </div>
+  ` : ""}
 
-    <p><strong>Price:</strong> $${delivery.price ?? "0.00"}</p>
-    <p><strong>Payout:</strong> $${delivery.payoutAmount ?? "0.00"}</p>
+  ${delivery.proofOfDelivery?.signatureUrl ? `
+    <div style="margin-top:1rem;">
+      <strong>Signature:</strong><br>
+      <img src="${delivery.proofOfDelivery.signatureUrl}"
+           style="max-width:160px; background:#fff; padding:6px; border-radius:6px; margin-top:0.4rem;">
+    </div>
+  ` : ""}
 
-    <hr style="margin:1rem 0; opacity:0.3;">
+  <div id="dsTravelerInfo" class="delivery-status-section">
+    <p><strong>Traveler:</strong> Loading...</p>
+  </div>
 
-    <button class="primary-btn" onclick="showSenderView('myDeliveriesView')">
-      Back to My Deliveries
-    </button>
-  `;
+  <p><strong>Price:</strong> $${delivery.price ?? "0.00"}</p>
+  <p><strong>Payout:</strong> $${delivery.payoutAmount ?? "0.00"}</p>
+
+  <hr style="margin:1rem 0; opacity:0.3;">
+
+  <button class="primary-btn" onclick="showSenderView('myDeliveriesView')">
+    Back to My Deliveries
+  </button>
+`;
+
 
   showSenderView("deliveryStatusView");
 
