@@ -329,8 +329,15 @@ async function acceptJob(jobId) {
       return;
     }
 
-    // Update local state
-    acceptedJobs.push(json.data);
+    // ⭐ FIX #2 — Replace stale job object with fresh backend version
+    const idx = acceptedJobs.findIndex(j => j._id === jobId);
+    if (idx !== -1) {
+      acceptedJobs[idx] = json.data;   // replace old job
+    } else {
+      acceptedJobs.push(json.data);    // add new job
+    }
+
+    // Remove job from available list
     availableJobs = availableJobs.filter(j => j._id !== jobId);
 
     closeJobDetailsModal();
@@ -363,6 +370,7 @@ async function declineJob(jobId) {
     console.error("Error declining job:", err);
   }
 }
+
 /* ============================================================
    VERIFY PICKUP (Traveler enters pickup code)
 ============================================================ */
