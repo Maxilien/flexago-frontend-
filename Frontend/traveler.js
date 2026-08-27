@@ -971,7 +971,7 @@ if (status === "available") {
 }
 
 else if (status === "accepted") {
-  detailsBtn.addEventListener("click", () => openTravelerDetails(job));
+  detailsBtn.addEventListener("click", () => openJobDetailsModal(job));
 }
 
 else if (status === "picked_up") {
