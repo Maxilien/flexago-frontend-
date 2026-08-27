@@ -974,7 +974,7 @@ if (detailsBtn) {
   }
 
   // ACCEPTED → Traveler modal
-  else if (status === "accepted") {
+  if (status === "accepted") {
     detailsBtn.addEventListener("click", () => {
       openTravelerDetails(job);
     });
