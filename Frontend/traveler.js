@@ -961,28 +961,43 @@ function renderJobCard(job, status, listElement) {
     const deliveredBtn = card.querySelector(".delivered-btn");
     deliveredBtn.addEventListener("click", () => completeJob(deliveryId));
   }
-
-  /* ============================================================
+/* ============================================================
      VIEW DETAILS — CORRECT BEHAVIOR FOR EACH STATUS
 ============================================================ */
-  const detailsBtn = card.querySelector(".details-btn");
+const detailsBtn = card.querySelector(".details-btn");
 
-  if (detailsBtn) {
-    if (status === "available") {
-      detailsBtn.addEventListener("click", () => openJobDetailsModal(job));
-    } else {
-      detailsBtn.addEventListener("click", () => {
-        openTravelerDetails(job);
+if (detailsBtn) {
 
-        if (status === "picked_up") {
-          const proofSection = document.querySelector(".delivery-photo-section");
-          if (proofSection) proofSection.classList.remove("hidden");
-        }
-      });
-    }
+  // AVAILABLE → Sender modal
+  if (status === "available") {
+    detailsBtn.addEventListener("click", () => openJobDetailsModal(job));
+  }
+
+  // ACCEPTED → Traveler modal
+  else if (status === "accepted") {
+    detailsBtn.addEventListener("click", () => {
+      openTravelerDetails(job);
+    });
+  }
+
+  // PICKED UP → Traveler modal + show proof section
+  else if (status === "picked_up") {
+    detailsBtn.addEventListener("click", () => {
+      openTravelerDetails(job);
+
+      const proofSection = document.querySelector(".delivery-photo-section");
+      if (proofSection) proofSection.classList.remove("hidden");
+    });
+  }
+
+  // COMPLETED → Traveler modal (read-only)
+  else if (status === "completed") {
+    detailsBtn.addEventListener("click", () => {
+      openTravelerDetails(job);
+    });
   }
 }
-
+}
 /* ============================================================
    OPEN PROOF OF DELIVERY MODAL
 ============================================================ */
