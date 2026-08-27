@@ -986,6 +986,7 @@ else if (status === "picked_up") {
 else if (status === "completed") {
   detailsBtn.addEventListener("click", () => openTravelerDetails(job));
 }
+}
 /* ============================================================
    OPEN PROOF OF DELIVERY MODAL
 ============================================================ */
