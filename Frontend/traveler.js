@@ -962,25 +962,25 @@ function renderJobCard(job, status, listElement) {
     deliveredBtn.addEventListener("click", () => completeJob(deliveryId));
   }
 
-  /* ============================================================
+/* ============================================================
      VIEW DETAILS — CORRECT BEHAVIOR FOR EACH STATUS
 ============================================================ */
-  const detailsBtn = card.querySelector(".details-btn");
+const detailsBtn = card.querySelector(".details-btn");
 
-  if (detailsBtn) {
-    if (status === "available") {
-      detailsBtn.addEventListener("click", () => openJobDetailsModal(job));
-    } else {
-      detailsBtn.addEventListener("click", () => {
-        openTravelerDetails(job);
+if (detailsBtn) {
+  if (status === "available") {
+    detailsBtn.addEventListener("click", () => openJobDetailsModal(job));
+  } else {
+    detailsBtn.addEventListener("click", () => {
+      openTravelerDetails(job);
 
-        if (status === "picked_up") {
-          const proofSection = document.querySelector(".delivery-photo-section");
-          if (proofSection) proofSection.classList.remove("hidden");
-        }
-      });
-    }
+      if (status === "picked_up") {
+        const proofSection = document.querySelector(".delivery-photo-section");
+        if (proofSection) proofSection.classList.remove("hidden");
+      }
+    });
   }
+}
 
 /* ============================================================
    OPEN PROOF OF DELIVERY MODAL
