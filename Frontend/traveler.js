@@ -303,7 +303,7 @@ async function getRealMiles(pickupAddress, dropoffAddress) {
 }
 
 /* ============================================================
-   ACCEPT / DECLINE (UPDATED — sends traveler first/last name)
+ Updated ACCEPT / DECLINE (UPDATED — sends traveler first/last name)
 ============================================================ */
 async function acceptJob(jobId) {
   try {
@@ -327,6 +327,17 @@ async function acceptJob(jobId) {
       console.error("Accept failed:", json.error || json.message);
       alert("Failed to accept job");
       return;
+    }
+
+    // ⭐ Compute miles for accepted job (same as available jobs)
+    const pickupAddress = json.data.pickupAddress || json.data.pickup?.address;
+    const dropoffAddress = json.data.dropoffAddress || json.data.dropoff?.address;
+
+    try {
+      json.data.realMiles = await computeMiles(pickupAddress, dropoffAddress);
+    } catch (mileErr) {
+      console.error("Error computing miles:", mileErr);
+      json.data.realMiles = 0; // fallback
     }
 
     // ⭐ FIX #2 — Replace stale job object with fresh backend version
@@ -970,7 +981,6 @@ function renderJobCard(job, status, listElement) {
       });
     }
   }
-}
 
 /* ============================================================
    OPEN PROOF OF DELIVERY MODAL
