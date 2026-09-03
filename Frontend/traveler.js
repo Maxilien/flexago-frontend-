@@ -913,6 +913,31 @@ function renderJobCard(job, status, listElement) {
 
   </div>
 ` : ""}
+${status === "picked_up" ? `
+  <div class="action-row">
+
+    <!-- Chat stays the same -->
+    <button class="chat-bubble-btn" data-id="${deliveryId}" title="Chat with Sender">
+      <i data-lucide="message-square"></i>
+    </button>
+
+    <!-- ⭐ Proof of Delivery -->
+    <button class="primary-btn proof-btn" data-id="${deliveryId}">
+      Proof of Delivery
+    </button>
+
+    <!-- ⭐ Complete Delivery -->
+    <button class="primary-btn complete-delivery-btn" data-id="${deliveryId}">
+      Complete Delivery
+    </button>
+
+    <!-- ⭐ Delivered (hidden until proof + signature done) -->
+    <button class="primary-btn delivered-btn hidden" data-id="${deliveryId}">
+      Delivered
+    </button>
+
+  </div>
+` : ""}
 
       ${status === "completed" ? `
         <div class="completed-tag">Completed</div>
