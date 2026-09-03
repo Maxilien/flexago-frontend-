@@ -894,24 +894,25 @@ function renderJobCard(job, status, listElement) {
       ` : ""}
 
       ${status === "accepted" ? `
-        <div class="action-row">
-          <button class="chat-bubble-btn" data-id="${deliveryId}" title="Chat with Sender">
-            <i data-lucide="message-square"></i>
-          </button>
-          <button class="primary-btn pickup-btn" data-id="${deliveryId}">Pick Up</button>
-        </div>
-      ` : ""}
+  <div class="action-row">
 
-      ${status === "picked_up" ? `
-        <div class="action-row">
-          <button class="chat-bubble-btn" data-id="${deliveryId}" title="Chat with Sender">
-            <i data-lucide="message-square"></i>
-          </button>
-          <button class="primary-btn complete-delivery-btn" data-id="${deliveryId}">Complete Delivery</button>
-        </div>
-        <button class="primary-btn proof-btn" data-id="${deliveryId}">Proof of Delivery</button>
-        <button class="status-btn delivered-btn primary-btn hidden" data-id="${deliveryId}">Delivered</button>
-      ` : ""}
+    <!-- Chat stays the same -->
+    <button class="chat-bubble-btn" data-id="${deliveryId}" title="Chat with Sender">
+      <i data-lucide="message-square"></i>
+    </button>
+
+    <!-- ⭐ NEW: Verify Pickup Code -->
+    <button class="primary-btn verify-pickup-btn" data-id="${deliveryId}">
+      Verify Pickup Code
+    </button>
+
+    <!-- ⭐ Pick Up (hidden until verified) -->
+    <button class="primary-btn pickup-btn hidden" data-id="${deliveryId}">
+      Pick Up
+    </button>
+
+  </div>
+` : ""}
 
       ${status === "completed" ? `
         <div class="completed-tag">Completed</div>
@@ -944,9 +945,27 @@ function renderJobCard(job, status, listElement) {
     card.querySelector(".decline-btn").addEventListener("click", () => declineJob(deliveryId));
   }
 
-  if (status === "accepted") {
-    card.querySelector(".pickup-btn").addEventListener("click", () => pickupJob(deliveryId));
+if (status === "accepted") {
+
+  const verifyBtn = card.querySelector(".verify-pickup-btn");
+  const pickupBtn = card.querySelector(".pickup-btn");
+
+  // Show correct buttons
+  if (!job.pickupVerified) {
+    verifyBtn.classList.remove("hidden");
+    pickupBtn.classList.add("hidden");
+  } else {
+    verifyBtn.classList.add("hidden");
+    pickupBtn.classList.remove("hidden");
   }
+
+  // ⭐ Wire verify button
+  verifyBtn.addEventListener("click", () => verifyPickup(deliveryId));
+
+  // ⭐ Wire pick up button
+  pickupBtn.addEventListener("click", () => pickupJob(deliveryId));
+}
+
 
   if (status === "picked_up") {
 
