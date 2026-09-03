@@ -303,7 +303,7 @@ async function getRealMiles(pickupAddress, dropoffAddress) {
 }
 
 /* ============================================================
- Updated ACCEPT / DECLINE (UPDATED — sends traveler first/last name)
+   ACCEPT JOB (Traveler accepts delivery)
 ============================================================ */
 async function acceptJob(jobId) {
   try {
@@ -329,29 +329,34 @@ async function acceptJob(jobId) {
       return;
     }
 
-    // ⭐ Compute miles for accepted job (same as available jobs)
-    const pickupAddress = json.data.pickupAddress || json.data.pickup?.address;
-    const dropoffAddress = json.data.dropoffAddress || json.data.dropoff?.address;
+    // ⭐ ALWAYS use the backend job object (json.data)
+    const job = json.data;
+
+    // ⭐ Compute miles BEFORE inserting job into acceptedJobs
+    const pickupAddress = job.pickupAddress || job.pickup?.address;
+    const dropoffAddress = job.dropoffAddress || job.dropoff?.address;
 
     try {
-      json.data.realMiles = await computeMiles(pickupAddress, dropoffAddress);
+      job.realMiles = await computeMiles(pickupAddress, dropoffAddress);
     } catch (mileErr) {
       console.error("Error computing miles:", mileErr);
-      json.data.realMiles = 0; // fallback
+      job.realMiles = 0; // fallback
     }
 
-    // ⭐ FIX #2 — Replace stale job object with fresh backend version
+    // ⭐ Replace stale job with fresh backend job (with pickupCode + pickupVerified)
     const idx = acceptedJobs.findIndex(j => j._id === jobId);
     if (idx !== -1) {
-      acceptedJobs[idx] = json.data;   // replace old job
+      acceptedJobs[idx] = job;
     } else {
-      acceptedJobs.push(json.data);    // add new job
+      acceptedJobs.push(job);
     }
 
-    // Remove job from available list
+    // ⭐ Remove job from available list
     availableJobs = availableJobs.filter(j => j._id !== jobId);
 
     closeJobDetailsModal();
+
+    // ⭐ Refresh UI so pickupCode + pickupVerified appear
     refreshJobs();
 
   } catch (err) {
