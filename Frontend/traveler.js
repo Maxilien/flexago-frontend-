@@ -1109,6 +1109,30 @@ function openTravelerDetails(job) {
   panel.querySelector(".item-size").textContent = safe(job.package?.size);
   panel.querySelector(".item-weight").textContent = safe(job.package?.weight);
   panel.querySelector(".item-fragility").textContent = safe(job.package?.fragility);
+// ============================================================
+// PICKUP SECURITY — SHOW CODE + VERIFIED STATUS
+// ============================================================
+const codeSection = panel.querySelector(".pickup-code-section");
+const codeValue = panel.querySelector(".pickup-code-value");
+const codeVerified = panel.querySelector(".pickup-code-verified");
+
+if (codeSection) {
+  // Show the pickup code
+  codeValue.textContent = job.pickupCode || "—";
+
+  // Show verified status
+  if (job.pickupVerified) {
+    codeVerified.textContent = "✔ Code Verified";
+    codeVerified.style.color = "green";
+    codeVerified.classList.remove("hidden");
+  } else {
+    codeVerified.textContent = "Not Verified";
+    codeVerified.style.color = "red";
+    codeVerified.classList.remove("hidden");
+  }
+
+  codeSection.classList.remove("hidden");
+}
 
   // Photo
   const photo = panel.querySelector(".item-photo");
