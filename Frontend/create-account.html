@@ -199,47 +199,49 @@
 
 <div class="create-container">
 
-  <h1>Create Your Flexago Account</h1>
-  <p>Complete your account setup below.</p>
+<h1>Create Your Flexago Account</h1>
+<p>Complete your account setup below.</p>
 
-  <div id="statusArea"></div>
+<div id="statusArea"></div>
 
-  <form id="createAccountForm">
+<form id="createAccountForm">
 
-    <input id="firstName" type="text" placeholder="First Name" />
-    <input id="lastName" type="text" placeholder="Last Name" />
+  <input id="firstName" type="text" placeholder="First Name" />
+  <input id="lastName" type="text" placeholder="Last Name" />
 
-    <!-- ⭐ GLOBAL LOCATION AUTOCOMPLETE -->
-    <input id="address" type="text" placeholder="Address (Start typing…)" />
+  <!-- ⭐ GLOBAL LOCATION AUTOCOMPLETE -->
+  <!-- This is your visible address field -->
+  <input id="address" type="text" placeholder="Address (Start typing…)" />
 
-    <input id="city" type="text" placeholder="City" readonly />
-    <input id="state" type="text" placeholder="State" readonly />
-    <input id="zipcode" type="text" placeholder="Zipcode" readonly />
-    <input id="country" type="text" placeholder="Country" readonly />
+  <!-- ⭐ These MUST have IDs for JS to fill them -->
+  <input id="city" type="text" placeholder="City" readonly />
+  <input id="state" type="text" placeholder="State" readonly />
+  <input id="zipcode" type="text" placeholder="Zipcode" readonly />
+  <input id="country" type="text" placeholder="Country" readonly />
 
-    <!-- Existing fields -->
-    <input id="email" type="email" placeholder="Email" />
-    <input id="phone" type="text" placeholder="Phone Number" />
+  <!-- Existing fields -->
+  <input id="email" type="email" placeholder="Email" />
+  <input id="phone" type="text" placeholder="Phone Number" />
 
-    <input id="password" type="password" placeholder="Password (min 6 chars)" />
-    <input id="confirmPassword" type="password" placeholder="Confirm Password" />
+  <input id="password" type="password" placeholder="Password (min 6 chars)" />
+  <input id="confirmPassword" type="password" placeholder="Confirm Password" />
 
-    <select id="role">
-      <option value="" disabled selected>Select Role</option>
-      <option value="traveler">Traveler</option>
-      <option value="sender">Sender</option>
-    </select>
+  <select id="role">
+    <option value="" disabled selected>Select Role</option>
+    <option value="traveler">Traveler</option>
+    <option value="sender">Sender</option>
+  </select>
 
-    <p class="sms-cta">
-      By submitting your phone number to create your account, you are agreeing to receive SMS from Flexago for account verification, login security, delivery notifications, and important account updates. Message frequency varies. Message and data rates may apply. Reply STOP to opt out and HELP for HELp.
-      <a href="https://www.flexagoo.com/privacy.html" target="_blank">Privacy Policy</a>
-      and
-      <a href="https://www.flexagoo.com/terms.html" target="_blank">Terms of Service</a>.
-    </p>
+  <p class="sms-cta">
+    By submitting your phone number to create your account, you are agreeing to receive SMS from Flexago for account verification, login security, delivery notifications, and important account updates. Message frequency varies. Message and data rates may apply. Reply STOP to opt out and HELP for HELp.
+    <a href="https://www.flexagoo.com/privacy.html" target="_blank">Privacy Policy</a>
+    and
+    <a href="https://www.flexagoo.com/terms.html" target="_blank">Terms of Service</a>.
+  </p>
 
-    <button id="createBtn" class="primary-btn" type="submit">Create Account</button>
+  <button id="createBtn" class="primary-btn" type="submit">Create Account</button>
 
-  </form>
+</form>
 
 </div>
 
@@ -345,5 +347,6 @@
     })
     .catch(err => console.error("Location detection failed:", err));
 </script>
+
 </body>
 </html>
