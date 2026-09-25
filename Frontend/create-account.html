@@ -263,26 +263,23 @@
 
 <script src="create-account.js"></script>
 
-<!-- ⭐ GOOGLE MAPS JS API (2026) -->
-<script async
-  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBhFXLfZHwpdaGkprcpKgKZiQDw2Vg_ArI&libraries=places&v=weekly">
+<!-- ⭐ GOOGLE MAPS JS API (classic, stable, same as Traveler/Sender) -->
+<script
+  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBhFXLfZHwpdaGkprcpKgKZiQDw2Vg_ArI&libraries=places&callback=initAutocomplete"
+  async defer>
 </script>
 
-<!-- ⭐ REQUIRED: GOOGLE MAPS WEB COMPONENTS -->
-<script type="module" src="https://unpkg.com/@googlemaps/extended-component-library"></script>
-
-<!-- ⭐ NEW PLACE AUTOCOMPLETE ELEMENT -->
-<gmpx-place-autocomplete
-  id="address-autocomplete"
-  placeholder="Enter your address"
-  style="width: 100%; display: block;">
-</gmpx-place-autocomplete>
-
 <script>
-  const autocomplete = document.getElementById("address-autocomplete");
+function initAutocomplete() {
+  const input = document.getElementById("address");
 
-  autocomplete.addEventListener("gmpx-placechange", (event) => {
-    const place = event.detail.place;
+  const autocomplete = new google.maps.places.Autocomplete(input, {
+    types: ["address"],
+    componentRestrictions: { country: ["us"] }
+  });
+
+  autocomplete.addListener("place_changed", () => {
+    const place = autocomplete.getPlace();
 
     let streetNumber = "";
     let streetName = "";
@@ -291,15 +288,15 @@
     let zipcode = "";
     let country = "";
 
-    place.addressComponents.forEach(component => {
+    place.address_components.forEach(component => {
       const types = component.types;
 
-      if (types.includes("street_number")) streetNumber = component.longText;
-      if (types.includes("route")) streetName = component.longText;
-      if (types.includes("locality")) city = component.longText;
-      if (types.includes("administrative_area_level_1")) state = component.shortText;
-      if (types.includes("postal_code")) zipcode = component.longText;
-      if (types.includes("country")) country = component.longText;
+      if (types.includes("street_number")) streetNumber = component.long_name;
+      if (types.includes("route")) streetName = component.long_name;
+      if (types.includes("locality")) city = component.long_name;
+      if (types.includes("administrative_area_level_1")) state = component.short_name;
+      if (types.includes("postal_code")) zipcode = component.long_name;
+      if (types.includes("country")) country = component.long_name;
     });
 
     document.getElementById("address").value = `${streetNumber} ${streetName}`.trim();
@@ -308,6 +305,7 @@
     document.getElementById("zipcode").value = zipcode;
     document.getElementById("country").value = country;
   });
+}
 </script>
 
 <!-- ⭐ LOCATION + LANGUAGE DETECTION -->
