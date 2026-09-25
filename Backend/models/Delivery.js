@@ -1,3 +1,8 @@
+// Models/delivery.js
+// ------------------------------------------------------
+// Flexago Delivery Model (CommonJS)
+// ------------------------------------------------------
+
 const mongoose = require("mongoose");
 
 const GeoPointSchema = new mongoose.Schema({
@@ -25,7 +30,8 @@ const PackageSchema = new mongoose.Schema({
   insurance: Boolean,
   deliveryType: String,
   description: String,
-  declaredValue: Number
+  declaredValue: Number,
+  photoUrl: { type: String, default: null }
 });
 
 const DeliverySchema = new mongoose.Schema(
@@ -35,6 +41,8 @@ const DeliverySchema = new mongoose.Schema(
       phone: String,
       email: String
     },
+
+    senderId: { type: String, required: true },
 
     receiver: {
       name: String,
@@ -50,7 +58,22 @@ const DeliverySchema = new mongoose.Schema(
     price: { type: Number, required: true },
     payoutAmount: { type: Number, required: true },
 
-    travelerId: { type: String, default: null },
+    travelerId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Traveler",
+      default: null
+    },
+
+    // ⭐ Traveler details (first + last name)
+    travelerDetails: {
+      firstName: String,
+      lastName: String
+    },
+
+    // ⭐ NEW — Pickup security fields
+    pickupCode: String,                     // 6-digit pickup verification code
+    pickupQR: String,                       // optional QR token
+    pickupVerified: { type: Boolean, default: false }, // traveler must verify pickup
 
     status: {
       type: String,
@@ -72,7 +95,6 @@ const DeliverySchema = new mongoose.Schema(
     payoutCompletedAt: Date,
 
     proofPhoto: String,
-
     notes: String
   },
   { timestamps: true }

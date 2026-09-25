@@ -5,6 +5,24 @@
 
 console.log("🟢 app.js LOADED");
 
+const fs = require("fs");
+
+// ============================================================
+// ⭐ GOOGLE CLOUD CREDENTIAL LOADER (Render + Local)
+// ============================================================
+
+if (process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
+  try {
+    fs.writeFileSync(
+      "service-account.json",
+      process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON
+    );
+    console.log("🔐 Google credentials loaded from Render env variable.");
+  } catch (err) {
+    console.error("❌ Failed to write service-account.json:", err);
+  }
+}
+
 const express = require("express");
 const cors = require("cors");
 
@@ -28,11 +46,35 @@ const identityRoutes = require("./routes/identity");
 const verifyStatusRoutes = require("./routes/verifyStatus");
 const identityWebhook = require("./routes/identityWebhook");
 
+// ⭐ NEW — Email Verification Route
+const verifyEmailRoutes = require("./routes/verifyEmailRoutes");
+
 // ⭐ NEW — Create Account Route
 const createAccountRoutes = require("./routes/create-account");
 
 // ⭐ NEW — Twilio Phone Verification Route
-const verifyPhoneRoutes = require("./routes/verify");   // <── THIS IS THE FIX
+const verifyPhoneRoutes = require("./routes/verify");
+
+// ⭐ NEW — ADMIN ROUTES
+const adminAuthRoutes = require("./routes/adminAuth");
+const adminUsersRoutes = require("./routes/adminUsers");
+
+// ⭐ UPDATED — Deliveries replaces Orders
+const adminDeliveriesRoutes = require("./routes/adminDeliveries");
+
+const adminEscrowRoutes = require("./routes/adminEscrow");
+const adminPayoutsRoutes = require("./routes/adminPayouts");
+const adminRevenueRoutes = require("./routes/adminRevenue");
+const adminAnalyticsRoutes = require("./routes/adminAnalytics");
+
+// ⭐ NEW — Admin Background Check Dashboard
+const adminBackgroundRoutes = require("./routes/adminBackground");
+
+// ⭐ NEW — Support Chat Route
+const supportChatRoute = require("./support/chat");
+
+// ⭐ NEW — Checkr Background Check Webhook
+const checkrWebhookRoute = require("./routes/checkrWebhook");
 
 const errorHandler = require("./middleware/errorHandler");
 
@@ -42,23 +84,37 @@ const app = express();
    CORE MIDDLEWARE (UPDATED CORS)
    ============================================================ */
 
+const allowedOrigins = [
+  "http://127.0.0.1:5500",
+  "http://localhost:5500",
+  "http://127.0.0.1",
+  "http://localhost",
+  "https://flexago-frontend.onrender.com",
+  "https://flexago-backend.onrender.com",
+  "https://www.flexagoo.com",
+  "https://flexagoo.com",
+  "https://app.flexagoo.com"
+];
+
 app.use(cors({
-  origin: [
-    "http://127.0.0.1:5500",
-    "http://localhost:5500",
-    "http://127.0.0.1",
-    "http://localhost",
-    "https://flexago-frontend.onrender.com",
-    "https://flexago-backend.onrender.com"
-  ],
+  origin: allowedOrigins,
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true
 }));
 
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.header("Access-Control-Allow-Origin", origin);
+  }
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  next();
+});
+
 app.options("*", cors());
 
-// IMPORTANT: Stripe Webhooks require RAW body BEFORE express.json()
+// Stripe Webhooks require RAW body BEFORE express.json()
 app.use("/webhook", express.raw({ type: "application/json" }));
 
 // JSON parser for all other routes
@@ -95,14 +151,41 @@ app.use("/api/verify", identityRoutes);
 // Identity Verification Status (check if verified)
 app.use("/api/verify", verifyStatusRoutes);
 
-// ⭐ NEW — Twilio Phone Verification (THIS FIXES YOUR 404)
+// ⭐ NEW — Email Verification
+app.use("/api/verify", verifyEmailRoutes);
+
+// ⭐ NEW — Twilio Phone Verification
 app.use("/api/verify", verifyPhoneRoutes);
 
-// Stripe Identity Webhook (verification events)
+// Stripe Identity Webhook
 app.use("/webhook", identityWebhook);
 
 // ⭐ NEW — Create Account (Traveler/Sender)
 app.use("/api/account", createAccountRoutes);
+
+// ⭐ NEW — Support Chat API
+app.use("/api/support/chat", supportChatRoute);
+
+// ⭐ NEW — Checkr Background Check Webhook
+app.use("/api/checkr/webhook", checkrWebhookRoute);
+
+/* ============================================================
+   ⭐ ADMIN ROUTES (JWT PROTECTED)
+   ============================================================ */
+
+app.use("/api/admin", adminAuthRoutes);
+app.use("/api/admin/users", adminUsersRoutes);
+
+// ⭐ UPDATED — Deliveries replaces Orders
+app.use("/api/admin/deliveries", adminDeliveriesRoutes);
+
+app.use("/api/admin/escrow", adminEscrowRoutes);
+app.use("/api/admin/payouts", adminPayoutsRoutes);
+app.use("/api/admin/revenue", adminRevenueRoutes);
+app.use("/api/admin/analytics", adminAnalyticsRoutes);
+
+// ⭐ NEW — Admin Background Check Dashboard
+app.use("/api/admin/background", adminBackgroundRoutes);
 
 /* ============================================================
    ERROR HANDLER
@@ -115,4 +198,3 @@ app.use(errorHandler);
    ============================================================ */
 
 module.exports = app;
-

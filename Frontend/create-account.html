@@ -261,23 +261,23 @@
 
 <script src="create-account.js"></script>
 
-<!-- ⭐ GOOGLE AUTOCOMPLETE -->
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBhFXLfZHwpdaGkprcpKgKZiQDw2Vg_ArI&libraries=places,geometry&v=beta&callback=initMap"></script>
+<!-- ⭐ NEW GOOGLE MAPS API (2026) -->
+<script async
+  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBhFXLfZHwpdaGkprcpKgKZiQDw2Vg_ArI&libraries=places&v=weekly">
+</script>
+
+<!-- ⭐ NEW PLACE AUTOCOMPLETE ELEMENT -->
+<gmpx-place-autocomplete
+  id="address-autocomplete"
+  placeholder="Enter your address"
+  style="width: 100%; display: block;">
+</gmpx-place-autocomplete>
 
 <script>
-  let autocomplete;
+  const autocomplete = document.getElementById("address-autocomplete");
 
-  function initAutocomplete() {
-    autocomplete = new google.maps.places.Autocomplete(
-      document.getElementById("address"),
-      { types: ["address"] }
-    );
-
-    autocomplete.addListener("place_changed", fillAddressFields);
-  }
-
-  function fillAddressFields() {
-    const place = autocomplete.getPlace();
+  autocomplete.addEventListener("gmpx-placechange", (event) => {
+    const place = event.detail.place;
 
     let streetNumber = "";
     let streetName = "";
@@ -286,15 +286,15 @@
     let zipcode = "";
     let country = "";
 
-    place.address_components.forEach(component => {
+    place.addressComponents.forEach(component => {
       const types = component.types;
 
-      if (types.includes("street_number")) streetNumber = component.long_name;
-      if (types.includes("route")) streetName = component.long_name;
-      if (types.includes("locality")) city = component.long_name;
-      if (types.includes("administrative_area_level_1")) state = component.short_name;
-      if (types.includes("postal_code")) zipcode = component.long_name;
-      if (types.includes("country")) country = component.long_name;
+      if (types.includes("street_number")) streetNumber = component.longText;
+      if (types.includes("route")) streetName = component.longText;
+      if (types.includes("locality")) city = component.longText;
+      if (types.includes("administrative_area_level_1")) state = component.shortText;
+      if (types.includes("postal_code")) zipcode = component.longText;
+      if (types.includes("country")) country = component.longText;
     });
 
     document.getElementById("address").value = `${streetNumber} ${streetName}`.trim();
@@ -302,9 +302,7 @@
     document.getElementById("state").value = state;
     document.getElementById("zipcode").value = zipcode;
     document.getElementById("country").value = country;
-  }
-
-  window.onload = initAutocomplete;
+  });
 </script>
 
 <!-- ⭐ LOCATION + LANGUAGE DETECTION -->
@@ -333,22 +331,16 @@
       const city = data.city;
       const country = data.country_name;
 
-      // ⭐ Show city
       document.getElementById("footerLocation").innerText = city;
 
-      // ⭐ Determine language
       const lang = languageMap[country] || "en";
 
-      // ⭐ Update dropdown
       const selector = document.getElementById("languageSelector");
       if (selector) selector.value = lang;
 
-      // ⭐ Show FULL language name
       document.getElementById("footerLanguage").innerText = fullLanguageNames[lang];
     })
     .catch(err => console.error("Location detection failed:", err));
 </script>
-
-
 </body>
 </html>

@@ -4,7 +4,7 @@ const Delivery = require("../models/Delivery");
 console.log("🟢 Flexago Marketplace Delivery Controller Loaded");
 
 /* ============================================================
-   GEO HELPERS
+   GEO HELPERS FOR LOCATION
    ============================================================ */
 const EARTH_RADIUS_MILES = 3958.8;
 
@@ -127,32 +127,58 @@ async function createDelivery(req, res) {
       });
     }
 
-    const numericPrice = Number(price) || 25;
-    const payoutAmount = numericPrice * 0.8;
+// ⭐ Price must equal Estimated Cost from sender.js
+const numericPrice = Number(price);
 
-    const delivery = await Delivery.create({
-      sender,
-      receiver,
-      pickup,
-      dropoff,
+// ⭐ Payout stays the same %
+const payoutAmount = numericPrice * 0.8;
 
-      // FIXED PACKAGE MAPPING
-      package: {
-        type: pkg?.type || "",
-        weight: pkg?.weight || null,
-        size: pkg?.size || "",
-        insurance: pkg?.insurance || false,
-        deliveryType: pkg?.deliveryType || "",
-        description: pkg?.description || "",
-        declaredValue: pkg?.declaredValue || null,
-        photoUrl: pkg?.photoUrl || ""
-      },
+// ✅ Upload base64 photo to Cloudinary if present
+let resolvedPhotoUrl = null;
 
-      notes,
-      price: numericPrice,
-      payoutAmount,
-      status: "available"
+if (pkg?.photoUrl && pkg.photoUrl.startsWith("data:")) {
+  try {
+    const cloudinary = require("cloudinary").v2;
+    cloudinary.config({
+      cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+      api_key:    process.env.CLOUDINARY_API_KEY,
+      api_secret: process.env.CLOUDINARY_API_SECRET,
     });
+    const uploaded = await cloudinary.uploader.upload(pkg.photoUrl, {
+      folder: "flexago/deliveries",
+      transformation: [{ width: 800, quality: "auto" }]
+    });
+    resolvedPhotoUrl = uploaded.secure_url;
+    console.log("✅ Photo uploaded to Cloudinary:", resolvedPhotoUrl);
+  } catch (uploadErr) {
+    console.error("❌ Cloudinary upload failed:", uploadErr.message);
+    resolvedPhotoUrl = null;
+  }
+}
+
+const delivery = await Delivery.create({
+  senderId: req.body.senderId,   // ⭐ REQUIRED FIX
+  sender,
+  receiver,
+  pickup,
+  dropoff,
+
+  package: {
+    type: pkg?.type || "",
+    weight: pkg?.weight || null,
+    size: pkg?.size || "",
+    insurance: pkg?.insurance || false,
+    deliveryType: pkg?.deliveryType || "",
+    description: pkg?.description || "",
+    declaredValue: pkg?.declaredValue || null,
+    photoUrl: resolvedPhotoUrl
+  },
+
+  notes,
+  price: numericPrice,
+  payoutAmount,
+  status: "available"
+});
 
     res.status(201).json({ success: true, data: delivery });
   } catch (err) {
@@ -242,12 +268,12 @@ async function searchTravelerJobs(req, res) {
 }
 
 /* ============================================================
-   ACCEPT JOB — FIXED VERSION
-   ============================================================ */
+   ACCEPT JOB — FINAL FIX (FULL DELIVERY DOCUMENT RETURNED)
+============================================================ */
 async function acceptTravelerJob(req, res) {
   try {
     const { jobId } = req.params;
-    const { travelerId } = req.body;
+    const { travelerId, travelerDetails } = req.body;
 
     if (!travelerId) {
       return res.status(400).json({
@@ -256,7 +282,7 @@ async function acceptTravelerJob(req, res) {
       });
     }
 
-    const job = await Delivery.findById(jobId);
+    let job = await Delivery.findById(jobId);
     if (!job) {
       return res.status(404).json({ success: false, error: "Job not found" });
     }
@@ -265,16 +291,44 @@ async function acceptTravelerJob(req, res) {
       return res.status(400).json({ success: false, error: "Job already taken" });
     }
 
+    // Save travelerId
+    job.travelerId = travelerId;
+
+    // Save travelerDetails
+    if (travelerDetails) {
+      job.travelerDetails = {
+        firstName: travelerDetails.firstName || "",
+        lastName: travelerDetails.lastName || ""
+      };
+    }
+
+    // Generate pickup security code
+    job.pickupCode = Math.floor(100000 + Math.random() * 900000).toString();
+
+    // Generate QR token
+    job.pickupQR = require("crypto").randomBytes(16).toString("hex");
+
+    job.pickupVerified = false;
+
     job.status = "accepted";
-    job.traveler = travelerId;   // ⭐ FIXED
     job.acceptedAt = new Date();
 
     await job.save();
 
-    res.json({ success: true, data: job });
+    // ⭐ CRITICAL FIX — return FULL job including coordinates
+    const fullJob = await Delivery.findById(job._id).lean();
+
+    return res.json({
+      success: true,
+      data: fullJob
+    });
+
   } catch (err) {
     console.error("Accept Job Error:", err);
-    res.status(500).json({ success: false, error: "Server error" });
+    return res.status(500).json({
+      success: false,
+      error: "Server error"
+    });
   }
 }
 
@@ -366,6 +420,44 @@ async function payoutTravelerJob(req, res) {
     res.status(500).json({ success: false, error: "Server error" });
   }
 }
+/* ============================================================
+   VERIFY PICKUP — Traveler enters code or scans QR
+============================================================ */
+async function verifyPickupCode(req, res) {
+  try {
+    const { jobId } = req.params;
+    const { code, qr } = req.body;
+
+    const job = await Delivery.findById(jobId);
+    if (!job) {
+      return res.status(404).json({ success: false, error: "Job not found" });
+    }
+
+    // Must match either code or QR
+    const codeMatches = code && job.pickupCode === code;
+    const qrMatches = qr && job.pickupQR === qr;
+
+    if (!codeMatches && !qrMatches) {
+      return res.status(400).json({
+        success: false,
+        error: "Invalid pickup verification"
+      });
+    }
+
+    // Mark pickup verified
+    job.pickupVerified = true;
+    job.status = "in_transit";
+    job.pickedUpAt = new Date();
+
+    await job.save();
+
+    res.json({ success: true, data: job });
+  } catch (err) {
+    console.error("Verify Pickup Error:", err);
+    res.status(500).json({ success: false, error: "Server error" });
+  }
+}
+
 
 /* ============================================================
    EXPORT CONTROLLER
@@ -377,5 +469,6 @@ module.exports = {
   pickupTravelerJob,
   deliverTravelerJob,
   completeTravelerJob,
-  payoutTravelerJob
+  payoutTravelerJob,
+  verifyPickupCode   // ⭐ FIXED
 };
