@@ -1056,23 +1056,23 @@
 <button id="openChatBtn" class="chat-floating-btn">
   <i data-lucide="message-circle"></i>
 </button>
- </div>
+</div>
 </main>
+
 <!-- ========================================================= -->
 <!-- SCRIPTS (FINAL, RACE‑CONDITION SAFE)                      -->
 <!-- ========================================================= -->
+
 <!-- ⭐ Logout -->
 <script src="logout.js"></script>
-<!-- 1. Safe initMap wrapper (prevents early Google Maps calls) -->
+
+<!-- 1. Safe initMap wrapper -->
 <script>
   window.initMap = function initMapSafe() {
-    // If sender.js is loaded and initSenderMap exists → run it
     if (typeof window.initSenderMap === "function") {
       window.initSenderMap();
       return;
     }
-
-    // Otherwise retry until sender.js finishes parsing
     setTimeout(initMapSafe, 50);
   };
 </script>
@@ -1083,16 +1083,73 @@
 <!-- 3. i18n -->
 <script src="i18n.js"></script>
 
-<!-- 4. Socket.IO (use CDN, Render version is unreliable) -->
+<!-- 4. Socket.IO -->
 <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
 
-<!-- 5. Sender logic (MUST load BEFORE Google Maps) -->
+<!-- 5. Sender logic -->
 <script src="./sender.js"></script>
-<!-- ADD THIS RIGHT HERE -->
+
 <script>
   window.initSenderMap = window.initSenderMap || function(){};
 </script>
-<!-- 6. Google Maps (loads last, async, safe) -->
+
+<!-- ⭐⭐⭐ AUTO‑FILL VERIFIED USER INFO INTO ACCOUNT & IDENTITY ⭐⭐⭐ -->
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const user = JSON.parse(localStorage.getItem("flexagoUser"));
+
+  if (!user) {
+    console.warn("No user found in localStorage.");
+    return;
+  }
+
+  // Personal Information
+  if (document.getElementById("firstName")) {
+    document.getElementById("firstName").value = user.firstName || "";
+  }
+  if (document.getElementById("lastName")) {
+    document.getElementById("lastName").value = user.lastName || "";
+  }
+  if (document.getElementById("phoneNumber")) {
+    document.getElementById("phoneNumber").value = user.phone || "";
+  }
+  if (document.getElementById("emailAddress")) {
+    document.getElementById("emailAddress").value = user.email || "";
+  }
+
+  // Address fields (if present in Sender Identity)
+  if (document.getElementById("address")) {
+    document.getElementById("address").value = user.address || "";
+  }
+  if (document.getElementById("city")) {
+    document.getElementById("city").value = user.city || "";
+  }
+  if (document.getElementById("state")) {
+    document.getElementById("state").value = user.state || "";
+  }
+  if (document.getElementById("zipcode")) {
+    document.getElementById("zipcode").value = user.zipcode || "";
+  }
+  if (document.getElementById("country")) {
+    document.getElementById("country").value = user.country || "";
+  }
+
+  // Verification Badges
+  if (user.kycVerified) {
+    if (document.getElementById("phoneVerified")) {
+      document.getElementById("phoneVerified").innerText = "✓ Verified";
+    }
+    if (document.getElementById("emailVerified")) {
+      document.getElementById("emailVerified").innerText = "✓ Verified";
+    }
+    if (document.getElementById("identityVerified")) {
+      document.getElementById("identityVerified").innerText = "✓ Verified";
+    }
+  }
+});
+</script>
+
+<!-- 6. Google Maps -->
 <script
   src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBhFXLfZHwpdaGkprcpKgKZiQDw2Vg_ArI&libraries=places&callback=initMap"
   async

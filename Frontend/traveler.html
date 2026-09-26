@@ -905,14 +905,70 @@
 </div>
 
 <!-- ================= FINAL SCRIPT INCLUDES ================= -->
+
 <!-- ⭐ Logout -->
 <script src="logout.js"></script>
 
-
-<!-- ⭐ FIXED: Traveler.js import (case‑sensitive on Render) -->
+<!-- ⭐ Traveler.js (case‑sensitive on Render) -->
 <script src="traveler.js"></script>
 
-<!-- ⭐ FIXED: Google Maps API (unchanged, but validated) -->
+<!-- ⭐⭐⭐ AUTO‑FILL VERIFIED TRAVELER INFO ⭐⭐⭐ -->
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const user = JSON.parse(localStorage.getItem("flexagoUser"));
+
+  if (!user) {
+    console.warn("No user found in localStorage.");
+    return;
+  }
+
+  // Traveler Identity Fields
+  if (document.getElementById("firstName")) {
+    document.getElementById("firstName").value = user.firstName || "";
+  }
+  if (document.getElementById("lastName")) {
+    document.getElementById("lastName").value = user.lastName || "";
+  }
+  if (document.getElementById("phoneNumber")) {
+    document.getElementById("phoneNumber").value = user.phone || "";
+  }
+  if (document.getElementById("emailAddress")) {
+    document.getElementById("emailAddress").value = user.email || "";
+  }
+
+  // Address fields (if Traveler Identity includes them)
+  if (document.getElementById("address")) {
+    document.getElementById("address").value = user.address || "";
+  }
+  if (document.getElementById("city")) {
+    document.getElementById("city").value = user.city || "";
+  }
+  if (document.getElementById("state")) {
+    document.getElementById("state").value = user.state || "";
+  }
+  if (document.getElementById("zipcode")) {
+    document.getElementById("zipcode").value = user.zipcode || "";
+  }
+  if (document.getElementById("country")) {
+    document.getElementById("country").value = user.country || "";
+  }
+
+  // Verification Badges
+  if (user.kycVerified) {
+    if (document.getElementById("phoneVerified")) {
+      document.getElementById("phoneVerified").innerText = "✓ Verified";
+    }
+    if (document.getElementById("emailVerified")) {
+      document.getElementById("emailVerified").innerText = "✓ Verified";
+    }
+    if (document.getElementById("identityVerified")) {
+      document.getElementById("identityVerified").innerText = "✓ Verified";
+    }
+  }
+});
+</script>
+
+<!-- ⭐ Google Maps API -->
 <script
   src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBhFXLfZHwpdaGkprcpKgKZiQDw2Vg_ArI&libraries=places,geometry&v=beta&callback=initMap"
   async defer>
