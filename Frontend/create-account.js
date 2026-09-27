@@ -9,6 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Collect fields
     const firstName = document.getElementById("firstName").value.trim();
     const lastName = document.getElementById("lastName").value.trim();
+    const dob = document.getElementById("dob").value.trim();
     const email = document.getElementById("email").value.trim();
     const phone = document.getElementById("phone").value.trim();
 
@@ -61,6 +62,7 @@ document.addEventListener("DOMContentLoaded", () => {
           state,
           zipcode,
           country,
+          dob,
           kycVerified: true
         })
       });
