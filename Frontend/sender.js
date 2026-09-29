@@ -961,6 +961,69 @@ function logout() {
 
   window.location.href = "login.html";
 }
+/* ============================================================
+   LOAD ACCOUNT & IDENTITY — FULL PROFILE POPULATION
+============================================================ */
+async function loadAccountAndIdentity() {
+  try {
+    const userId = window.senderId;
+    if (!userId) {
+      console.error("Missing senderId");
+      return;
+    }
+
+    const res = await fetch(`${BASE_URL}/api/users/${userId}`);
+    if (!res.ok) {
+      console.error("Failed to fetch user profile");
+      return;
+    }
+
+    const user = await res.json();
+
+    // ============================
+    // HEADER SECTION
+    // ============================
+    document.getElementById("senderNameHeader").innerText =
+      `${user.firstName || ""} ${user.lastName || ""}`;
+
+    document.getElementById("joinedDate").innerText =
+      new Date(user.createdAt).getFullYear();
+
+    document.getElementById("deliveryCount").innerText =
+      user.totalDeliveries || 0;
+
+    // ============================
+    // VERIFIED BADGES
+    // ============================
+    document.getElementById("verifiedPhone").innerText =
+      user.phone ? "✓ Verified" : "Not Verified";
+
+    document.getElementById("verifiedEmail").innerText =
+      user.email ? "✓ Verified" : "Not Verified";
+
+    document.getElementById("verifiedIdentity").innerText =
+      user.kycVerified ? "✓ Verified" : "Pending";
+
+    // ============================
+    // PERSONAL INFORMATION FIELDS
+    // ============================
+    document.getElementById("firstName").value = user.firstName || "";
+    document.getElementById("lastName").value = user.lastName || "";
+    document.getElementById("dob").value = user.dob || "";
+    document.getElementById("phone").value = user.phone || "";
+    document.getElementById("email").value = user.email || "";
+
+    document.getElementById("address").value = user.address || "";
+    document.getElementById("city").value = user.city || "";
+    document.getElementById("state").value = user.state || "";
+    document.getElementById("zipcode").value = user.zipcode || "";
+    document.getElementById("country").value = user.country || "";
+
+  } catch (err) {
+    console.error("Error loading account & identity:", err);
+  }
+}
+
 
 /* ============================================================
    FINAL DOM READY BOOTSTRAP — ACCOUNT DEFAULT
@@ -973,6 +1036,8 @@ document.addEventListener("DOMContentLoaded", () => {
   safe(initSenderPhotoUpload);
   safe(initSenderGenerateDelivery);
   safe(initSenderAccountView);
+  safe(loadAccountAndIdentity);
+
 
   // Default view = Account & Identity
 const defaultView = document.getElementById("createView");
