@@ -2303,7 +2303,7 @@ function initJobSearch() {
 document.addEventListener("DOMContentLoaded", () => {
 
   // Load Traveler Account & Identity FIRST
-  // safe(loadTravelerAccountAndIdentity);   // ❌ Removed — function no longer exists
+  safe(loadTravelerAccount);   // ⭐ REPLACEMENT for missing function
 
   // Attach Save button
   const saveBtn = document.getElementById("saveTravelerAccountBtn");
@@ -2313,6 +2313,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Initialize UI components
   safe(initTravelerSidebar);
+  safe(initTravelerAccountView);     // ⭐ MISSING — now added
+  safe(initTravelerJobs);            // ⭐ MISSING — now added
   safe(initTravelerPhotoUpload);
   safe(initTravelerMap);
   safe(initChatWidget);
