@@ -159,16 +159,14 @@
              accept="image/*"
              style="display:none;" />
 
-      <!-- ⭐ FIXED: JS expects senderNameHeader -->
+      <!-- ⭐ JS expects senderNameHeader -->
       <h2 id="senderNameHeader"
           style="margin-top:1rem; font-size:1.2rem; font-weight:600;">
         Sender Name
       </h2>
 
       <div style="color:var(--text-muted); font-size:0.85rem; margin-top:0.25rem;">
-        <!-- ⭐ FIXED: JS expects deliveryCount -->
         <span id="deliveryCount">0</span> deliveries • Joined
-        <!-- ⭐ FIXED: JS expects joinedDate -->
         <span id="joinedDate">2026</span>
       </div>
     </div>
@@ -178,9 +176,9 @@
 
     <div class="support-box" style="margin-bottom:25px;">
       <ul>
-        <li>Phone Number <span id="verifiedPhone">✓ Verified</span></li>
-        <li>Email <span id="verifiedEmail">✓ Verified</span></li>
-        <li>Identity Check <span id="verifiedIdentity">✓ Verified</span></li>
+        <li>Phone Number <span id="verifiedPhone">Not Verified</span></li>
+        <li>Email <span id="verifiedEmail">Not Verified</span></li>
+        <li>Identity Check <span id="verifiedIdentity">Pending</span></li>
       </ul>
     </div>
 
@@ -189,37 +187,33 @@
 
     <div class="form-grid">
 
+      <!-- ⭐ Identity fields (READONLY — fraud prevention) -->
       <div>
         <label class="form-label">First Name</label>
-        <!-- ⭐ FIXED: JS expects firstName -->
-        <input id="firstName" class="input-field" placeholder="First Name" />
+        <input id="firstName" class="input-field" placeholder="First Name" readonly />
       </div>
 
       <div>
         <label class="form-label">Last Name</label>
-        <!-- ⭐ FIXED: JS expects lastName -->
-        <input id="lastName" class="input-field" placeholder="Last Name" />
+        <input id="lastName" class="input-field" placeholder="Last Name" readonly />
       </div>
 
       <div>
         <label class="form-label">Date of Birth</label>
-        <!-- ⭐ FIXED: JS expects dob -->
-        <input id="dob" type="date" class="input-field" />
+        <input id="dob" type="date" class="input-field" readonly />
       </div>
 
       <div>
         <label class="form-label">Phone Number</label>
-        <!-- ⭐ FIXED: JS expects phone -->
-        <input id="phone" class="input-field" placeholder="Phone Number" />
+        <input id="phone" class="input-field" placeholder="Phone Number" readonly />
       </div>
 
       <div>
         <label class="form-label">Email Address</label>
-        <!-- ⭐ FIXED: JS expects email -->
-        <input id="email" class="input-field" placeholder="Email Address" />
+        <input id="email" class="input-field" placeholder="Email Address" readonly />
       </div>
 
-      <!-- ⭐ ADD ADDRESS FIELDS (your JS expects them) -->
+      <!-- ⭐ Address fields (EDITABLE — Option A) -->
       <div>
         <label class="form-label">Address</label>
         <input id="address" class="input-field" placeholder="Address" />
@@ -253,6 +247,7 @@
 
   </div>
 </section>
+
 <!-- ========================================================= -->
 <!-- VERIFICATION VIEW (SENDER VERSION)                        -->
 <!-- ========================================================= -->
