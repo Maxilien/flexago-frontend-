@@ -2210,43 +2210,49 @@ if (traveler.photoUrl) {
   }
 }
 /* ============================================================
-   PAGE SWITCHING (FINAL)
+   PAGE SWITCHING (FINAL — FIXED)
    ============================================================ */
 function loadPage(view) {
   const main = document.getElementById("mainContentArea");
   const jobsLayout = document.getElementById("jobsLayout");
   if (!main || !jobsLayout) return;
 
-if (view === "jobs") {
-  jobsLayout.style.display = "block";
-  main.style.display = "none";
+  // ===== JOBS VIEW =====
+  if (view === "jobs") {
+    jobsLayout.style.display = "block";
+    main.style.display = "none";
 
-  setTimeout(() => {
-    safe(initTravelerMap);
-    safe(initTravelerAutocomplete);   // ⭐ REQUIRED FIX
-    safe(initRoutePlanner);
-    safe(initJobsTabs);
-  }, 50);
+    setTimeout(() => {
+      safe(initTravelerMap);
+      safe(initTravelerAutocomplete);
+      safe(initRoutePlanner);
+      safe(initJobsTabs);
+    }, 50);
 
-  return;
-}
+    return;
+  }
 
+  // ===== OTHER VIEWS =====
   jobsLayout.style.display = "none";
   main.style.display = "block";
 
   if (view === "account") {
-    main.innerHTML = document.getElementById("template-account").innerHTML;
-    setTimeout(() => initAccountPage(), 20);
-  } else if (view === "verification") {
+    main.innerHTML = document.getElementById("travelerAccountView").innerHTML;
+    setTimeout(() => initTravelerAccountView(), 20);
+  }
+
+  else if (view === "verification") {
     main.innerHTML = document.getElementById("template-verification").innerHTML;
     setTimeout(() => initVerificationPage(), 20);
-  } else if (view === "payments") {
+  }
+
+  else if (view === "payments") {
     main.innerHTML = document.getElementById("template-payments").innerHTML;
     setTimeout(() => initPayoutsPage(), 20);
-  } else if (view === "support") {
-    main.innerHTML = "";
-    const panel = document.getElementById("supportPanel");
-    panel?.classList.remove("hidden");
+  }
+
+  else if (view === "support") {
+    main.innerHTML = document.getElementById("supportPanel").innerHTML;
     setTimeout(() => initSupportPage(), 20);
   }
 }
