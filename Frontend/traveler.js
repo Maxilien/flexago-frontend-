@@ -2254,14 +2254,14 @@ function initTravelerJobs() {
    PAGE SWITCHING (FINAL — FIXED)
 ============================================================ */
 function loadPage(view) {
-  const main = document.getElementById("mainContentArea");
+  const dynamic = document.getElementById("mainContentArea");
   const jobsLayout = document.getElementById("jobsLayout");
-  if (!main || !jobsLayout) return;
+  if (!dynamic || !jobsLayout) return;
 
   // ===== JOBS VIEW =====
   if (view === "jobs") {
     jobsLayout.style.display = "block";
-    main.style.display = "none";
+    dynamic.style.display = "none";
 
     setTimeout(() => {
       safe(initTravelerMap);
@@ -2275,25 +2275,25 @@ function loadPage(view) {
 
   // ===== OTHER VIEWS =====
   jobsLayout.style.display = "none";
-  main.style.display = "block";
+  dynamic.style.display = "block";
 
   if (view === "account") {
-    main.innerHTML = document.getElementById("travelerAccountView").innerHTML;
+    dynamic.innerHTML = document.getElementById("travelerAccountView").innerHTML;
     setTimeout(() => initTravelerAccountView(), 20);
   }
 
   else if (view === "verification") {
-    main.innerHTML = document.getElementById("template-verification").innerHTML;
+    dynamic.innerHTML = document.getElementById("template-verification").innerHTML;
     setTimeout(() => initVerificationPage(), 20);
   }
 
   else if (view === "payments") {
-    main.innerHTML = document.getElementById("template-payments").innerHTML;
+    dynamic.innerHTML = document.getElementById("template-payments").innerHTML;
     setTimeout(() => initPayoutsPage(), 20);
   }
 
   else if (view === "support") {
-    main.innerHTML = document.getElementById("supportPanel").innerHTML;
+    dynamic.innerHTML = document.getElementById("supportPanel").innerHTML;
     setTimeout(() => initSupportPage(), 20);
   }
 }
