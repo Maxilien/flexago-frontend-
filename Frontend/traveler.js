@@ -2303,18 +2303,18 @@ function initJobSearch() {
 document.addEventListener("DOMContentLoaded", () => {
 
   // Load Traveler Account & Identity FIRST
-  // safe(loadTravelerAccount);   // ❌ Removed — function does not exist
+  // safe(loadTravelerAccount);   // removed — function missing
 
   // Attach Save button
   const saveBtn = document.getElementById("saveTravelerAccountBtn");
   if (saveBtn) {
-    saveBtn.addEventListener("click", saveTravelerAccount);
+    // saveBtn.addEventListener("click", saveTravelerAccount);  // removed — function missing
   }
 
   // Initialize UI components
   safe(initTravelerSidebar);
-  safe(initTravelerAccountView);     // ⭐ REQUIRED
-  safe(initTravelerJobs);            // ⭐ REQUIRED
+  safe(initTravelerAccountView);
+  safe(initTravelerJobs);
   safe(initTravelerPhotoUpload);
   safe(initTravelerMap);
   safe(initChatWidget);
