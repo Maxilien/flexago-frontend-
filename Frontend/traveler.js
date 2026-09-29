@@ -2200,15 +2200,23 @@ if (traveler.photoUrl) {
   document.getElementById("travelerProfilePhotoPreview").src = traveler.photoUrl;
 }
 
-    /* ============================================================
+/* ============================================================
        ⭐ LOAD JOBS ONLY AFTER travelerId EXISTS
-       ============================================================ */
+============================================================ */
     await loadJobs();
 
   } catch (err) {
     console.error("Error loading traveler identity:", err);
   }
 }
+
+/* ============================================================
+   LOAD TRAVELER IDENTITY (PLACEHOLDER)
+============================================================ */
+function loadTravelerIdentity() {
+  console.log("loadTravelerIdentity() placeholder — implement API later.");
+}
+
 /* ============================================================
    TRAVELER ACCOUNT VIEW INITIALIZER (REQUIRED)
 ============================================================ */
@@ -2229,8 +2237,22 @@ function initTravelerAccountView() {
 }
 
 /* ============================================================
+   SAVE TRAVELER ACCOUNT (PLACEHOLDER)
+============================================================ */
+function saveTravelerAccount() {
+  console.log("saveTravelerAccount() placeholder — implement API later.");
+}
+
+/* ============================================================
+   TRAVELER JOBS INITIALIZER (PLACEHOLDER)
+============================================================ */
+function initTravelerJobs() {
+  console.log("initTravelerJobs() placeholder — implement job tab logic later.");
+}
+
+/* ============================================================
    PAGE SWITCHING (FINAL — FIXED)
-   ============================================================ */
+============================================================ */
 function loadPage(view) {
   const main = document.getElementById("mainContentArea");
   const jobsLayout = document.getElementById("jobsLayout");
@@ -2278,7 +2300,7 @@ function loadPage(view) {
 
 /* ============================================================
    SIDEBAR NAVIGATION (FINAL)
-   ============================================================ */
+============================================================ */
 function initTravelerSidebar() {
   const items = document.querySelectorAll(".sidebar-item");
   if (!items.length) return;
@@ -2294,9 +2316,10 @@ function initTravelerSidebar() {
     });
   });
 }
+
 /* ============================================================
    JOB SEARCH HANDLER
-   ============================================================ */
+============================================================ */
 function initJobSearch() {
   function attach() {
     const btn = document.getElementById("searchJobsBtn");
@@ -2326,15 +2349,6 @@ function initJobSearch() {
    FINAL DOM READY BOOTSTRAP — TRAVELER ACCOUNT DEFAULT
 ============================================================ */
 document.addEventListener("DOMContentLoaded", () => {
-
-  // Load Traveler Account & Identity FIRST
-  // safe(loadTravelerAccount);   // removed — function missing
-
-  // Attach Save button
-  const saveBtn = document.getElementById("saveTravelerAccountBtn");
-  if (saveBtn) {
-    // saveBtn.addEventListener("click", saveTravelerAccount);  // removed — function missing
-  }
 
   // Initialize UI components
   safe(initTravelerSidebar);
