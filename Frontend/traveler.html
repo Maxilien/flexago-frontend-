@@ -504,45 +504,66 @@
 </div>
 
 <!-- ============================================================
-     ACCOUNT TEMPLATE (NO DUPLICATE IDs)
+     TRAVELER ACCOUNT & IDENTITY — FINAL CLEAN VERSION
 ============================================================ -->
-<div id="template-account" class="page-template hidden">
+<div id="travelerAccountView" class="page-template hidden">
   <div class="account-page">
 
+    <!-- PROFILE HEADER -->
     <section class="section-block profile-header">
       <div class="profile-photo-wrapper" style="text-align:center;">
-        <img id="profilePhotoPreview" class="profile-photo-large" src="" alt="Profile Photo" />
-        <button id="profilePhotoUploadBtn" class="upload-btn small-btn" data-i18n="traveler.account.change_photo">
+        <img id="travelerProfilePhotoPreview" class="profile-photo-large" src="" alt="Profile Photo" />
+        <button id="travelerProfilePhotoUploadBtn" class="upload-btn small-btn">
           Change Photo
         </button>
-        <input id="profilePhotoInput" type="file" accept="image/*" style="display:none;" />
+        <input id="travelerProfilePhotoInput" type="file" accept="image/*" style="display:none;" />
       </div>
 
       <div class="profile-header-text" style="text-align:center;margin-top:0.8rem;">
-        <h2 id="profileFullName" class="profile-name">Traveler Name</h2>
+        <h2 id="travelerNameHeader" class="profile-name">Traveler Name</h2>
 
         <div class="profile-stats">
-          <span><span id="tripsCount">0</span> <span data-i18n="traveler.account.trips">trips</span></span>
+          <span><span id="travelerTripsCount">0</span> trips</span>
           <span>•</span>
-          <span data-i18n="traveler.account.joined">Joined</span>
-          <span id="joinedYear">2026</span>
+          <span>Joined</span>
+          <span id="travelerJoinedDate">2026</span>
         </div>
       </div>
     </section>
 
+    <!-- VERIFIED INFORMATION -->
     <section class="section-block">
-      <h2 class="section-title" data-i18n="traveler.account.personal_title">Personal Information</h2>
+      <h2 class="section-title">Verified Information</h2>
 
-      <input id="firstNameInput" class="input-field" placeholder="First Name" />
-      <input id="lastNameInput" class="input-field" placeholder="Last Name" />
-      <input id="dobInput" type="date" class="input-field" />
-
-      <input id="phoneInput" class="input-field" placeholder="Phone Number" />
-      <input id="emailInput" class="input-field" placeholder="Email Address" />
+      <ul class="support-box">
+        <li>Phone Number <span id="travelerVerifiedPhone">Not Verified</span></li>
+        <li>Email <span id="travelerVerifiedEmail">Not Verified</span></li>
+        <li>Identity Check <span id="travelerVerifiedIdentity">Pending</span></li>
+      </ul>
     </section>
 
+    <!-- PERSONAL INFORMATION -->
     <section class="section-block">
-      <button id="saveAccountBtn" class="primary-btn disabled" disabled>
+      <h2 class="section-title">Personal Information</h2>
+
+      <!-- READONLY IDENTITY FIELDS -->
+      <input id="travelerFirstName" class="input-field" placeholder="First Name" readonly />
+      <input id="travelerLastName" class="input-field" placeholder="Last Name" readonly />
+      <input id="travelerDob" type="date" class="input-field" readonly />
+      <input id="travelerPhone" class="input-field" placeholder="Phone Number" readonly />
+      <input id="travelerEmail" class="input-field" placeholder="Email Address" readonly />
+
+      <!-- EDITABLE ADDRESS FIELDS -->
+      <input id="travelerAddress" class="input-field" placeholder="Address" />
+      <input id="travelerCity" class="input-field" placeholder="City" />
+      <input id="travelerState" class="input-field" placeholder="State" />
+      <input id="travelerZipcode" class="input-field" placeholder="Zip Code" />
+      <input id="travelerCountry" class="input-field" placeholder="Country" />
+    </section>
+
+    <!-- SAVE BUTTON -->
+    <section class="section-block">
+      <button id="saveTravelerAccountBtn" class="primary-btn">
         Save Changes
       </button>
     </section>

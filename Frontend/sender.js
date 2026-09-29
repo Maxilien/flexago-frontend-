@@ -1024,6 +1024,45 @@ async function loadAccountAndIdentity() {
   }
 }
 
+/* ============================================================
+   SAVE ACCOUNT CHANGES — ADDRESS ONLY (IDENTITY LOCKED)
+============================================================ */
+async function saveSenderAccount() {
+  try {
+    const userId = window.senderId;
+    if (!userId) {
+      alert("Missing sender ID.");
+      return;
+    }
+
+    // Only editable fields (Option A)
+    const payload = {
+      address: document.getElementById("address").value.trim(),
+      city: document.getElementById("city").value.trim(),
+      state: document.getElementById("state").value.trim(),
+      zipcode: document.getElementById("zipcode").value.trim(),
+      country: document.getElementById("country").value.trim(),
+    };
+
+    const res = await fetch(`${BASE_URL}/api/users/${userId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    const json = await res.json();
+
+    if (!json.success) {
+      alert("Failed to update account: " + json.error);
+      return;
+    }
+
+    alert("Account updated successfully!");
+  } catch (err) {
+    console.error("Error saving account:", err);
+    alert("An error occurred while saving changes.");
+  }
+}
 
 /* ============================================================
    FINAL DOM READY BOOTSTRAP — ACCOUNT DEFAULT
@@ -1038,11 +1077,12 @@ document.addEventListener("DOMContentLoaded", () => {
   safe(initSenderAccountView);
   safe(loadAccountAndIdentity);
 
+  document.getElementById("saveSenderAccountBtn")
+          .addEventListener("click", saveSenderAccount);
 
   // Default view = Account & Identity
-const defaultView = document.getElementById("createView");
-if (defaultView) defaultView.classList.remove("hidden");
-
+  const defaultView = document.getElementById("accountView");   // ⭐ FIXED
+  if (defaultView) defaultView.classList.remove("hidden");
 
   // Ensure sidebar highlights Account
   const accountBtn = document.querySelector('.sidebar-item[data-view="account"]');

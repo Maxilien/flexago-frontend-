@@ -2167,31 +2167,38 @@ async function loadTravelerIdentity() {
     window.travelerId = traveler._id;
     console.log("Traveler ID loaded:", window.travelerId);
 
- /* ============================================================
-       LOAD TRAVELER PROFILE INTO UI (NO FALLBACK "T")
-       ============================================================ */
+/* ============================================================
+   LOAD TRAVELER PROFILE INTO UI (NO FALLBACK "T")
+============================================================ */
 
-    // Full name
-    const fullName = `${traveler.firstName || ""} ${traveler.lastName || ""}`.trim();
-    if (fullName.length > 0) {
-      document.getElementById("profileFullName").textContent = fullName;
-    }
+// Full name
+const fullName = `${traveler.firstName || ""} ${traveler.lastName || ""}`.trim();
+if (fullName.length > 0) {
+  document.getElementById("travelerNameHeader").textContent = fullName;
+}
 
-    // Inputs
-    document.getElementById("firstNameInput").value = traveler.firstName || "";
-    document.getElementById("lastNameInput").value = traveler.lastName || "";
-    document.getElementById("emailInput").value = traveler.email || "";
-    document.getElementById("phoneInput").value = traveler.phone || "";
+// Identity fields (readonly)
+document.getElementById("travelerFirstName").value = traveler.firstName || "";
+document.getElementById("travelerLastName").value = traveler.lastName || "";
+document.getElementById("travelerEmail").value = traveler.email || "";
+document.getElementById("travelerPhone").value = traveler.phone || "";
 
-    // DOB
-    if (traveler.dob) {
-      document.getElementById("dobInput").value = traveler.dob.split("T")[0];
-    }
+// DOB
+if (traveler.dob) {
+  document.getElementById("travelerDob").value = traveler.dob.split("T")[0];
+}
 
-    // Photo
-    if (traveler.photoUrl) {
-      document.getElementById("profilePhotoPreview").src = traveler.photoUrl;
-    }
+// Address fields (editable)
+document.getElementById("travelerAddress").value = traveler.address || "";
+document.getElementById("travelerCity").value = traveler.city || "";
+document.getElementById("travelerState").value = traveler.state || "";
+document.getElementById("travelerZipcode").value = traveler.zipcode || "";
+document.getElementById("travelerCountry").value = traveler.country || "";
+
+// Photo
+if (traveler.photoUrl) {
+  document.getElementById("travelerProfilePhotoPreview").src = traveler.photoUrl;
+}
 
     /* ============================================================
        ⭐ LOAD JOBS ONLY AFTER travelerId EXISTS
@@ -2291,20 +2298,32 @@ function initJobSearch() {
 }
 
 /* ============================================================
-   FINAL DOM READY BOOTSTRAP (FINAL)
-   ============================================================ */
+   FINAL DOM READY BOOTSTRAP — TRAVELER ACCOUNT DEFAULT
+============================================================ */
 document.addEventListener("DOMContentLoaded", () => {
-  safe(loadTravelerIdentity);   // MUST RUN FIRST — this now calls loadJobs() internally
 
-  safe(initTravelerMap);
+  // Load Traveler Account & Identity FIRST
+  safe(loadTravelerAccountAndIdentity);
+
+  // Attach Save button
+  const saveBtn = document.getElementById("saveTravelerAccountBtn");
+  if (saveBtn) {
+    saveBtn.addEventListener("click", saveTravelerAccount);
+  }
+
+  // Initialize UI components
   safe(initTravelerSidebar);
+  safe(initTravelerPhotoUpload);
+  safe(initTravelerMap);
   safe(initChatWidget);
-  //*safe(initJobSocket);//
   safe(initJobDetailsModal);
   safe(initRoutePlanner);
 
-  // ❌ REMOVE safe(loadJobs) — loadJobs() is now called inside loadTravelerIdentity()
+  // Default view = Traveler Account & Identity
+  const defaultView = document.getElementById("travelerAccountView");
+  if (defaultView) defaultView.classList.remove("hidden");
 
-  loadPage("jobs");
-  safe(initJobSearch);
+  // Highlight sidebar "Account"
+  const accountBtn = document.querySelector('.sidebar-item[data-view="account"]');
+  if (accountBtn) accountBtn.classList.add("active");
 });
