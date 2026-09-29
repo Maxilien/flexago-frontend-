@@ -2303,7 +2303,7 @@ function initJobSearch() {
 document.addEventListener("DOMContentLoaded", () => {
 
   // Load Traveler Account & Identity FIRST
-  safe(loadTravelerAccountAndIdentity);
+  // safe(loadTravelerAccountAndIdentity);   // ❌ Removed — function no longer exists
 
   // Attach Save button
   const saveBtn = document.getElementById("saveTravelerAccountBtn");
