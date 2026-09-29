@@ -2254,14 +2254,15 @@ function initTravelerJobs() {
    PAGE SWITCHING (FINAL — FIXED)
 ============================================================ */
 function loadPage(view) {
-  const dynamic = document.getElementById("mainContentArea");
+  const dynamic = document.getElementById("dynamicView");
   const jobsLayout = document.getElementById("jobsLayout");
+
   if (!dynamic || !jobsLayout) return;
 
   // ===== JOBS VIEW =====
   if (view === "jobs") {
-    jobsLayout.style.display = "block";
-    dynamic.style.display = "none";
+    dynamic.classList.add("hidden");
+    jobsLayout.classList.remove("hidden");
 
     setTimeout(() => {
       safe(initTravelerMap);
@@ -2274,8 +2275,8 @@ function loadPage(view) {
   }
 
   // ===== OTHER VIEWS =====
-  jobsLayout.style.display = "none";
-  dynamic.style.display = "block";
+  jobsLayout.classList.add("hidden");
+  dynamic.classList.remove("hidden");
 
   if (view === "account") {
     dynamic.innerHTML = document.getElementById("travelerAccountView").innerHTML;
@@ -2297,6 +2298,7 @@ function loadPage(view) {
     setTimeout(() => initSupportPage(), 20);
   }
 }
+
 
 /* ============================================================
    SIDEBAR NAVIGATION (FINAL)
