@@ -159,14 +159,17 @@
              accept="image/*"
              style="display:none;" />
 
-      <h2 id="senderProfileFullName"
+      <!-- ⭐ FIXED: JS expects senderNameHeader -->
+      <h2 id="senderNameHeader"
           style="margin-top:1rem; font-size:1.2rem; font-weight:600;">
         Sender Name
       </h2>
 
       <div style="color:var(--text-muted); font-size:0.85rem; margin-top:0.25rem;">
-        <span id="senderDeliveriesCount">0</span> deliveries • Joined
-        <span id="senderJoinedYear">2026</span>
+        <!-- ⭐ FIXED: JS expects deliveryCount -->
+        <span id="deliveryCount">0</span> deliveries • Joined
+        <!-- ⭐ FIXED: JS expects joinedDate -->
+        <span id="joinedDate">2026</span>
       </div>
     </div>
 
@@ -175,9 +178,9 @@
 
     <div class="support-box" style="margin-bottom:25px;">
       <ul>
-        <li>Phone Number ✓ Verified</li>
-        <li>Email ✓ Verified</li>
-        <li>Identity Check ✓ Verified</li>
+        <li>Phone Number <span id="verifiedPhone">✓ Verified</span></li>
+        <li>Email <span id="verifiedEmail">✓ Verified</span></li>
+        <li>Identity Check <span id="verifiedIdentity">✓ Verified</span></li>
       </ul>
     </div>
 
@@ -188,27 +191,58 @@
 
       <div>
         <label class="form-label">First Name</label>
-        <input id="senderFirstNameInput" class="input-field" placeholder="First Name" />
+        <!-- ⭐ FIXED: JS expects firstName -->
+        <input id="firstName" class="input-field" placeholder="First Name" />
       </div>
 
       <div>
         <label class="form-label">Last Name</label>
-        <input id="senderLastNameInput" class="input-field" placeholder="Last Name" />
+        <!-- ⭐ FIXED: JS expects lastName -->
+        <input id="lastName" class="input-field" placeholder="Last Name" />
       </div>
 
       <div>
         <label class="form-label">Date of Birth</label>
-        <input id="senderDobInput" type="date" class="input-field" />
+        <!-- ⭐ FIXED: JS expects dob -->
+        <input id="dob" type="date" class="input-field" />
       </div>
 
       <div>
         <label class="form-label">Phone Number</label>
-        <input id="senderPhoneInput" class="input-field" placeholder="Phone Number" />
+        <!-- ⭐ FIXED: JS expects phone -->
+        <input id="phone" class="input-field" placeholder="Phone Number" />
       </div>
 
       <div>
         <label class="form-label">Email Address</label>
-        <input id="senderEmailInput" class="input-field" placeholder="Email Address" />
+        <!-- ⭐ FIXED: JS expects email -->
+        <input id="email" class="input-field" placeholder="Email Address" />
+      </div>
+
+      <!-- ⭐ ADD ADDRESS FIELDS (your JS expects them) -->
+      <div>
+        <label class="form-label">Address</label>
+        <input id="address" class="input-field" placeholder="Address" />
+      </div>
+
+      <div>
+        <label class="form-label">City</label>
+        <input id="city" class="input-field" placeholder="City" />
+      </div>
+
+      <div>
+        <label class="form-label">State</label>
+        <input id="state" class="input-field" placeholder="State" />
+      </div>
+
+      <div>
+        <label class="form-label">Zip Code</label>
+        <input id="zipcode" class="input-field" placeholder="Zip Code" />
+      </div>
+
+      <div>
+        <label class="form-label">Country</label>
+        <input id="country" class="input-field" placeholder="Country" />
       </div>
 
     </div>
@@ -219,7 +253,6 @@
 
   </div>
 </section>
-
 <!-- ========================================================= -->
 <!-- VERIFICATION VIEW (SENDER VERSION)                        -->
 <!-- ========================================================= -->
