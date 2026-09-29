@@ -2210,6 +2210,25 @@ if (traveler.photoUrl) {
   }
 }
 /* ============================================================
+   TRAVELER ACCOUNT VIEW INITIALIZER (REQUIRED)
+============================================================ */
+function initTravelerAccountView() {
+  // Populate identity fields
+  safe(loadTravelerIdentity);
+
+  // Attach save button
+  const saveBtn = document.getElementById("saveTravelerAccountBtn");
+  if (saveBtn) {
+    saveBtn.addEventListener("click", saveTravelerAccount);
+  }
+
+  // Initialize photo upload
+  safe(initTravelerPhotoUpload);
+
+  console.log("Traveler Account View initialized.");
+}
+
+/* ============================================================
    PAGE SWITCHING (FINAL — FIXED)
    ============================================================ */
 function loadPage(view) {
