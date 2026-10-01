@@ -1626,3 +1626,104 @@ select {
   margin-bottom: 12px;
   border: 1px solid #333;
 }
+/* ============================================================
+   MATCH SENDER ACCOUNT & IDENTITY LAYOUT
+============================================================ */
+
+/* Main layout wrapper */
+.page-template {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+/* Account page spacing */
+.account-page {
+  display: block;
+}
+
+/* Section spacing */
+.section-block {
+  margin-bottom: 24px;
+}
+
+/* Section titles */
+.section-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+/* Profile photo */
+.profile-photo-wrapper {
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.profile-photo-large {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #1a2b4a;
+}
+
+/* Upload button */
+.upload-btn {
+  margin-top: 10px;
+  padding: 8px 14px;
+  background: #1a73e8;
+  color: white;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+}
+
+.upload-btn:hover {
+  background: #1669c1;
+}
+
+/* Verified Information box */
+.support-box {
+  background: #0f1a2b;
+  padding: 16px;
+  border-radius: 8px;
+  list-style: none;
+}
+
+.support-box li {
+  margin-bottom: 8px;
+  font-size: 0.95rem;
+}
+
+/* Input fields */
+.input-field {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 16px;
+  border-radius: 8px;
+  border: 1px solid #2a3b55;
+  background: #0f1a2b;
+  color: white;
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: #1a73e8;
+}
+
+/* Save button */
+.primary-btn {
+  width: 100%;
+  padding: 14px;
+  background: #1a73e8;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.primary-btn:hover {
+  background: #1669c1;
+}
