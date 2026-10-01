@@ -2361,7 +2361,7 @@ document.addEventListener("DOMContentLoaded", () => {
   safe(initJobDetailsModal);
   safe(initRoutePlanner);
 
-  // ⭐ Load default view into dynamicView
+  //// ⭐ Load default view into dynamicView
   loadPage("account");
 
   // Highlight sidebar "Account"
