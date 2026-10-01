@@ -2218,11 +2218,67 @@ function loadTravelerIdentity() {
 }
 
 /* ============================================================
+   TRAVELER PHOTO UPLOAD
+============================================================ */
+function initTravelerPhotoUpload() {
+  const input = document.getElementById("travelerProfilePhotoInput");
+  const btn = document.getElementById("travelerProfilePhotoUploadBtn");
+  const preview = document.getElementById("travelerProfilePhotoPreview");
+
+  if (!input || !btn || !preview) return;
+
+  btn.addEventListener("click", () => input.click());
+
+  input.addEventListener("change", () => {
+    const file = input.files[0];
+    if (!file) return;
+
+    preview.src = URL.createObjectURL(file);
+    console.log("Traveler photo selected:", file.name);
+
+    // TODO: Upload to backend
+  });
+}
+
+/* ============================================================
+   SAVE TRAVELER ACCOUNT
+============================================================ */
+async function saveTravelerAccount() {
+  console.log("Saving traveler account...");
+
+  const payload = {
+    address: document.getElementById("travelerAddress").value.trim(),
+    city: document.getElementById("travelerCity").value.trim(),
+    state: document.getElementById("travelerState").value.trim(),
+    zipcode: document.getElementById("travelerZipcode").value.trim(),
+    country: document.getElementById("travelerCountry").value.trim(),
+  };
+
+  console.log("Payload:", payload);
+
+  alert("Traveler account updated (placeholder).");
+}
+
+/* ============================================================
+   TRAVELER ACCOUNT LAYOUT — MATCH SENDER
+============================================================ */
+function initTravelerAccountLayout() {
+  const container = document.querySelector(".account-page");
+  if (!container) return;
+
+  container.classList.add("page-template");
+  container.classList.add("account-page");
+}
+
+/* ============================================================
    TRAVELER ACCOUNT VIEW INITIALIZER (REQUIRED)
 ============================================================ */
 function initTravelerAccountView() {
-  // Populate identity fields
+  // Load identity fields (readonly)
   safe(loadTravelerIdentity);
+
+  // ⭐ Apply Sender-style layout (CRITICAL)
+  safe(initTravelerAccountLayout);
 
   // Attach save button
   const saveBtn = document.getElementById("saveTravelerAccountBtn");
@@ -2237,19 +2293,11 @@ function initTravelerAccountView() {
 }
 
 /* ============================================================
-   SAVE TRAVELER ACCOUNT (PLACEHOLDER)
-============================================================ */
-function saveTravelerAccount() {
-  console.log("saveTravelerAccount() placeholder — implement API later.");
-}
-
-/* ============================================================
    TRAVELER JOBS INITIALIZER (PLACEHOLDER)
 ============================================================ */
 function initTravelerJobs() {
   console.log("initTravelerJobs() placeholder — implement job tab logic later.");
 }
-
 /* ============================================================
    PAGE SWITCHING (FINAL — FIXED)
 ============================================================ */
