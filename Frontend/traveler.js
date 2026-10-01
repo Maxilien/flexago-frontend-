@@ -2347,7 +2347,7 @@ function initJobSearch() {
   attach();   // ⭐ THIS LINE WAS MISSING
 }
 
-/* ============================================================
+//* ============================================================
    FINAL DOM READY BOOTSTRAP — TRAVELER ACCOUNT DEFAULT
 ============================================================ */
 document.addEventListener("DOMContentLoaded", () => {
