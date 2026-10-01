@@ -2210,7 +2210,7 @@ if (traveler.photoUrl) {
   }
 }
 
-/* ============================================================
+so what do I need to fix about this traveler.js/* ============================================================
    LOAD TRAVELER IDENTITY (PLACEHOLDER)
 ============================================================ */
 function loadTravelerIdentity() {
@@ -2347,7 +2347,7 @@ function initJobSearch() {
   attach();   // ⭐ THIS LINE WAS MISSING
 }
 
-//* ============================================================
+/* ============================================================
    FINAL DOM READY BOOTSTRAP — TRAVELER ACCOUNT DEFAULT
 ============================================================ */
 document.addEventListener("DOMContentLoaded", () => {
