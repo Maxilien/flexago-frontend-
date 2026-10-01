@@ -2354,19 +2354,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
   safe(initTravelerSidebar);
   safe(initTravelerJobs);
-  safe(initTravelerPhotoUpload);   // now defined → no crash
+  safe(initTravelerPhotoUpload);
   safe(initTravelerMap);
   safe(initChatWidget);
   safe(initJobDetailsModal);
   safe(initRoutePlanner);
 
-  // ⭐ Load default view into dynamicView
-   const defaultView = document.getElementById("accountView");   // ⭐ FIXED
-  if (defaultView) defaultView.classList.remove("hidden");
-
+  // ⭐Default view = Account & Identity
+  loadPage("account");
 
   // Highlight sidebar "Account"
   const accountBtn = document.querySelector('.sidebar-item[data-view="account"]');
   if (accountBtn) accountBtn.classList.add("active");
 });
-;
