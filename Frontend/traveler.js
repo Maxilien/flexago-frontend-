@@ -2210,7 +2210,7 @@ if (traveler.photoUrl) {
   }
 }
 
-so what do I need to fix about this traveler.js/* ============================================================
+/* ============================================================
    LOAD TRAVELER IDENTITY (PLACEHOLDER)
 ============================================================ */
 function loadTravelerIdentity() {
