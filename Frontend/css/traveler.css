@@ -1727,3 +1727,9 @@ select {
 .primary-btn:hover {
   background: #1669c1;
 }
+.page-template {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
