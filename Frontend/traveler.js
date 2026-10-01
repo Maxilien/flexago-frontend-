@@ -2251,46 +2251,57 @@ function initTravelerJobs() {
 }
 
 /* ============================================================
-   PAGE SWITCHING — STATIC VERSION (MATCHES SENDER)
+   PAGE SWITCHING (FINAL — FIXED)
 ============================================================ */
 function loadPage(view) {
+  const dynamic = document.getElementById("dynamicView");
+  const jobsLayout = document.getElementById("jobsLayout");
 
-  // Hide all static panels
-  document.querySelectorAll(".panel").forEach(p => p.classList.add("hidden"));
+  if (!dynamic || !jobsLayout) return;
 
-  if (view === "account") {
-    document.getElementById("travelerAccountView").classList.remove("hidden");
-    setTimeout(() => initTravelerAccountView(), 20);
-  }
-
+  // ===== JOBS VIEW =====
   if (view === "jobs") {
-    document.getElementById("jobsLayout").classList.remove("hidden");
+    dynamic.classList.add("hidden");
+    jobsLayout.classList.remove("hidden");
+
     setTimeout(() => {
       safe(initTravelerMap);
       safe(initTravelerAutocomplete);
       safe(initRoutePlanner);
       safe(initJobsTabs);
     }, 50);
+
+    return;
   }
 
-  if (view === "verification") {
-    document.getElementById("verificationPanel").classList.remove("hidden");
+  // ===== OTHER VIEWS =====
+  jobsLayout.classList.add("hidden");
+  dynamic.classList.remove("hidden");
+
+  if (view === "account") {
+    dynamic.innerHTML = document.getElementById("travelerAccountView").innerHTML;
+    setTimeout(() => initTravelerAccountView(), 20);
+  }
+
+  else if (view === "verification") {
+    dynamic.innerHTML = document.getElementById("template-verification").innerHTML;
     setTimeout(() => initVerificationPage(), 20);
   }
 
-  if (view === "payments") {
-    document.getElementById("paymentsPanel").classList.remove("hidden");
+  else if (view === "payments") {
+    dynamic.innerHTML = document.getElementById("template-payments").innerHTML;
     setTimeout(() => initPayoutsPage(), 20);
   }
 
-  if (view === "support") {
-    document.getElementById("supportPanel").classList.remove("hidden");
+  else if (view === "support") {
+    dynamic.innerHTML = document.getElementById("supportPanel").innerHTML;
     setTimeout(() => initSupportPage(), 20);
   }
 }
 
+
 /* ============================================================
-   SIDEBAR NAVIGATION (STATIC — MATCHES SENDER)
+   SIDEBAR NAVIGATION (FINAL)
 ============================================================ */
 function initTravelerSidebar() {
   const items = document.querySelectorAll(".sidebar-item");
@@ -2333,27 +2344,27 @@ function initJobSearch() {
     });
   }
 
-  attach();
+  attach();   // ⭐ THIS LINE WAS MISSING
 }
 
 /* ============================================================
-   FINAL DOM READY BOOTSTRAP — STATIC DEFAULT VIEW
+   FINAL DOM READY BOOTSTRAP — TRAVELER ACCOUNT DEFAULT
 ============================================================ */
 document.addEventListener("DOMContentLoaded", () => {
 
   safe(initTravelerSidebar);
   safe(initTravelerJobs);
-  safe(initTravelerPhotoUpload);
+  safe(initTravelerPhotoUpload);   // now defined → no crash
   safe(initTravelerMap);
   safe(initChatWidget);
   safe(initJobDetailsModal);
   safe(initRoutePlanner);
 
-  // ⭐ Default view = Account & Identity (STATIC)
-  const defaultView = document.getElementById("travelerAccountView");
-  if (defaultView) defaultView.classList.remove("hidden");
+  // ⭐ Load default view into dynamicView
+  loadPage("account");
 
   // Highlight sidebar "Account"
   const accountBtn = document.querySelector('.sidebar-item[data-view="account"]');
   if (accountBtn) accountBtn.classList.add("active");
 });
+;
