@@ -2352,19 +2352,19 @@ function initJobSearch() {
 ============================================================ */
 document.addEventListener("DOMContentLoaded", () => {
 
-  /// Initialize UI components
   safe(initTravelerSidebar);
   safe(initTravelerJobs);
-  safe(initTravelerPhotoUpload);
+  safe(initTravelerPhotoUpload);   // now defined → no crash
   safe(initTravelerMap);
   safe(initChatWidget);
   safe(initJobDetailsModal);
   safe(initRoutePlanner);
 
-  //// ⭐ Load default view into dynamicView
+  // ⭐ Load default view into dynamicView
   loadPage("account");
 
   // Highlight sidebar "Account"
   const accountBtn = document.querySelector('.sidebar-item[data-view="account"]');
   if (accountBtn) accountBtn.classList.add("active");
 });
+;
