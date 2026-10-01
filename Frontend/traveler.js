@@ -2354,7 +2354,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   safe(initTravelerSidebar);
   safe(initTravelerJobs);
-  safe(initTravelerPhotoUpload);
   safe(initTravelerMap);
   safe(initChatWidget);
   safe(initJobDetailsModal);
