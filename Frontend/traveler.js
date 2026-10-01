@@ -2360,10 +2360,9 @@ document.addEventListener("DOMContentLoaded", () => {
   safe(initJobDetailsModal);
   safe(initRoutePlanner);
 
-  // ⭐Default view = Account & Identity
+  // ⭐ Default view = Account & Identity
   loadPage("account");
 
-  // Highlight sidebar "Account"
   const accountBtn = document.querySelector('.sidebar-item[data-view="account"]');
   if (accountBtn) accountBtn.classList.add("active");
 });
