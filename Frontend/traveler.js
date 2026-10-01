@@ -2361,7 +2361,9 @@ document.addEventListener("DOMContentLoaded", () => {
   safe(initRoutePlanner);
 
   // ⭐ Load default view into dynamicView
-  loadPage("account");
+   const defaultView = document.getElementById("accountView");   // ⭐ FIXED
+  if (defaultView) defaultView.classList.remove("hidden");
+
 
   // Highlight sidebar "Account"
   const accountBtn = document.querySelector('.sidebar-item[data-view="account"]');
