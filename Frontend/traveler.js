@@ -2354,7 +2354,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Initialize UI components
   safe(initTravelerSidebar);
-  safe(initTravelerAccountView);
   safe(initTravelerJobs);
   safe(initTravelerPhotoUpload);
   safe(initTravelerMap);
@@ -2362,9 +2361,8 @@ document.addEventListener("DOMContentLoaded", () => {
   safe(initJobDetailsModal);
   safe(initRoutePlanner);
 
-  // Default view = Traveler Account & Identity
-  const defaultView = document.getElementById("travelerAccountView");
-  if (defaultView) defaultView.classList.remove("hidden");
+  // ⭐ Load default view into dynamicView
+  loadPage("account");
 
   // Highlight sidebar "Account"
   const accountBtn = document.querySelector('.sidebar-item[data-view="account"]');
