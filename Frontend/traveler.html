@@ -495,68 +495,50 @@
      TRAVELER ACCOUNT & IDENTITY — FINAL CLEAN VERSION
 ============================================================ -->
 <template id="travelerAccountView">
-  <div class="page-template">
-    <div id="travelerAccountContainer" class="page-template account-page">
-
-
-      <!-- PROFILE HEADER -->
-      <section class="section-block profile-header">
-        <div class="profile-photo-wrapper" style="text-align:center;">
-          <img id="travelerProfilePhotoPreview" class="profile-photo-large" src="" alt="Profile Photo" />
-          <button id="travelerProfilePhotoUploadBtn" class="upload-btn small-btn">
-            Change Photo
-          </button>
-          <input id="travelerProfilePhotoInput" type="file" accept="image/*" style="display:none;" />
-        </div>
-
-        <div class="profile-header-text" style="text-align:center;margin-top:0.8rem;">
-          <h2 id="travelerNameHeader" class="profile-name">Traveler Name</h2>
-
-          <div class="profile-stats">
-            <span><span id="travelerTripsCount">0</span> trips</span>
-            <span>•</span>
-            <span>Joined</span>
-            <span id="travelerJoinedDate">2026</span>
-          </div>
-        </div>
-      </section>
-
-      <!-- VERIFIED INFORMATION -->
-      <section class="section-block">
-        <h2 class="section-title">Verified Information</h2>
-
-        <ul class="support-box">
-          <li>Phone Number <span id="travelerVerifiedPhone">Not Verified</span></li>
-          <li>Email <span id="travelerVerifiedEmail">Not Verified</span></li>
-          <li>Identity Check <span id="travelerVerifiedIdentity">Pending</span></li>
-        </ul>
-      </section>
-
-      <!-- PERSONAL INFORMATION -->
-      <section class="section-block">
-        <h2 class="section-title">Personal Information</h2>
-
-        <input id="travelerFirstName" class="input-field" placeholder="First Name" readonly />
-        <input id="travelerLastName" class="input-field" placeholder="Last Name" readonly />
-        <input id="travelerDob" type="date" class="input-field" readonly />
-        <input id="travelerPhone" class="input-field" placeholder="Phone Number" readonly />
-        <input id="travelerEmail" class="input-field" placeholder="Email Address" readonly />
-
-        <input id="travelerAddress" class="input-field" placeholder="Address" />
-        <input id="travelerCity" class="input-field" placeholder="City" />
-        <input id="travelerState" class="input-field" placeholder="State" />
-        <input id="travelerZipcode" class="input-field" placeholder="Zip Code" />
-        <input id="travelerCountry" class="input-field" placeholder="Country" />
-      </section>
-
-      <!-- SAVE BUTTON -->
-      <section class="section-block">
-        <button id="saveTravelerAccountBtn" class="primary-btn">
-          Save Changes
+  <div id="travelerAccountContainer" class="page-template account-page">
+    <section class="section-block">
+      <div class="profile-photo-wrapper">
+        <img
+          id="travelerProfilePhotoPreview"
+          class="profile-photo-large"
+          src="https://via.placeholder.com/120"
+          alt="Profile Photo"
+        />
+        <button id="travelerProfilePhotoUploadBtn" class="upload-btn">
+          Change Photo
         </button>
-      </section>
+      </div>
+      <div class="section-title">Traveler Name</div>
+      <div class="section-subtitle">0 trips • Joined 2026</div>
+    </section>
 
-    </div>
+    <section class="section-block">
+      <div class="section-title">Verified Information</div>
+      <ul class="support-box">
+        <li>Phone Number Not Verified</li>
+        <li>Email Not Verified</li>
+        <li>Identity Check Pending</li>
+      </ul>
+    </section>
+
+    <section class="section-block">
+      <div class="section-title">Personal Information</div>
+
+      <input id="travelerFirstName" class="input-field" placeholder="First Name" />
+      <input id="travelerLastName" class="input-field" placeholder="Last Name" />
+      <input id="travelerDob" class="input-field" placeholder="Date of Birth (mm/dd/yyyy)" />
+      <input id="travelerPhone" class="input-field" placeholder="Phone Number" />
+      <input id="travelerEmail" class="input-field" placeholder="Email Address" />
+      <input id="travelerAddress" class="input-field" placeholder="Address" />
+      <input id="travelerCity" class="input-field" placeholder="City" />
+      <input id="travelerState" class="input-field" placeholder="State" />
+      <input id="travelerZipcode" class="input-field" placeholder="Zip Code" />
+      <input id="travelerCountry" class="input-field" placeholder="Country" />
+
+      <button id="saveTravelerAccountBtn" class="primary-btn">
+        Save Changes
+      </button>
+    </section>
   </div>
 </template>
 
