@@ -2344,7 +2344,7 @@ function initJobSearch() {
     });
   }
 
-  attach();   // ⭐ THIS LINE WAS MISSING
+  attach();   //  THIS LINE WAS MISSING
 }
 
 /* ============================================================
