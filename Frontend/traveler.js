@@ -2352,7 +2352,7 @@ function initJobSearch() {
 ============================================================ */
 document.addEventListener("DOMContentLoaded", () => {
 
-  // Initialize UI components
+  /// Initialize UI components
   safe(initTravelerSidebar);
   safe(initTravelerJobs);
   safe(initTravelerPhotoUpload);
