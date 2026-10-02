@@ -68,10 +68,12 @@ select {
 }
 
 .main-layout {
-  display: flex;
-  flex: 1;
-  overflow: hidden;
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
 }
+
 
 /* Mobile fix: allow main content to scroll */
 @media (max-width: 768px) {
