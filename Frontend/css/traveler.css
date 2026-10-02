@@ -68,12 +68,10 @@ select {
 }
 
 .main-layout {
-  display: block;
-  width: 100%;
-  height: auto;
-  overflow: visible;
+  display: flex;
+  flex: 1;
+  overflow: hidden;
 }
-
 
 /* Mobile fix: allow main content to scroll */
 @media (max-width: 768px) {
@@ -270,9 +268,10 @@ select {
    5. CONTENT AREA
    ============================================================ */
 .content-area {
-  display: block;
-  width: 100%;
+  flex: 1;
+  overflow-y: auto;
   padding: 1rem;
+  background: transparent;
 }
 
 /* Mobile: prevent double scrolling and allow natural height */
@@ -1631,14 +1630,13 @@ select {
    TRAVELER ACCOUNT & IDENTITY — MATCH SENDER UI
 ============================================================ */
 
-/* Main layout  */
+/* Main layout wrapper */
 .page-template {
-  width: 100%;
-  max-width: 100%;   /* IMPORTANT */
-  margin: 0;
+  max-width: 800px;
+  margin: 0 auto;
   padding: 44px;
-  box-sizing: border-box;
 }
+
 /* Account page spacing */
 .account-page {
   display: block;
