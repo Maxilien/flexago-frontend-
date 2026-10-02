@@ -1632,7 +1632,7 @@ select {
 
 /* Main layout wrapper */
 .page-template {
-  max-width: 600px;
+  max-width: 1000px;
   margin: 0 auto;
   padding: 24px;
 }
