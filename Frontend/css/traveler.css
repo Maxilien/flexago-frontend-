@@ -1630,13 +1630,14 @@ select {
    TRAVELER ACCOUNT & IDENTITY — MATCH SENDER UI
 ============================================================ */
 
-/* Main layout wrapper */
+/* Main layout  */
 .page-template {
-  max-width: 650px;
-  margin: 0 auto;
+  width: 100%;
+  max-width: 100%;   /* IMPORTANT */
+  margin: 0;
   padding: 44px;
+  box-sizing: border-box;
 }
-
 /* Account page spacing */
 .account-page {
   display: block;
