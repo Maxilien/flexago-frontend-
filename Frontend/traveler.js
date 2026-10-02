@@ -2406,6 +2406,10 @@ document.addEventListener("DOMContentLoaded", () => {
   safe(initChatWidget);
   safe(initJobDetailsModal);
   safe(initRoutePlanner);
+  safe(initTravelerAccountLayout);
+  safe(loadTravelerIdentity);
+  safe(initTravelerPhotoUpload);
+
 
   // ⭐ Default view = Account & Identity
   loadPage("account");
