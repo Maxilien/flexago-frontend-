@@ -1630,18 +1630,17 @@ select {
    TRAVELER ACCOUNT & IDENTITY — MATCH SENDER EXACTLY
 ============================================================ */
 
-/* PANEL WRAPPER (same as Sender) */
-.panel {
+#jobsPanel {
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - 80px); /* Desktop */
+  overflow-y: auto;
   background: var(--panel-bg);
   border: 1px solid var(--border-color);
   border-radius: var(--panel-radius);
-  padding: 1.5rem;
+  padding: 1rem;
   box-shadow: 0 14px 35px rgba(15,23,42,0.95);
-  max-width: 600px;
-  width: 100%;
-  margin: 0 auto;
 }
-
 /* ============================================================
    FIX TRAVELER PAGE CONTAINER WIDTH (CRITICAL)
 ============================================================ */
