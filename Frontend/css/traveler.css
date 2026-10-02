@@ -57,6 +57,16 @@ select {
   overflow: hidden;
 }
 
+/* Mobile fix: allow scrolling + avoid 100vh bug */
+@media (max-width: 768px) {
+  .app-shell {
+    height: auto;
+    min-height: 100vh;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+}
+
 .main-layout {
   display: block;
   width: 100%;
@@ -64,9 +74,12 @@ select {
   overflow: visible;
 }
 
-/* Mobile: sidebar collapses */
+
+/* Mobile fix: allow main content to scroll */
 @media (max-width: 768px) {
   .main-layout {
+    overflow-y: auto;
+    overflow-x: hidden;
     flex-direction: column;
   }
 }
@@ -258,9 +271,9 @@ select {
    ============================================================ */
 .content-area {
   flex: 1;
-  overflow-y: auto;
-  padding: 1rem;
-  background: transparent;
+  overflow-y: auto !important;
+  padding: 1.25rem;
+  background: var(--page-bg);
 }
 
 /* Mobile: prevent double scrolling and allow natural height */
