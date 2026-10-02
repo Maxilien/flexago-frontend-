@@ -58,9 +58,10 @@ select {
 }
 
 .main-layout {
-  display: flex;
-  flex: 1;
-  overflow: hidden;
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
 }
 
 /* Mobile: sidebar collapses */
