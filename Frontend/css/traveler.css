@@ -57,29 +57,15 @@ select {
   overflow: hidden;
 }
 
-/* Mobile fix: allow scrolling + avoid 100vh bug */
-@media (max-width: 768px) {
-  .app-shell {
-    height: auto;
-    min-height: 100vh;
-    overflow-x: hidden;
-    overflow-y: auto;
-  }
-}
-
 .main-layout {
-  display: block;
-  width: 100%;
-  height: auto;
-  overflow: visible;
+  display: flex;
+  flex: 1;
+  overflow: hidden;
 }
 
-
-/* Mobile fix: allow main content to scroll */
+/* Mobile: sidebar collapses */
 @media (max-width: 768px) {
   .main-layout {
-    overflow-y: auto;
-    overflow-x: hidden;
     flex-direction: column;
   }
 }
