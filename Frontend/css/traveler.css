@@ -1727,37 +1727,3 @@ select {
 .primary-btn:hover {
   background: #1669c1;
 }
-.page-template {
-  max-width: 600px;
-  margin: 0 auto;
-  padding: 24px;
-}
-/* FIX ACCOUNT & IDENTITY LAYOUT */
-.account-identity {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-
-/* Group profile photo + upload button */
-.profile-photo-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-}
-
-/* Verified info box spacing */
-.support-box {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-/* Input fields container */
-.identity-fields {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
