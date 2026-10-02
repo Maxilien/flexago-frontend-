@@ -492,117 +492,55 @@
 </div>
 
 <!-- ============================================================
-     TRAVELER ACCOUNT & IDENTITY — MATCH SENDER EXACTLY
+     TRAVELER ACCOUNT & IDENTITY — FINAL CLEAN VERSION
 ============================================================ -->
 <template id="travelerAccountView">
-  <section id="travelerAccountSection">
-    <div class="panel">
-
-      <!-- PROFILE HEADER -->
-      <div style="text-align:center; margin-bottom:2rem;">
-
-        <img id="travelerProfilePhotoPreview"
-             class="profile-photo-large"
-             src="img/default-profile.png"
-             alt="Profile Photo" />
-
-        <button id="travelerProfilePhotoUploadBtn"
-                class="primary-btn"
-                style="width:auto; padding:6px 14px; margin-top:0.75rem;">
+  <div id="travelerAccountContainer" class="page-template account-page">
+    <section class="section-block">
+      <div class="profile-photo-wrapper">
+        <img
+          id="travelerProfilePhotoPreview"
+          class="profile-photo-large"
+          src="https://via.placeholder.com/120"
+          alt="Profile Photo"
+        />
+        <button id="travelerProfilePhotoUploadBtn" class="upload-btn">
           Change Photo
         </button>
-
-        <input id="travelerProfilePhotoInput"
-               type="file"
-               accept="image/*"
-               style="display:none;" />
-
-        <h2 id="travelerNameHeader"
-            style="margin-top:1rem; font-size:1.2rem; font-weight:600;">
-          Traveler Name
-        </h2>
-
-        <div style="color:var(--text-muted); font-size:0.85rem; margin-top:0.25rem;">
-          <span id="tripCount">0</span> trips • Joined
-          <span id="joinedDateTraveler">2026</span>
-        </div>
       </div>
+      <div class="section-title">Traveler Name</div>
+      <div class="section-subtitle">0 trips • Joined 2026</div>
+    </section>
 
-      <!-- VERIFIED INFORMATION -->
-      <div class="panel-subtitle" style="margin-bottom:10px;">Verified Information</div>
+    <section class="section-block">
+      <div class="section-title">Verified Information</div>
+      <ul class="support-box">
+        <li>Phone Number Not Verified</li>
+        <li>Email Not Verified</li>
+        <li>Identity Check Pending</li>
+      </ul>
+    </section>
 
-      <div class="support-box" style="margin-bottom:25px;">
-        <ul>
-          <li>Phone Number <span id="verifiedPhoneTraveler">Not Verified</span></li>
-          <li>Email <span id="verifiedEmailTraveler">Not Verified</span></li>
-          <li>Identity Check <span id="verifiedIdentityTraveler">Pending</span></li>
-        </ul>
-      </div>
+    <section class="section-block">
+      <div class="section-title">Personal Information</div>
 
-      <!-- PERSONAL INFORMATION -->
-      <div class="panel-title" style="margin-bottom:10px;">Personal Information</div>
+      <input id="travelerFirstName" class="input-field" placeholder="First Name" />
+      <input id="travelerLastName" class="input-field" placeholder="Last Name" />
+      <input id="travelerDob" class="input-field" placeholder="Date of Birth (mm/dd/yyyy)" />
+      <input id="travelerPhone" class="input-field" placeholder="Phone Number" />
+      <input id="travelerEmail" class="input-field" placeholder="Email Address" />
+      <input id="travelerAddress" class="input-field" placeholder="Address" />
+      <input id="travelerCity" class="input-field" placeholder="City" />
+      <input id="travelerState" class="input-field" placeholder="State" />
+      <input id="travelerZipcode" class="input-field" placeholder="Zip Code" />
+      <input id="travelerCountry" class="input-field" placeholder="Country" />
 
-      <div class="form-grid">
-
-        <div>
-          <label class="form-label">First Name</label>
-          <input id="travelerFirstName" class="input-field" placeholder="First Name" readonly />
-        </div>
-
-        <div>
-          <label class="form-label">Last Name</label>
-          <input id="travelerLastName" class="input-field" placeholder="Last Name" readonly />
-        </div>
-
-        <div>
-          <label class="form-label">Date of Birth</label>
-          <input id="travelerDob" type="date" class="input-field" readonly />
-        </div>
-
-        <div>
-          <label class="form-label">Phone Number</label>
-          <input id="travelerPhone" class="input-field" placeholder="Phone Number" readonly />
-        </div>
-
-        <div>
-          <label class="form-label">Email Address</label>
-          <input id="travelerEmail" class="input-field" placeholder="Email Address" readonly />
-        </div>
-
-        <!-- Editable fields -->
-        <div>
-          <label class="form-label">Address</label>
-          <input id="travelerAddress" class="input-field" placeholder="Address" />
-        </div>
-
-        <div>
-          <label class="form-label">City</label>
-          <input id="travelerCity" class="input-field" placeholder="City" />
-        </div>
-
-        <div>
-          <label class="form-label">State</label>
-          <input id="travelerState" class="input-field" placeholder="State" />
-        </div>
-
-        <div>
-          <label class="form-label">Zip Code</label>
-          <input id="travelerZipcode" class="input-field" placeholder="Zip Code" />
-        </div>
-
-        <div>
-          <label class="form-label">Country</label>
-          <input id="travelerCountry" class="input-field" placeholder="Country" />
-        </div>
-
-      </div>
-
-      <button id="saveTravelerAccountBtn" class="primary-btn" style="margin-top:1.5rem;">
+      <button id="saveTravelerAccountBtn" class="primary-btn">
         Save Changes
       </button>
-
-    </div>
-  </section>
+    </section>
+  </div>
+</template>
 
 <!-- ============================================================
      VERIFICATION TEMPLATE (ALIGNED WITH Traveler.js)
