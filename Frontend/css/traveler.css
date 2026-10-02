@@ -1632,9 +1632,9 @@ select {
 
 /* Main layout wrapper */
 .page-template {
-  max-width: 250px;
+  max-width: 400px;
   margin: 0 auto;
-  padding: 24px;
+  padding: 44px;
 }
 
 /* Account page spacing */
