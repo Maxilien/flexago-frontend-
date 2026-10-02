@@ -264,24 +264,10 @@ select {
   background: var(--page-bg);
 }
 
-
-/* Mobile: prevent double scrolling and allow natural height */
+/* Mobile: tighter padding */
 @media (max-width: 768px) {
   .content-area {
-    overflow-y: visible;
     padding: 0.75rem;
-  }
-}
-
-.main-content {
-  height: 100%;
-}
-
-/* Mobile: avoid forced height that breaks layout */
-@media (max-width: 768px) {
-  .main-content {
-    height: auto;
-    min-height: 100%;
   }
 }
 
