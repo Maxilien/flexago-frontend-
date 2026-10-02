@@ -1637,35 +1637,6 @@ select {
   border-radius: var(--panel-radius);
   padding: 1.5rem;
   box-shadow: 0 14px 35px rgba(15,23,42,0.95);
-  max-width: 600px;
-  width: 100%;
-  margin: 0 auto;
-}
-
-/* ============================================================
-   FIX TRAVELER PAGE CONTAINER WIDTH (CRITICAL)
-============================================================ */
-#dynamicView {
-  max-width: 600px;
-  width: 100%;
-  margin: 0 auto;
-  display: block;
-}
-
-/* Prevent content-area from stretching panel */
-.content-area {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  padding: 1rem;
-  overflow: visible;
-}
-
-/* Prevent main-layout from forcing horizontal flex expansion */
-.main-layout {
-  display: flex;
-  width: 100%;
-  justify-content: center;
 }
 
 /* ============================================================
