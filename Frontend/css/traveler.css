@@ -1627,37 +1627,33 @@ select {
   border: 1px solid #333;
 }
 /* ============================================================
-   TRAVELER ACCOUNT & IDENTITY — MATCH SENDER UI
+   TRAVELER ACCOUNT & IDENTITY — MATCH SENDER EXACTLY
 ============================================================ */
 
-/* Main layout wrapper */
-.page-template {
-  max-width: 600px;
-  margin: 0 auto;
-  padding: 24px;
+/* PANEL WRAPPER (same as Sender) */
+.panel {
+  background: var(--panel-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--panel-radius);
+  padding: 1.5rem;
+  box-shadow: 0 14px 35px rgba(15,23,42,0.95);
 }
 
-/* Account page spacing */
-.account-page {
-  display: block;
+/* ============================================================
+   PROFILE HEADER (IDENTICAL TO SENDER)
+============================================================ */
+.profile-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 2rem;
 }
 
-/* Section spacing */
-.section-block {
-  margin-bottom: 24px;
-}
-
-/* Section titles */
-.section-title {
-  font-size: 1.1rem;
-  font-weight: 600;
-  margin-bottom: 12px;
-}
-
-/* Profile photo */
 .profile-photo-wrapper {
-  text-align: center;
-  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
 }
 
 .profile-photo-large {
@@ -1665,30 +1661,54 @@ select {
   height: 120px;
   border-radius: 50%;
   object-fit: cover;
-  border: 3px solid #1a2b4a;
+  border: 3px solid rgba(255,255,255,0.25);
+  box-shadow: 0 0 12px rgba(0,0,0,0.35);
 }
 
-/* Upload button */
-.upload-btn {
-  margin-top: 10px;
-  padding: 8px 14px;
-  background: #1a73e8;
-  color: white;
+#travelerProfilePhotoUploadBtn {
+  padding: 0.4rem 1rem;
+  font-size: 0.8rem;
   border-radius: 6px;
-  border: none;
-  cursor: pointer;
+  width: auto;
 }
 
-.upload-btn:hover {
-  background: #1669c1;
+.profile-name {
+  margin-top: 1rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  text-align: center;
 }
 
-/* Verified Information box */
+.profile-stats {
+  margin-top: 0.25rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  display: flex;
+  justify-content: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+/* Mobile: smaller name */
+@media (max-width: 480px) {
+  .profile-name {
+    font-size: 1.1rem;
+  }
+
+  .profile-stats {
+    font-size: 0.8rem;
+  }
+}
+
+/* ============================================================
+   VERIFIED INFORMATION (IDENTICAL TO SENDER)
+============================================================ */
 .support-box {
   background: #0f1a2b;
   padding: 16px;
   border-radius: 8px;
   list-style: none;
+  margin-bottom: 25px;
 }
 
 .support-box li {
@@ -1696,11 +1716,28 @@ select {
   font-size: 0.95rem;
 }
 
-/* Input fields */
+/* ============================================================
+   FORM GRID (IDENTICAL TO SENDER)
+============================================================ */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+}
+
+.form-label {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+  display: block;
+}
+
+/* ============================================================
+   INPUT FIELDS (IDENTICAL TO SENDER)
+============================================================ */
 .input-field {
   width: 100%;
   padding: 12px;
-  margin-bottom: 16px;
   border-radius: 8px;
   border: 1px solid #2a3b55;
   background: #0f1a2b;
@@ -1712,7 +1749,9 @@ select {
   border-color: #1a73e8;
 }
 
-/* Save button */
+/* ============================================================
+   SAVE BUTTON (IDENTICAL TO SENDER)
+============================================================ */
 .primary-btn {
   width: 100%;
   padding: 14px;
@@ -1726,4 +1765,17 @@ select {
 
 .primary-btn:hover {
   background: #1669c1;
+}
+
+/* ============================================================
+   MOBILE FRIENDLY PANEL (IDENTICAL TO SENDER)
+============================================================ */
+@media (max-width: 768px) {
+  .panel {
+    padding: 1rem;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
 }
