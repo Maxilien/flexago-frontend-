@@ -494,36 +494,37 @@
 <!-- ============================================================
      TRAVELER ACCOUNT & IDENTITY — FINAL CLEAN VERSION
 ============================================================ -->
-<section id="travelerAccountView" class="hidden">
+<section id="accountView" class="hidden">
   <div class="panel">
 
     <!-- PROFILE HEADER -->
     <div style="text-align:center; margin-bottom:2rem;">
 
-      <img id="travelerProfilePhotoPreview"
+      <img id="senderProfilePhotoPreview"
            class="profile-photo-large"
            src="img/default-profile.png"
            alt="Profile Photo" />
 
-      <button id="travelerProfilePhotoUploadBtn"
+      <button id="senderProfilePhotoUploadBtn"
               class="primary-btn"
               style="width:auto; padding:6px 14px; margin-top:0.75rem;">
         Change Photo
       </button>
 
-      <input id="travelerProfilePhotoInput"
+      <input id="senderProfilePhotoInput"
              type="file"
              accept="image/*"
              style="display:none;" />
 
-      <h2 id="travelerNameHeader"
+      <!-- ⭐ JS expects senderNameHeader -->
+      <h2 id="senderNameHeader"
           style="margin-top:1rem; font-size:1.2rem; font-weight:600;">
-        Traveler Name
+        Sender Name
       </h2>
 
       <div style="color:var(--text-muted); font-size:0.85rem; margin-top:0.25rem;">
-        <span id="tripCount">0</span> trips • Joined
-        <span id="joinedDateTraveler">2026</span>
+        <span id="deliveryCount">0</span> deliveries • Joined
+        <span id="joinedDate">2026</span>
       </div>
     </div>
 
@@ -532,9 +533,9 @@
 
     <div class="support-box" style="margin-bottom:25px;">
       <ul>
-        <li>Phone Number <span id="verifiedPhoneTraveler">Not Verified</span></li>
-        <li>Email <span id="verifiedEmailTraveler">Not Verified</span></li>
-        <li>Identity Check <span id="verifiedIdentityTraveler">Pending</span></li>
+        <li>Phone Number <span id="verifiedPhone">Not Verified</span></li>
+        <li>Email <span id="verifiedEmail">Not Verified</span></li>
+        <li>Identity Check <span id="verifiedIdentity">Pending</span></li>
       </ul>
     </div>
 
@@ -543,59 +544,61 @@
 
     <div class="form-grid">
 
+      <!-- ⭐ Identity fields (READONLY — fraud prevention) -->
       <div>
         <label class="form-label">First Name</label>
-        <input id="travelerFirstName" class="input-field" readonly />
+        <input id="firstName" class="input-field" placeholder="First Name" readonly />
       </div>
 
       <div>
         <label class="form-label">Last Name</label>
-        <input id="travelerLastName" class="input-field" readonly />
+        <input id="lastName" class="input-field" placeholder="Last Name" readonly />
       </div>
 
       <div>
         <label class="form-label">Date of Birth</label>
-        <input id="travelerDob" type="date" class="input-field" readonly />
+        <input id="dob" type="date" class="input-field" readonly />
       </div>
 
       <div>
         <label class="form-label">Phone Number</label>
-        <input id="travelerPhone" class="input-field" readonly />
+        <input id="phone" class="input-field" placeholder="Phone Number" readonly />
       </div>
 
       <div>
         <label class="form-label">Email Address</label>
-        <input id="travelerEmail" class="input-field" readonly />
+        <input id="email" class="input-field" placeholder="Email Address" readonly />
       </div>
 
+      <!-- ⭐ Address fields (EDITABLE — Option A) -->
       <div>
         <label class="form-label">Address</label>
-        <input id="travelerAddress" class="input-field" />
+        <input id="address" class="input-field" placeholder="Address" />
       </div>
 
       <div>
         <label class="form-label">City</label>
-        <input id="travelerCity" class="input-field" />
+        <input id="city" class="input-field" placeholder="City" />
       </div>
 
       <div>
         <label class="form-label">State</label>
-        <input id="travelerState" class="input-field" />
+        <input id="state" class="input-field" placeholder="State" />
       </div>
 
       <div>
         <label class="form-label">Zip Code</label>
-        <input id="travelerZipcode" class="input-field" />
+        <input id="zipcode" class="input-field" placeholder="Zip Code" />
       </div>
 
       <div>
         <label class="form-label">Country</label>
-        <input id="travelerCountry" class="input-field" />
+        <input id="country" class="input-field" placeholder="Country" />
       </div>
 
     </div>
 
-    <button id="saveTravelerAccountBtn" class="primary-btn" style="margin-top:1.5rem;">
+    <button id="saveSenderAccountBtn" class="primary-btn" style="margin-top:1.5rem;">
       Save Changes
     </button>
 
