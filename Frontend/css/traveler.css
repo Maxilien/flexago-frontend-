@@ -270,10 +270,9 @@ select {
    5. CONTENT AREA
    ============================================================ */
 .content-area {
-  flex: 1;
-  overflow-y: auto !important;
-  padding: 1.25rem;
-  background: var(--page-bg);
+  display: block;
+  width: 100%;
+  padding: 1rem;
 }
 
 /* Mobile: prevent double scrolling and allow natural height */
