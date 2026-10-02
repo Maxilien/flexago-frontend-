@@ -269,10 +269,11 @@ select {
    ============================================================ */
 .content-area {
   flex: 1;
-  overflow-y: auto;
-  padding: 1rem;
-  background: transparent;
+  overflow-y: auto !important;
+  padding: 1.25rem;
+  background: var(--page-bg);
 }
+
 
 /* Mobile: prevent double scrolling and allow natural height */
 @media (max-width: 768px) {
@@ -1632,9 +1633,9 @@ select {
 
 /* Main layout wrapper */
 .page-template {
-  max-width: 800px;
+  max-width: 400px;
   margin: 0 auto;
-  padding: 44px;
+  padding: 24px;
 }
 
 /* Account page spacing */
