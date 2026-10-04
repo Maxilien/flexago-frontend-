@@ -2293,12 +2293,6 @@ function initTravelerAccountView() {
 }
 
 /* ============================================================
-   TRAVELER JOBS INITIALIZER (PLACEHOLDER)
-============================================================ */
-function initTravelerJobs() {
-  console.log("initTravelerJobs() placeholder — implement job tab logic later.");
-}
-/* ============================================================
    PAGE SWITCHING (FINAL — FIXED)
 ============================================================ */
 function loadPage(view) {
@@ -2336,8 +2330,8 @@ function loadPage(view) {
     setTimeout(() => initVerificationPage(), 20);
   }
 
-  // ⭐⭐⭐ NEW — FULLY UPDATED PAYOUTS VIEW ⭐⭐⭐
-  else if (view === "payouts") {
+  // ⭐ UPDATED PAYMENTS / PAYOUTS VIEW
+  else if (view === "payments") {
     dynamic.innerHTML = document.getElementById("travelerPayoutsView").innerHTML;
 
     setTimeout(() => {
