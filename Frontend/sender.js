@@ -1063,6 +1063,45 @@ async function saveSenderAccount() {
     alert("An error occurred while saving changes.");
   }
 }
+/* ============================================================
+   PAYOUT VIEW INITIALIZER — SENDER VERSION
+============================================================ */
+function initSenderPayoutView() {
+
+  const saveBtn = document.getElementById("saveSenderPayoutBtn");
+  if (!saveBtn) return;
+
+  saveBtn.addEventListener("click", () => {
+
+    const method = document.querySelector(".toggle-btn.active")?.dataset.method;
+
+    let payload = {};
+
+    if (method === "card") {
+      payload = {
+        type: "card",
+        name: document.getElementById("senderCardNameInput").value.trim(),
+        number: document.getElementById("senderCardNumberInput").value.trim(),
+        exp: document.getElementById("senderCardExpInput").value.trim(),
+        cvv: document.getElementById("senderCardCvvInput").value.trim()
+      };
+    }
+
+    else if (method === "bank") {
+      payload = {
+        type: "bank",
+        name: document.getElementById("senderBankNameInput").value.trim(),
+        routing: document.getElementById("senderBankRoutingInput").value.trim(),
+        account: document.getElementById("senderBankAccountInput").value.trim(),
+        confirm: document.getElementById("senderBankConfirmInput").value.trim()
+      };
+    }
+
+    console.log("Saving payout method:", payload);
+
+    // TODO: send to backend
+  });
+}
 
 /* ============================================================
    FINAL DOM READY BOOTSTRAP — ACCOUNT DEFAULT
@@ -1077,24 +1116,23 @@ document.addEventListener("DOMContentLoaded", () => {
   safe(initSenderAccountView);
   safe(loadAccountAndIdentity);
 
-  // ⭐ Add payment formatting
+  // ⭐ Sender payout init
+  safe(initSenderPayoutView);
+
+  // ⭐ Sender card formatting
   safe(initPaymentFormatting);
 
-  // Save account button
   const saveBtn = document.getElementById("saveSenderAccountBtn");
   if (saveBtn) {
     saveBtn.addEventListener("click", saveSenderAccount);
   }
 
-  // Default view = Account & Identity
   const defaultView = document.getElementById("accountView");
   if (defaultView) defaultView.classList.remove("hidden");
 
-  // Ensure sidebar highlights Account
   const accountBtn = document.querySelector('.sidebar-item[data-view="account"]');
   if (accountBtn) accountBtn.classList.add("active");
 });
-
 
 /* ============================================================
    PAYMENT FORMATTING (CARD + EXP + CVC)

@@ -2437,24 +2437,32 @@ function initTravelerPayoutView() {
    FINAL DOM READY BOOTSTRAP — TRAVELER ACCOUNT DEFAULT
 ============================================================ */
 document.addEventListener("DOMContentLoaded", () => {
+  safe(initSenderIcons);
+  safe(loadSenderIdentity);
+  safe(initSenderSidebar);
+  safe(initSenderCreateForm);
+  safe(initSenderPhotoUpload);
+  safe(initSenderGenerateDelivery);
+  safe(initSenderAccountView);
+  safe(loadAccountAndIdentity);
 
-  safe(initTravelerSidebar);
-  safe(initTravelerJobs);
-  safe(initTravelerMap);
-  safe(initChatWidget);
-  safe(initJobDetailsModal);
-  safe(initRoutePlanner);
-  safe(initTravelerAccountLayout);
-  safe(loadTravelerIdentity);
-  safe(initTravelerPhotoUpload);
+  // ⭐ Sender payout init
+  safe(initSenderPayoutView);
 
-  // ⭐ Default view = Account & Identity
-  loadPage("account");
+  // ⭐ Sender card formatting
+  safe(initPaymentFormatting);
+
+  const saveBtn = document.getElementById("saveSenderAccountBtn");
+  if (saveBtn) {
+    saveBtn.addEventListener("click", saveSenderAccount);
+  }
+
+  const defaultView = document.getElementById("accountView");
+  if (defaultView) defaultView.classList.remove("hidden");
 
   const accountBtn = document.querySelector('.sidebar-item[data-view="account"]');
   if (accountBtn) accountBtn.classList.add("active");
 });
-
 /* ============================================================
    PAYMENT FORMATTING (CARD + EXP + CVC)
 ============================================================ */
