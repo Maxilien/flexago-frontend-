@@ -2336,9 +2336,14 @@ function loadPage(view) {
     setTimeout(() => initVerificationPage(), 20);
   }
 
-  else if (view === "payments") {
-    dynamic.innerHTML = document.getElementById("template-payments").innerHTML;
-    setTimeout(() => initPayoutsPage(), 20);
+  // ⭐⭐⭐ NEW — FULLY UPDATED PAYOUTS VIEW ⭐⭐⭐
+  else if (view === "payouts") {
+    dynamic.innerHTML = document.getElementById("travelerPayoutsView").innerHTML;
+
+    setTimeout(() => {
+      safe(initTravelerPayoutView);
+      safe(initTravelerPaymentFormatting);
+    }, 20);
   }
 
   else if (view === "support") {
@@ -2346,7 +2351,6 @@ function loadPage(view) {
     setTimeout(() => initSupportPage(), 20);
   }
 }
-
 
 /* ============================================================
    SIDEBAR NAVIGATION (FINAL)
@@ -2409,6 +2413,9 @@ document.addEventListener("DOMContentLoaded", () => {
   safe(initTravelerAccountLayout);
   safe(loadTravelerIdentity);
   safe(initTravelerPhotoUpload);
+  safe(initTravelerPayoutView);
+  safe(initTravelerPaymentFormatting);
+
 
 
   // ⭐ Default view = Account & Identity
