@@ -2407,8 +2407,10 @@ document.addEventListener("DOMContentLoaded", () => {
   safe(initTravelerAccountLayout);
   safe(loadTravelerIdentity);
   safe(initTravelerPhotoUpload);
+  safe(initTravelerPayoutView);
+  safe(initTravelerPaymentFormatting);
 
-  // ⭐ DO NOT initialize payout here — it loads only when user clicks "Payouts"
+
 
   // ⭐ Default view = Account & Identity
   loadPage("account");
@@ -2416,7 +2418,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const accountBtn = document.querySelector('.sidebar-item[data-view="account"]');
   if (accountBtn) accountBtn.classList.add("active");
 });
-
 /* ============================================================
    PAYMENT FORMATTING (CARD + EXP + CVC) — TRAVELER
 ============================================================ */
