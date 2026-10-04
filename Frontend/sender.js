@@ -1077,14 +1077,57 @@ document.addEventListener("DOMContentLoaded", () => {
   safe(initSenderAccountView);
   safe(loadAccountAndIdentity);
 
-  document.getElementById("saveSenderAccountBtn")
-          .addEventListener("click", saveSenderAccount);
+  // ⭐ Add payment formatting
+  safe(initPaymentFormatting);
+
+  // Save account button
+  const saveBtn = document.getElementById("saveSenderAccountBtn");
+  if (saveBtn) {
+    saveBtn.addEventListener("click", saveSenderAccount);
+  }
 
   // Default view = Account & Identity
-  const defaultView = document.getElementById("accountView");   // ⭐ FIXED
+  const defaultView = document.getElementById("accountView");
   if (defaultView) defaultView.classList.remove("hidden");
 
   // Ensure sidebar highlights Account
   const accountBtn = document.querySelector('.sidebar-item[data-view="account"]');
   if (accountBtn) accountBtn.classList.add("active");
 });
+
+
+/* ============================================================
+   PAYMENT FORMATTING (CARD + EXP + CVC)
+============================================================ */
+function initPaymentFormatting() {
+
+  // ⭐ CARD NUMBER — xxxx-xxxx-xxxx-xxxx
+  const cardNumberInput = document.getElementById("senderCardNumberInput");
+  if (cardNumberInput) {
+    cardNumberInput.addEventListener("input", () => {
+      let v = cardNumberInput.value.replace(/\D/g, "").slice(0, 16);
+      v = v.match(/.{1,4}/g)?.join("-") || "";
+      cardNumberInput.value = v;
+    });
+  }
+
+  // ⭐ EXPIRY — MM/YY
+  const expInput = document.getElementById("senderCardExpInput");
+  if (expInput) {
+    expInput.addEventListener("input", () => {
+      let v = expInput.value.replace(/\D/g, "").slice(0, 4);
+      if (v.length >= 3) {
+        v = v.slice(0, 2) + "/" + v.slice(2);
+      }
+      expInput.value = v;
+    });
+  }
+
+  // ⭐ CVC — 3–4 digits
+  const cvvInput = document.getElementById("senderCardCvvInput");
+  if (cvvInput) {
+    cvvInput.addEventListener("input", () => {
+      cvvInput.value = cvvInput.value.replace(/\D/g, "").slice(0, 4);
+    });
+  }
+}

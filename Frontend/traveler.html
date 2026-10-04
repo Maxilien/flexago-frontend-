@@ -717,117 +717,115 @@
   </div>
 </div>
 
-<!-- ================= PAYMENTS TEMPLATE (ALIGNED WITH Traveler.js) ================= -->
-<div id="template-payments" class="page-template hidden">
+<!-- ========================================================= -->
+<!-- PAYOUTS VIEW (TRAVELER VERSION)                           -->
+<!-- ========================================================= -->
+<section id="travelerPayoutsView" class="hidden">
+  <div class="panel" id="travelerPayoutsPanel">
 
-  <header class="panel-header">
-    <div>
-      <div class="panel-title" data-i18n="traveler.payments.title">Payout Methods</div>
-      <div class="panel-subtitle" data-i18n="traveler.payments.subtitle">
-        Manage how you receive your earnings.
-      </div>
-    </div>
-  </header>
-
-  <div class="panel-body">
-
-    <!-- ADD PAYMENT METHOD -->
-    <div class="payout-method-card add-payment-card" id="openAddPaymentModal">
-      <div class="payout-method-icon">+</div>
-      <div class="payout-method-info">
-        <strong data-i18n="traveler.payments.add_title">Add Payment Method</strong>
-        <span data-i18n="traveler.payments.add_subtitle">Debit card or bank account</span>
-      </div>
-    </div>
-
-    <!-- SAVED PAYMENT METHOD -->
-    <div id="savedPaymentMethod" class="payout-method-card hidden">
-      <div class="payout-method-icon">💳</div>
-      <div class="payout-method-info">
-        <strong id="savedMethodLabel">Visa •••• 1234</strong>
-        <span id="savedMethodType">Debit Card</span>
-      </div>
-      <button class="secondary-btn" id="editPaymentMethod" data-i18n="traveler.payments.edit">
-        Edit
-      </button>
-    </div>
-
-  </div>
-</div>
-
-<!-- ================= ADD PAYMENT MODAL (MATCHES Traveler.js) ================= -->
-<div id="addPaymentModal" class="modal hidden">
-  <div class="modal-content">
-
-    <button class="modal-close" id="closeAddPaymentModal">&times;</button>
-    <h3 class="modal-title" data-i18n="traveler.payments.modal_title">Add Payment Method</h3>
-
-    <!-- PAYOUT TYPE TOGGLE -->
-    <div class="input-shell">
-      <label class="input-label" data-i18n="traveler.payments.type_label">Payout Type</label>
-
-      <div class="radio-row">
-        <label>
-          <input type="radio" name="payoutType" value="card" checked>
-          <span data-i18n="traveler.payments.type_card">Debit / Credit Card</span>
-        </label>
-
-        <label>
-          <input type="radio" name="payoutType" value="bank">
-          <span data-i18n="traveler.payments.type_bank">Bank Account</span>
-        </label>
-      </div>
-    </div>
-
-    <!-- CARD FIELDS -->
-    <div id="cardFields">
-      <div class="input-shell">
-        <label class="input-label" data-i18n="traveler.payments.card_name">Name on Card</label>
-        <input type="text" id="cardName" class="input-field" />
-      </div>
-
-      <div class="input-shell">
-        <label class="input-label" data-i18n="traveler.payments.card_number">Card Number</label>
-        <input type="text" id="cardNumber" class="input-field" />
-      </div>
-
-      <div class="input-row">
-        <div class="input-shell">
-          <label class="input-label" data-i18n="traveler.payments.card_expiry">MM/YY</label>
-          <input type="text" id="cardExpiry" class="input-field" />
+    <header class="panel-header">
+      <div>
+        <div class="panel-title" data-i18n="traveler.payouts.title">
+          Payout Methods
         </div>
-
-        <div class="input-shell">
-          <label class="input-label" data-i18n="traveler.payments.card_cvc">CVC</label>
-          <input type="text" id="cardCVC" class="input-field" />
+        <div class="panel-subtitle" data-i18n="traveler.payouts.subtitle">
+          Manage how you receive your earnings.
         </div>
       </div>
+    </header>
+
+    <div class="panel-body">
+
+      <section class="section-block">
+        <h2 class="section-title" data-i18n="traveler.payouts.current_method">
+          Current Payout Method
+        </h2>
+
+        <div id="travelerPayoutMethodDisplay" class="payout-method-display">
+          <i data-lucide="credit-card"></i>
+          <span data-i18n="traveler.payouts.no_method">No payout method added</span>
+        </div>
+      </section>
+
+      <section class="section-block">
+        <h2 class="section-title" data-i18n="traveler.payouts.add_edit_title">
+          Add or Edit Payout Method
+        </h2>
+
+        <div class="payout-method-toggle">
+          <button class="toggle-btn active" data-method="card" id="travelerPayoutCardTab">
+            <i data-lucide="credit-card"></i>
+            <span data-i18n="traveler.payouts.card">Debit Card</span>
+          </button>
+
+          <button class="toggle-btn" data-method="bank" id="travelerPayoutBankTab">
+            <i data-lucide="banknote"></i>
+            <span data-i18n="traveler.payouts.bank">Bank Account</span>
+          </button>
+        </div>
+
+        <!-- CARD FORM -->
+        <div id="travelerPayoutCardForm" class="payout-form">
+          <input class="input-field"
+                 id="travelerCardNameInput"
+                 placeholder="Name on card"
+                 data-i18n-placeholder="traveler.payouts.card_name" />
+
+          <input class="input-field"
+                 id="travelerCardNumberInput"
+                 placeholder="Card number"
+                 data-i18n-placeholder="traveler.payouts.card_number" />
+
+          <div class="input-row">
+            <input class="input-field"
+                   id="travelerCardExpInput"
+                   placeholder="MM/YY"
+                   data-i18n-placeholder="traveler.payouts.exp_placeholder" />
+
+            <input class="input-field"
+                   id="travelerCardCvvInput"
+                   placeholder="CVC"
+                   data-i18n-placeholder="traveler.payouts.cvv_placeholder" />
+          </div>
+        </div>
+
+        <!-- BANK FORM -->
+        <div id="travelerPayoutBankForm" class="payout-form hidden">
+          <input class="input-field"
+                 id="travelerBankNameInput"
+                 placeholder="Account holder name"
+                 data-i18n-placeholder="traveler.payouts.bank_name_placeholder" />
+
+          <input class="input-field"
+                 id="travelerBankRoutingInput"
+                 placeholder="Routing number"
+                 data-i18n-placeholder="traveler.payouts.routing_placeholder" />
+
+          <input class="input-field"
+                 id="travelerBankAccountInput"
+                 placeholder="Account number"
+                 data-i18n-placeholder="traveler.payouts.account_placeholder" />
+
+          <input class="input-field"
+                 id="travelerBankConfirmInput"
+                 placeholder="Re-enter account number"
+                 data-i18n-placeholder="traveler.payouts.confirm_account_placeholder" />
+        </div>
+
+      </section>
+
+      <section class="section-block">
+        <button id="saveTravelerPayoutBtn"
+                class="primary-btn disabled"
+                disabled
+                data-i18n="traveler.payouts.save">
+          Save Payout Method
+        </button>
+      </section>
+
     </div>
-
-    <!-- BANK FIELDS -->
-    <div id="bankFields" class="hidden">
-      <div class="input-shell">
-        <label class="input-label" data-i18n="traveler.payments.routing">Routing Number</label>
-        <input type="text" id="bankRoutingInput" class="input-field" />
-      </div>
-
-      <div class="input-shell">
-        <label class="input-label" data-i18n="traveler.payments.account">Account Number</label>
-        <input type="text" id="bankAccountInput" class="input-field" />
-      </div>
-
-      <div class="input-shell">
-        <label class="input-label" data-i18n="traveler.payments.iban">IBAN (optional)</label>
-        <input type="text" id="bankIbanInput" class="input-field" />
-      </div>
-    </div>
-
-    <button class="primary-btn" id="savePaymentMethod" data-i18n="traveler.payments.save_btn">
-      Save
-    </button>
-
   </div>
-</div>
+</section>
 
 <!-- ================= SUPPORT PANEL ================= -->
 <div id="supportPanel" class="hidden">
