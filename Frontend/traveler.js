@@ -2330,7 +2330,7 @@ function loadPage(view) {
     setTimeout(() => initVerificationPage(), 20);
   }
 
-  // ⭐ UPDATED PAYMENTS / PAYOUTS VIEW
+  // ⭐⭐⭐ PAYMENTS (PAYOUTS) — CORRECT BRANCH ⭐⭐⭐
   else if (view === "payments") {
     dynamic.innerHTML = document.getElementById("travelerPayoutsView").innerHTML;
 
