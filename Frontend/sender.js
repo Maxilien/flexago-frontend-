@@ -1144,11 +1144,6 @@ document.addEventListener("DOMContentLoaded", () => {
   safe(initSenderAccountView);
   safe(loadAccountAndIdentity);
 
-  // ⭐ Sender payout init
-  safe(initSenderPayoutView);
-
-  // ⭐ Sender card formatting
-  safe(initPaymentFormatting);
 
   const saveBtn = document.getElementById("saveSenderAccountBtn");
   if (saveBtn) {
