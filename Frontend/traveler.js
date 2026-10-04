@@ -2345,6 +2345,7 @@ function loadPage(view) {
     setTimeout(() => initSupportPage(), 20);
   }
 }
+
 /* ============================================================
    SIDEBAR NAVIGATION (FINAL)
 ============================================================ */
@@ -2389,7 +2390,47 @@ function initJobSearch() {
     });
   }
 
-  attach();   //  THIS LINE WAS MISSING
+  attach();
+}
+
+/* ============================================================
+   PAYOUT VIEW INITIALIZER
+============================================================ */
+function initTravelerPayoutView() {
+
+  const saveBtn = document.getElementById("saveTravelerPayoutBtn");
+  if (!saveBtn) return;
+
+  saveBtn.addEventListener("click", () => {
+
+    const method = document.querySelector(".toggle-btn.active")?.dataset.method;
+
+    let payload = {};
+
+    if (method === "card") {
+      payload = {
+        type: "card",
+        name: document.getElementById("travelerCardNameInput").value.trim(),
+        number: document.getElementById("travelerCardNumberInput").value.trim(),
+        exp: document.getElementById("travelerCardExpInput").value.trim(),
+        cvv: document.getElementById("travelerCardCvvInput").value.trim()
+      };
+    }
+
+    else if (method === "bank") {
+      payload = {
+        type: "bank",
+        name: document.getElementById("travelerBankNameInput").value.trim(),
+        routing: document.getElementById("travelerBankRoutingInput").value.trim(),
+        account: document.getElementById("travelerBankAccountInput").value.trim(),
+        confirm: document.getElementById("travelerBankConfirmInput").value.trim()
+      };
+    }
+
+    console.log("Saving payout method:", payload);
+
+    // TODO: send to backend
+  });
 }
 
 /* ============================================================
@@ -2406,10 +2447,6 @@ document.addEventListener("DOMContentLoaded", () => {
   safe(initTravelerAccountLayout);
   safe(loadTravelerIdentity);
   safe(initTravelerPhotoUpload);
-  safe(initTravelerPayoutView);
-  safe(initTravelerPaymentFormatting);
-
-
 
   // ⭐ Default view = Account & Identity
   loadPage("account");
@@ -2417,12 +2454,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const accountBtn = document.querySelector('.sidebar-item[data-view="account"]');
   if (accountBtn) accountBtn.classList.add("active");
 });
+
 /* ============================================================
-   PAYMENT FORMATTING (CARD + EXP + CVC) — TRAVELER
+   PAYMENT FORMATTING (CARD + EXP + CVC)
 ============================================================ */
 function initTravelerPaymentFormatting() {
 
-  // ⭐ CARD NUMBER — xxxx-xxxx-xxxx-xxxx
   const cardNumberInput = document.getElementById("travelerCardNumberInput");
   if (cardNumberInput) {
     cardNumberInput.addEventListener("input", () => {
@@ -2432,7 +2469,6 @@ function initTravelerPaymentFormatting() {
     });
   }
 
-  // ⭐ EXPIRY — MM/YY
   const expInput = document.getElementById("travelerCardExpInput");
   if (expInput) {
     expInput.addEventListener("input", () => {
@@ -2444,7 +2480,6 @@ function initTravelerPaymentFormatting() {
     });
   }
 
-  // ⭐ CVC — 3–4 digits
   const cvvInput = document.getElementById("travelerCardCvvInput");
   if (cvvInput) {
     cvvInput.addEventListener("input", () => {
