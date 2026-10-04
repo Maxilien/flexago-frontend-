@@ -1131,7 +1131,7 @@ function initSenderPayoutView() {
   });
 }
 
-//* ============================================================
+/* ============================================================
    FINAL DOM READY BOOTSTRAP — ACCOUNT DEFAULT
 ============================================================ */
 document.addEventListener("DOMContentLoaded", () => {
@@ -1161,12 +1161,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const accountBtn = document.querySelector('.sidebar-item[data-view="account"]');
   if (accountBtn) accountBtn.classList.add("active");
 });
+
 /* ============================================================
    PAYMENT FORMATTING (CARD + EXP + CVC)
 ============================================================ */
 function initPaymentFormatting() {
 
-  // ⭐ CARD NUMBER — xxxx-xxxx-xxxx-xxxx
   const cardNumberInput = document.getElementById("senderCardNumberInput");
   if (cardNumberInput) {
     cardNumberInput.addEventListener("input", () => {
@@ -1176,7 +1176,6 @@ function initPaymentFormatting() {
     });
   }
 
-  // ⭐ EXPIRY — MM/YY
   const expInput = document.getElementById("senderCardExpInput");
   if (expInput) {
     expInput.addEventListener("input", () => {
@@ -1188,7 +1187,6 @@ function initPaymentFormatting() {
     });
   }
 
-  // ⭐ CVC — 3–4 digits
   const cvvInput = document.getElementById("senderCardCvvInput");
   if (cvvInput) {
     cvvInput.addEventListener("input", () => {
