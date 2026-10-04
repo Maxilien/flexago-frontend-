@@ -1068,6 +1068,34 @@ async function saveSenderAccount() {
 ============================================================ */
 function initSenderPayoutView() {
 
+  // Toggle buttons
+  const cardTab = document.getElementById("senderPayoutCardTab");
+  const bankTab = document.getElementById("senderPayoutBankTab");
+
+  const cardForm = document.getElementById("senderPayoutCardForm");
+  const bankForm = document.getElementById("senderPayoutBankForm");
+
+  if (cardTab) {
+    cardTab.addEventListener("click", () => {
+      cardTab.classList.add("active");
+      bankTab.classList.remove("active");
+
+      cardForm.classList.remove("hidden");
+      bankForm.classList.add("hidden");
+    });
+  }
+
+  if (bankTab) {
+    bankTab.addEventListener("click", () => {
+      bankTab.classList.add("active");
+      cardTab.classList.remove("active");
+
+      bankForm.classList.remove("hidden");
+      cardForm.classList.add("hidden");
+    });
+  }
+
+  // Save button
   const saveBtn = document.getElementById("saveSenderPayoutBtn");
   if (!saveBtn) return;
 
@@ -1103,7 +1131,7 @@ function initSenderPayoutView() {
   });
 }
 
-/* ============================================================
+//* ============================================================
    FINAL DOM READY BOOTSTRAP — ACCOUNT DEFAULT
 ============================================================ */
 document.addEventListener("DOMContentLoaded", () => {
@@ -1133,7 +1161,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const accountBtn = document.querySelector('.sidebar-item[data-view="account"]');
   if (accountBtn) accountBtn.classList.add("active");
 });
-
 /* ============================================================
    PAYMENT FORMATTING (CARD + EXP + CVC)
 ============================================================ */
