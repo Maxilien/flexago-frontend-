@@ -1160,9 +1160,9 @@ document.addEventListener("DOMContentLoaded", () => {
 /* ============================================================
    PAYMENT FORMATTING (CARD + EXP + CVC)
 ============================================================ */
-function initTravelerPaymentFormatting() {
+function initPaymentFormatting() {
 
-  const cardNumberInput = document.getElementById("travelerCardNumberInput");
+  const cardNumberInput = document.getElementById("senderCardNumberInput");
   if (cardNumberInput) {
     cardNumberInput.addEventListener("input", () => {
       let v = cardNumberInput.value.replace(/\D/g, "").slice(0, 16);
@@ -1171,7 +1171,7 @@ function initTravelerPaymentFormatting() {
     });
   }
 
-  const expInput = document.getElementById("travelerCardExpInput");
+  const expInput = document.getElementById("senderCardExpInput");
   if (expInput) {
     expInput.addEventListener("input", () => {
       let v = expInput.value.replace(/\D/g, "").slice(0, 4);
@@ -1182,11 +1182,10 @@ function initTravelerPaymentFormatting() {
     });
   }
 
-  const cvvInput = document.getElementById("travelerCardCvvInput");
+  const cvvInput = document.getElementById("senderCardCvvInput");
   if (cvvInput) {
     cvvInput.addEventListener("input", () => {
       cvvInput.value = cvvInput.value.replace(/\D/g, "").slice(0, 4);
     });
   }
-}
 }
