@@ -1144,7 +1144,6 @@ document.addEventListener("DOMContentLoaded", () => {
   safe(initSenderAccountView);
   safe(loadAccountAndIdentity);
 
-
   const saveBtn = document.getElementById("saveSenderAccountBtn");
   if (saveBtn) {
     saveBtn.addEventListener("click", saveSenderAccount);
@@ -1157,9 +1156,9 @@ document.addEventListener("DOMContentLoaded", () => {
   if (accountBtn) accountBtn.classList.add("active");
 });
 
-//* ============================================================
+/* ============================================================
    PAYMENT FORMATTING (CARD + EXP + CVC)
-============================================================ *//
+============================================================ */
 function initPaymentFormatting() {
 
   const cardNumberInput = document.getElementById("senderCardNumberInput");
@@ -1189,3 +1188,4 @@ function initPaymentFormatting() {
     });
   }
 }
+
