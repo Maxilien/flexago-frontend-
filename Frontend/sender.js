@@ -1130,7 +1130,6 @@ function initSenderPayoutView() {
     // TODO: send to backend
   });
 }
-
 /* ============================================================
    FINAL DOM READY BOOTSTRAP — ACCOUNT DEFAULT
 ============================================================ */
