@@ -1157,9 +1157,9 @@ document.addEventListener("DOMContentLoaded", () => {
   if (accountBtn) accountBtn.classList.add("active");
 });
 
-/* ============================================================
+//* ============================================================
    PAYMENT FORMATTING (CARD + EXP + CVC)
-============================================================ */
+============================================================ *//
 function initPaymentFormatting() {
 
   const cardNumberInput = document.getElementById("senderCardNumberInput");
