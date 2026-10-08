@@ -1143,6 +1143,9 @@ document.addEventListener("DOMContentLoaded", () => {
   safe(initSenderAccountView);
   safe(loadAccountAndIdentity);
 
+  safe(initSenderPayoutView);
+  safe(initPaymentFormatting);
+
   const saveBtn = document.getElementById("saveSenderAccountBtn");
   if (saveBtn) {
     saveBtn.addEventListener("click", saveSenderAccount);
@@ -1151,10 +1154,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const defaultView = document.getElementById("accountView");
   if (defaultView) defaultView.classList.remove("hidden");
 
-  const accountBtn = document.querySelector('.sidebar-item[data-view="account"]');
+  const accountBtn = document.querySelector(
+    '.sidebar-item[data-view="account"]'
+  );
   if (accountBtn) accountBtn.classList.add("active");
 });
-
 /* ============================================================
    PAYMENT FORMATTING (CARD + EXP + CVC)
 ============================================================ */
