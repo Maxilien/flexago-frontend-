@@ -1149,44 +1149,7 @@ function initSenderPayoutView() {
               .trim(),
 
           last4: accountNumber.slice(-4)
-        };
-      }
-
-      console.log("✅ Saving payout method:", payload);
-
-      const response = await fetch(
-        `/api/users/payout-method/${window.senderId}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify(payload)
-        }
-      );
-
-      const result = await response.json();
-
-      if (!result.success) {
-        throw new Error(result.error || "Failed to save payout method");
-      }
-
-      console.log("✅ Payout method saved:", result);
-
-      alert("Payout method saved successfully.");
-
-    } catch (err) {
-
-      console.error("❌ Payout save failed:", err);
-
-      alert(
-        err.message || "Failed to save payout method."
-      );
-    }
-
-  });
-
-}
+  };
 /* ============================================================
    FINAL DOM READY BOOTSTRAP — ACCOUNT DEFAULT
 ============================================================ */
