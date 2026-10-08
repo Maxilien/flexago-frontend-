@@ -1070,14 +1070,13 @@ function initSenderPayoutView() {
 
   console.log("✅ initSenderPayoutView initialized");
 
-  // Toggle buttons
   const cardTab = document.getElementById("senderPayoutCardTab");
   const bankTab = document.getElementById("senderPayoutBankTab");
 
   const cardForm = document.getElementById("senderPayoutCardForm");
   const bankForm = document.getElementById("senderPayoutBankForm");
 
-  if (cardTab) {
+  if (cardTab && bankTab && cardForm && bankForm) {
     cardTab.addEventListener("click", () => {
       cardTab.classList.add("active");
       bankTab.classList.remove("active");
@@ -1085,9 +1084,7 @@ function initSenderPayoutView() {
       cardForm.classList.remove("hidden");
       bankForm.classList.add("hidden");
     });
-  }
 
-  if (bankTab) {
     bankTab.addEventListener("click", () => {
       bankTab.classList.add("active");
       cardTab.classList.remove("active");
@@ -1107,49 +1104,178 @@ function initSenderPayoutView() {
   }
 
   saveBtn.addEventListener("click", async () => {
-
     try {
-
       console.log("✅ Save button clicked");
 
-      const method =
-        document.querySelector(".toggle-btn.active")?.dataset.method;
+      const activeTab = document.querySelector(
+        "#paymentsView .toggle-btn.active"
+      );
 
-      let payload = {};
+      const method = activeTab?.dataset.method;
+
+      if (!method) {
+        throw new Error("Please select a payout method.");
+      }
+
+      if (!window.senderId) {
+        throw new Error("Sender ID is missing. Please log in again.");
+      }
+
+      let payload;
 
       if (method === "card") {
+        const accountName = document
+          .getElementById("senderCardNameInput")
+          ?.value.trim();
 
-        const cardNumber =
-          document.getElementById("senderCardNumberInput")
-            .value
-            .replace(/\D/g, "");
+        const cardNumber = document
+          .getElementById("senderCardNumberInput")
+          ?.value.replace(/\D/g, "");
+
+        const expiration = document
+          .getElementById("senderCardExpInput")
+          ?.value.trim();
+
+        const cvv = document
+          .getElementById("senderCardCvvInput")
+          ?.value.replace(/\D/g, "");
+
+        if (
+          !accountName ||
+          cardNumber.length < 4 ||
+          !expiration ||
+          cvv.length < 3
+        ) {
+          throw new Error("Please complete all debit card fields.");
+        }
 
         payload = {
           type: "card",
-          accountName:
-            document.getElementById("senderCardNameInput")
-              .value
-              .trim(),
-
+          accountName,
           last4: cardNumber.slice(-4)
         };
-
       } else if (method === "bank") {
+        const accountName = document
+          .getElementById("senderBankNameInput")
+          ?.value.trim();
 
-        const accountNumber =
-          document.getElementById("senderBankAccountInput")
-            .value
-            .replace(/\D/g, "");
+        const routingNumber = document
+          .getElementById("senderBankRoutingInput")
+          ?.value.replace(/\D/g, "");
+
+        const accountNumber = document
+          .getElementById("senderBankAccountInput")
+          ?.value.replace(/\D/g, "");
+
+        const confirmAccountNumber = document
+          .getElementById("senderBankConfirmInput")
+          ?.value.replace(/\D/g, "");
+
+        if (
+          !accountName ||
+          !routingNumber ||
+          accountNumber.length < 4 ||
+          !confirmAccountNumber
+        ) {
+          throw new Error("Please complete all bank account fields.");
+        }
+
+        if (accountNumber !== confirmAccountNumber) {
+          throw new Error("Bank account numbers do not match.");
+        }
 
         payload = {
           type: "bank",
-          accountName:
-            document.getElementById("senderBankNameInput")
-              .value
-              .trim(),
-
+          accountName,
           last4: accountNumber.slice(-4)
-  };
+        };
+      } else {
+        throw new Error("Unsupported payout method.");
+      }
+
+      console.log("✅ Saving payout method:", payload);
+      console.log("✅ Sender ID:", window.senderId);
+
+      saveBtn.disabled = true;
+      saveBtn.textContent = "Saving...";
+
+      const response = await fetch(
+        `https://flexago-backend.onrender.com/api/users/payout-method/${window.senderId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(payload)
+        }
+      );
+
+      console.log("✅ Response Status:", response.status);
+      console.log("✅ Response OK:", response.ok);
+
+      const responseText = await response.text();
+
+      console.log("✅ Raw Response:", responseText);
+
+      let result = {};
+
+      if (responseText) {
+        try {
+          result = JSON.parse(responseText);
+        } catch (parseError) {
+          throw new Error(
+            `Backend returned an invalid response. Status: ${response.status}`
+          );
+        }
+      }
+
+      if (!response.ok) {
+        throw new Error(
+          result.error ||
+          `Request failed with status ${response.status}`
+        );
+      }
+
+      if (!result.success) {
+        throw new Error(
+          result.error || "Failed to save payout method."
+        );
+      }
+
+      const methodDisplay = document.getElementById(
+        "senderPayoutMethodDisplay"
+      );
+
+      if (methodDisplay) {
+        const methodLabel =
+          payload.type === "card" ? "Debit Card" : "Bank Account";
+
+        const iconName =
+          payload.type === "card" ? "credit-card" : "banknote";
+
+        methodDisplay.innerHTML = `
+          <i data-lucide="${iconName}"></i>
+          <span>${methodLabel} ending in ${payload.last4}</span>
+        `;
+
+        if (window.lucide) {
+          lucide.createIcons();
+        }
+      }
+
+      console.log("✅ Payout method saved:", result);
+
+      alert("Payout method saved successfully.");
+    } catch (err) {
+      console.error("❌ Payout save failed:", err);
+
+      alert(err.message || "Failed to save payout method.");
+    } finally {
+      saveBtn.disabled = false;
+      saveBtn.textContent = "Save Payout Method";
+    }
+  });
+}
 /* ============================================================
    FINAL DOM READY BOOTSTRAP — ACCOUNT DEFAULT
 ============================================================ */
