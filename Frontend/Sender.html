@@ -403,6 +403,7 @@
         <div class="panel-title" data-i18n="sender.payouts.title">
           Payouts
         </div>
+
         <div class="panel-subtitle" data-i18n="sender.payouts.subtitle">
           Manage how you receive your delivery earnings.
         </div>
@@ -418,88 +419,133 @@
 
         <div id="senderPayoutMethodDisplay" class="payout-method-display">
           <i data-lucide="credit-card"></i>
-          <span data-i18n="sender.payouts.no_method">No payout method added</span>
+          <span data-i18n="sender.payouts.no_method">
+            No payout method added
+          </span>
         </div>
       </section>
 
       <section class="section-block">
+
         <h2 class="section-title" data-i18n="sender.payouts.add_edit_title">
           Add or Edit Payout Method
         </h2>
 
         <div class="payout-method-toggle">
-          <button class="toggle-btn active" data-method="card" id="senderPayoutCardTab">
+
+          <button
+            type="button"
+            class="toggle-btn active"
+            data-method="card"
+            id="senderPayoutCardTab"
+          >
             <i data-lucide="credit-card"></i>
-            <span data-i18n="sender.payouts.card">Debit Card</span>
+            <span data-i18n="sender.payouts.card">
+              Debit Card
+            </span>
           </button>
 
-          <button class="toggle-btn" data-method="bank" id="senderPayoutBankTab">
+          <button
+            type="button"
+            class="toggle-btn"
+            data-method="bank"
+            id="senderPayoutBankTab"
+          >
             <i data-lucide="banknote"></i>
-            <span data-i18n="sender.payouts.bank">Bank Account</span>
+            <span data-i18n="sender.payouts.bank">
+              Bank Account
+            </span>
           </button>
+
         </div>
 
         <div id="senderPayoutCardForm" class="payout-form">
-          <input class="input-field"
-                 id="senderCardNameInput"
-                 placeholder="Name on card"
-                 data-i18n-placeholder="sender.payouts.card_name" />
 
-          <input class="input-field"
-                 id="senderCardNumberInput"
-                 placeholder="Card number"
-                 data-i18n-placeholder="sender.payouts.card_number" />
+          <input
+            class="input-field"
+            id="senderCardNameInput"
+            placeholder="Name on card"
+            data-i18n-placeholder="sender.payouts.card_name"
+          />
+
+          <input
+            class="input-field"
+            id="senderCardNumberInput"
+            placeholder="Card number"
+            data-i18n-placeholder="sender.payouts.card_number"
+          />
 
           <div class="input-row">
-            <input class="input-field"
-                   id="senderCardExpInput"
-                   placeholder="MM/YY"
-                   data-i18n-placeholder="sender.payouts.exp_placeholder" />
 
-            <input class="input-field"
-                   id="senderCardCvvInput"
-                   placeholder="CVC"
-                   data-i18n-placeholder="sender.payouts.cvv_placeholder" />
+            <input
+              class="input-field"
+              id="senderCardExpInput"
+              placeholder="MM/YY"
+              data-i18n-placeholder="sender.payouts.exp_placeholder"
+            />
+
+            <input
+              class="input-field"
+              id="senderCardCvvInput"
+              placeholder="CVC"
+              data-i18n-placeholder="sender.payouts.cvv_placeholder"
+            />
+
           </div>
+
         </div>
 
         <div id="senderPayoutBankForm" class="payout-form hidden">
-          <input class="input-field"
-                 id="senderBankNameInput"
-                 placeholder="Account holder name"
-                 data-i18n-placeholder="sender.payouts.bank_name_placeholder" />
 
-          <input class="input-field"
-                 id="senderBankRoutingInput"
-                 placeholder="Routing number"
-                 data-i18n-placeholder="sender.payouts.routing_placeholder" />
+          <input
+            class="input-field"
+            id="senderBankNameInput"
+            placeholder="Account holder name"
+            data-i18n-placeholder="sender.payouts.bank_name_placeholder"
+          />
 
-          <input class="input-field"
-                 id="senderBankAccountInput"
-                 placeholder="Account number"
-                 data-i18n-placeholder="sender.payouts.account_placeholder" />
+          <input
+            class="input-field"
+            id="senderBankRoutingInput"
+            placeholder="Routing number"
+            data-i18n-placeholder="sender.payouts.routing_placeholder"
+          />
 
-          <input class="input-field"
-                 id="senderBankConfirmInput"
-                 placeholder="Re-enter account number"
-                 data-i18n-placeholder="sender.payouts.confirm_account_placeholder" />
+          <input
+            class="input-field"
+            id="senderBankAccountInput"
+            placeholder="Account number"
+            data-i18n-placeholder="sender.payouts.account_placeholder"
+          />
+
+          <input
+            class="input-field"
+            id="senderBankConfirmInput"
+            placeholder="Re-enter account number"
+            data-i18n-placeholder="sender.payouts.confirm_account_placeholder"
+          />
+
         </div>
 
       </section>
 
       <section class="section-block">
-        <button id="saveSenderPayoutBtn"
-                class="primary-btn disabled"
-                disabled
-                data-i18n="sender.payouts.save">
+
+        <button
+          type="button"
+          id="saveSenderPayoutBtn"
+          class="primary-btn"
+          data-i18n="sender.payouts.save"
+        >
           Save Payout Method
         </button>
+
       </section>
 
     </div>
+
   </div>
 </section>
-
 <!-- ========================================================= -->
 <!-- TRACK DELIVERY VIEW (KEEP THIS ONE ONLY)                  -->
 <!-- ========================================================= -->

@@ -1068,6 +1068,8 @@ async function saveSenderAccount() {
 ============================================================ */
 function initSenderPayoutView() {
 
+  console.log("✅ initSenderPayoutView initialized");
+
   // Toggle buttons
   const cardTab = document.getElementById("senderPayoutCardTab");
   const bankTab = document.getElementById("senderPayoutBankTab");
@@ -1095,13 +1097,21 @@ function initSenderPayoutView() {
     });
   }
 
-  // Save button
   const saveBtn = document.getElementById("saveSenderPayoutBtn");
-  if (!saveBtn) return;
+
+  console.log("✅ Save Button Found:", saveBtn);
+
+  if (!saveBtn) {
+    console.error("❌ saveSenderPayoutBtn not found");
+    return;
+  }
 
   saveBtn.addEventListener("click", () => {
 
-    const method = document.querySelector(".toggle-btn.active")?.dataset.method;
+    console.log("✅ Save button clicked");
+
+    const method =
+      document.querySelector(".toggle-btn.active")?.dataset.method;
 
     let payload = {};
 
@@ -1114,7 +1124,6 @@ function initSenderPayoutView() {
         cvv: document.getElementById("senderCardCvvInput").value.trim()
       };
     }
-
     else if (method === "bank") {
       payload = {
         type: "bank",
@@ -1125,7 +1134,7 @@ function initSenderPayoutView() {
       };
     }
 
-    console.log("Saving payout method:", payload);
+    console.log("✅ Saving payout method:", payload);
 
     // TODO: send to backend
   });
