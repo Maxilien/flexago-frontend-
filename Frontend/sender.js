@@ -1106,38 +1106,86 @@ function initSenderPayoutView() {
     return;
   }
 
-  saveBtn.addEventListener("click", () => {
+  saveBtn.addEventListener("click", async () => {
 
-    console.log("✅ Save button clicked");
+    try {
 
-    const method =
-      document.querySelector(".toggle-btn.active")?.dataset.method;
+      console.log("✅ Save button clicked");
 
-    let payload = {};
+      const method =
+        document.querySelector(".toggle-btn.active")?.dataset.method;
 
-    if (method === "card") {
-      payload = {
-        type: "card",
-        name: document.getElementById("senderCardNameInput").value.trim(),
-        number: document.getElementById("senderCardNumberInput").value.trim(),
-        exp: document.getElementById("senderCardExpInput").value.trim(),
-        cvv: document.getElementById("senderCardCvvInput").value.trim()
-      };
+      let payload = {};
+
+      if (method === "card") {
+
+        const cardNumber =
+          document.getElementById("senderCardNumberInput")
+            .value
+            .replace(/\D/g, "");
+
+        payload = {
+          type: "card",
+          accountName:
+            document.getElementById("senderCardNameInput")
+              .value
+              .trim(),
+
+          last4: cardNumber.slice(-4)
+        };
+
+      } else if (method === "bank") {
+
+        const accountNumber =
+          document.getElementById("senderBankAccountInput")
+            .value
+            .replace(/\D/g, "");
+
+        payload = {
+          type: "bank",
+          accountName:
+            document.getElementById("senderBankNameInput")
+              .value
+              .trim(),
+
+          last4: accountNumber.slice(-4)
+        };
+      }
+
+      console.log("✅ Saving payout method:", payload);
+
+      const response = await fetch(
+        `/api/users/payout-method/${window.senderId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(payload)
+        }
+      );
+
+      const result = await response.json();
+
+      if (!result.success) {
+        throw new Error(result.error || "Failed to save payout method");
+      }
+
+      console.log("✅ Payout method saved:", result);
+
+      alert("Payout method saved successfully.");
+
+    } catch (err) {
+
+      console.error("❌ Payout save failed:", err);
+
+      alert(
+        err.message || "Failed to save payout method."
+      );
     }
-    else if (method === "bank") {
-      payload = {
-        type: "bank",
-        name: document.getElementById("senderBankNameInput").value.trim(),
-        routing: document.getElementById("senderBankRoutingInput").value.trim(),
-        account: document.getElementById("senderBankAccountInput").value.trim(),
-        confirm: document.getElementById("senderBankConfirmInput").value.trim()
-      };
-    }
 
-    console.log("✅ Saving payout method:", payload);
-
-    // TODO: send to backend
   });
+
 }
 /* ============================================================
    FINAL DOM READY BOOTSTRAP — ACCOUNT DEFAULT
