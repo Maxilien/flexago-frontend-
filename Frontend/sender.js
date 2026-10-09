@@ -531,28 +531,50 @@ function initSenderAccountView() {
 
 /* ============================================================
    GENERATE DELIVERY
-   ============================================================ */
+============================================================ */
+
 function initSenderGenerateDelivery() {
   const btn = document.getElementById("generate-matches-btn");
-  if (!btn) return;
 
-  // ⭐ NEW — ensure senderId is defined BEFORE creating delivery
+  if (!btn) {
+    return;
+  }
+
   if (!window.senderId) {
-    window.senderId = window.user?._id || window.user?.id;
-    console.log("SenderId initialized:", window.senderId);
+    window.senderId =
+      window.user?._id ||
+      window.user?.id;
+
+    console.log(
+      "SenderId initialized:",
+      window.senderId
+    );
   }
 
   btn.addEventListener("click", async () => {
     console.log("Generate button clicked");
 
-    const pickupLat = Number(document.getElementById("pickup-lat").value);
-    const pickupLng = Number(document.getElementById("pickup-lng").value);
-    const dropLat = Number(document.getElementById("dropoff-lat").value);
-    const dropLng = Number(document.getElementById("dropoff-lat").value);
+    const pickupLat = Number(
+      document.getElementById("pickup-lat")?.value
+    );
+
+    const pickupLng = Number(
+      document.getElementById("pickup-lng")?.value
+    );
+
+    const dropoffLat = Number(
+      document.getElementById("dropoff-lat")?.value
+    );
+
+    const dropoffLng = Number(
+      document.getElementById("dropoff-lng")?.value
+    );
 
     if (!window.pickupData) {
       window.pickupData = {
-        address: document.getElementById("pickupInput").value,
+        address:
+          document.getElementById("pickupInput")?.value.trim() || "",
+
         lat: pickupLat,
         lng: pickupLng
       };
@@ -560,9 +582,11 @@ function initSenderGenerateDelivery() {
 
     if (!window.dropoffData) {
       window.dropoffData = {
-        address: document.getElementById("dropoffInput").value,
-        lat: dropLat,
-        lng: dropLng
+        address:
+          document.getElementById("dropoffInput")?.value.trim() || "",
+
+        lat: dropoffLat,
+        lng: dropoffLng
       };
     }
 
@@ -570,39 +594,72 @@ function initSenderGenerateDelivery() {
     const dropoff = window.dropoffData;
 
     if (
-      !Number.isFinite(pickup.lat) ||
-      !Number.isFinite(pickup.lng) ||
-      !Number.isFinite(dropoff.lat) ||
-      !Number.isFinite(dropoff.lng)
+      !Number.isFinite(pickup?.lat) ||
+      !Number.isFinite(pickup?.lng) ||
+      !Number.isFinite(dropoff?.lat) ||
+      !Number.isFinite(dropoff?.lng)
     ) {
-      alert("Pickup and dropoff must have valid coordinates.");
+      alert(
+        "Pickup and dropoff must have valid coordinates."
+      );
+
       return;
     }
 
-    const weight = document.getElementById("weightInput").value;
-    const deliveryType = document.getElementById("deliveryType").value;
-    const packageType = document.getElementById("packageType").value;
+    const weight =
+      document.getElementById("weightInput")?.value;
 
-    const insurance = getInsuranceBoolean();
+    const deliveryType =
+      document.getElementById("deliveryType")?.value;
 
-    const senderName = document.getElementById("senderName").value;
-    const senderPhone = document.getElementById("senderPhone").value;
-    const senderEmail = document.getElementById("senderEmail").value;
+    const packageType =
+      document.getElementById("packageType")?.value;
 
-    const receiverName = document.getElementById("receiverName").value;
-    const receiverPhone = document.getElementById("receiverPhone").value;
-    const receiverEmail = document.getElementById("receiverEmail").value;
-    const receiverAddress = document.getElementById("receiverAddress").value;
-    const receiverInstructions = document.getElementById("receiverInstructions").value;
+    const insurance =
+      getInsuranceBoolean();
 
-    const notes = document.getElementById("notesInput").value;
+    const senderName =
+      document.getElementById("senderName")?.value.trim();
 
-    if (!senderName || !senderPhone || !senderEmail) {
+    const senderPhone =
+      document.getElementById("senderPhone")?.value.trim();
+
+    const senderEmail =
+      document.getElementById("senderEmail")?.value.trim();
+
+    const receiverName =
+      document.getElementById("receiverName")?.value.trim();
+
+    const receiverPhone =
+      document.getElementById("receiverPhone")?.value.trim();
+
+    const receiverEmail =
+      document.getElementById("receiverEmail")?.value.trim();
+
+    const receiverAddress =
+      document.getElementById("receiverAddress")?.value.trim();
+
+    const receiverInstructions =
+      document.getElementById("receiverInstructions")?.value.trim();
+
+    const notes =
+      document.getElementById("notesInput")?.value.trim();
+
+    if (
+      !senderName ||
+      !senderPhone ||
+      !senderEmail
+    ) {
       alert("Please complete all sender fields.");
       return;
     }
 
-    if (!receiverName || !receiverPhone || !receiverEmail || !receiverAddress) {
+    if (
+      !receiverName ||
+      !receiverPhone ||
+      !receiverEmail ||
+      !receiverAddress
+    ) {
       alert("Please complete all receiver fields.");
       return;
     }
@@ -612,10 +669,34 @@ function initSenderGenerateDelivery() {
       return;
     }
 
-    const photoUrl = window.uploadedPhotoBase64 || "";
+    if (!window.senderId) {
+      alert(
+        "Sender ID is missing. Please log in again."
+      );
+
+      return;
+    }
+
+    const estimatedPrice =
+      Number(window.currentPrice);
+
+    if (
+      !Number.isFinite(estimatedPrice) ||
+      estimatedPrice <= 0
+    ) {
+      alert(
+        "Please calculate a valid delivery price before continuing."
+      );
+
+      return;
+    }
+
+    const photoUrl =
+      window.uploadedPhotoBase64 || "";
 
     const deliveryData = {
-      senderId: window.senderId,   // ⭐ FIXED — now guaranteed to exist
+      senderId: window.senderId,
+
       sender: {
         name: senderName,
         phone: senderPhone,
@@ -624,30 +705,46 @@ function initSenderGenerateDelivery() {
 
       pickup: {
         address: pickup.address,
+
         location: {
           type: "Point",
-          coordinates: [Number(pickup.lng), Number(pickup.lat)]
+          coordinates: [
+            Number(pickup.lng),
+            Number(pickup.lat)
+          ]
         }
       },
 
       dropoff: {
         address: dropoff.address,
+
         location: {
           type: "Point",
-          coordinates: [Number(dropoff.lng), Number(dropoff.lat)]
+          coordinates: [
+            Number(dropoff.lng),
+            Number(dropoff.lat)
+          ]
         },
-        instructions: receiverInstructions
+
+        instructions:
+          receiverInstructions || ""
       },
 
       package: {
         type: packageType,
         weight: Number(weight),
         size: window.getSelectedSize(),
-        description: document.getElementById("itemDescription").value,
-        declaredValue: Number(document.getElementById("valueInput").value) || 0,
-        photoUrl: photoUrl,
-        insurance: insurance,
-        deliveryType: deliveryType
+        description:
+          document.getElementById("itemDescription")?.value.trim() || "",
+
+        declaredValue:
+          Number(
+            document.getElementById("valueInput")?.value
+          ) || 0,
+
+        photoUrl,
+        insurance,
+        deliveryType
       },
 
       receiver: {
@@ -655,52 +752,109 @@ function initSenderGenerateDelivery() {
         phone: receiverPhone,
         email: receiverEmail,
         address: receiverAddress,
-        instructions: receiverInstructions
+        instructions:
+          receiverInstructions || ""
       },
 
-      notes,
-  // ⭐ REQUIRED — send estimated cost to backend
-  price: window.currentPrice
+      notes: notes || "",
+      price: estimatedPrice
     };
 
-    console.log("FINAL DELIVERY PAYLOAD:", deliveryData);
+    console.log(
+      "FINAL DELIVERY PAYLOAD:",
+      deliveryData
+    );
+
+    btn.disabled = true;
+    btn.textContent = "Creating delivery...";
 
     try {
-      const response = await fetch(`${BASE_URL}/api/deliveries`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(deliveryData)
-      });
+      const response = await fetch(
+        `${BASE_URL}/api/deliveries`,
+        {
+          method: "POST",
 
-      const result = await response.json();
-      console.log("Delivery created:", result);
+          headers: {
+            "Content-Type": "application/json"
+          },
 
-if (!result.success) {
-  alert("Error creating delivery: " + (result.error || "Unknown error"));
-  return;
+          body: JSON.stringify(deliveryData)
+        }
+      );
+
+      const responseText =
+        await response.text();
+
+      let result = {};
+
+      if (responseText) {
+        result = JSON.parse(responseText);
+      }
+
+      console.log(
+        "Delivery creation response:",
+        result
+      );
+
+      if (!response.ok || !result.success) {
+        throw new Error(
+          result.error ||
+          `Delivery creation failed with status ${response.status}`
+        );
+      }
+
+      window.activeDeliveryId =
+        result.data._id;
+
+      window.pendingDelivery =
+        result.data;
+
+      const paymentSection =
+        document.getElementById("paymentSection");
+
+      const paymentAmountDisplay =
+        document.getElementById(
+          "paymentAmountDisplay"
+        );
+
+      if (paymentAmountDisplay) {
+        paymentAmountDisplay.textContent =
+          `$${estimatedPrice.toFixed(2)}`;
+      }
+
+      if (paymentSection) {
+        paymentSection.classList.remove("hidden");
+
+        paymentSection.scrollIntoView({
+          behavior: "smooth",
+          block: "start"
+        });
+      }
+
+      alert(
+        "Delivery created successfully. Please complete payment to publish the delivery."
+      );
+    } catch (error) {
+      console.error(
+        "Error generating delivery:",
+        error
+      );
+
+      alert(
+        error.message ||
+        "Failed to create delivery."
+      );
+    } finally {
+      btn.disabled = false;
+      btn.textContent =
+        "Generate traveler matches";
+
+      if (window.lucide) {
+        window.lucide.createIcons();
+      }
+    }
+  });
 }
-
-window.activeDeliveryId = result.data._id;
-window.pendingDelivery = result.data;
-
-const paymentSection =
-  document.getElementById("paymentSection");
-
-const paymentAmountDisplay =
-  document.getElementById("paymentAmountDisplay");
-
-if (paymentAmountDisplay) {
-  paymentAmountDisplay.textContent =
-    `$${Number(window.currentPrice || 0).toFixed(2)}`;
-}
-
-if (paymentSection) {
-  paymentSection.classList.remove("hidden");
-}
-
-alert(
-  "Delivery created successfully. Please complete payment to publish the delivery."
-);
 /* ============================================================
    LOAD SENDER DELIVERIES (FINAL — matches your backend)
 ============================================================ */
