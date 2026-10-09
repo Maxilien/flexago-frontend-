@@ -52,28 +52,6 @@ const socket = io(WS_URL, {
   transports: ["websocket"]
 });
 /* ============================================================
-   STRIPE
-============================================================ */
-
-const stripe = Stripe(
-  "pk_test_51TtZ6OJr0LlyCjEtaDGeR6sZPSqLIVhIbLojBqTYWCUXz4J3LwM9YGQ0UF8koilptmgUVjCoOLe1Hykw6ABnll5I00jltl5Bnf"
-);
-
-const elements = stripe.elements();
-
-const cardElement = elements.create("card", {
-  style: {
-    base: {
-      color: "#111827",
-      fontSize: "16px"
-    }
-  }
-});
-
-window.stripe = stripe;
-window.elements = elements;
-window.cardElement = cardElement;
-/* ============================================================
    SAFE WRAPPER
    ============================================================ */
 function safe(fn) {
