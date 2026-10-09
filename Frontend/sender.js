@@ -51,7 +51,28 @@ const socket = io(WS_URL, {
   path: "/socket.io",
   transports: ["websocket"]
 });
+/* ============================================================
+   STRIPE
+============================================================ */
 
+const stripe = Stripe(
+  "pk_test_51TtZ6OJr0LlyCjEtaDGeR6sZPSqLIVhIbLojBqTYWCUXz4J3LwM9YGQ0UF8koilptmgUVjCoOLe1Hykw6ABnll5I00jltl5Bnf"
+);
+
+const elements = stripe.elements();
+
+const cardElement = elements.create("card", {
+  style: {
+    base: {
+      color: "#111827",
+      fontSize: "16px"
+    }
+  }
+});
+
+window.stripe = stripe;
+window.elements = elements;
+window.cardElement = cardElement;
 /* ============================================================
    SAFE WRAPPER
    ============================================================ */
@@ -654,28 +675,32 @@ function initSenderGenerateDelivery() {
       const result = await response.json();
       console.log("Delivery created:", result);
 
-      if (!result.success) {
-        alert("Error creating delivery: " + (result.error || "Unknown error"));
-        return;
-      }
-
-      const createView = document.getElementById("createView");
-      const waitingSection = document.getElementById("waiting-section");
-
-      if (createView) createView.classList.add("hidden");
-      if (waitingSection) waitingSection.style.display = "block";
-
-      window.activeDeliveryId = result.data._id;
-      if (typeof subscribeToDeliveryUpdates === "function") {
-        subscribeToDeliveryUpdates(result.data._id);
-      }
-    } catch (err) {
-      console.error("Error generating delivery:", err);
-      alert("Failed to create delivery.");
-    }
-  });
+if (!result.success) {
+  alert("Error creating delivery: " + (result.error || "Unknown error"));
+  return;
 }
 
+window.activeDeliveryId = result.data._id;
+window.pendingDelivery = result.data;
+
+const paymentSection =
+  document.getElementById("paymentSection");
+
+const paymentAmountDisplay =
+  document.getElementById("paymentAmountDisplay");
+
+if (paymentAmountDisplay) {
+  paymentAmountDisplay.textContent =
+    `$${Number(window.currentPrice || 0).toFixed(2)}`;
+}
+
+if (paymentSection) {
+  paymentSection.classList.remove("hidden");
+}
+
+alert(
+  "Delivery created successfully. Please complete payment to publish the delivery."
+);
 /* ============================================================
    LOAD SENDER DELIVERIES (FINAL — matches your backend)
 ============================================================ */

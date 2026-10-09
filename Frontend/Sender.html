@@ -9,8 +9,11 @@
   <link rel="stylesheet" href="css/traveler.css" />
   <link rel="stylesheet" href="css/sender.css" />
 
-  <!-- Lucide Icons -->
-  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<!-- Lucide Icons -->
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+<!-- Stripe -->
+https://js.stripe.com/v3/script>
 
 </head>
 
@@ -914,7 +917,74 @@
             Protected by Flexago escrow and verified travelers.
           </div>
         </div>
+<!-- ========================================================= -->
+<!-- STRIPE PAYMENT PANEL                                      -->
+<!-- ========================================================= -->
+<section
+  id="paymentSection"
+  class="panel hidden"
+  style="margin-top:1rem;"
+>
+  <header class="panel-header">
+    <div>
+      <div class="panel-title">
+        Complete Payment
+      </div>
 
+      <div class="panel-subtitle">
+        Confirm payment to publish your delivery.
+      </div>
+    </div>
+  </header>
+
+  <div class="panel-body">
+
+    <div
+      id="paymentSummary"
+      style="
+        margin-bottom:1rem;
+        padding:0.75rem;
+        border-radius:10px;
+        background:#111827;
+      "
+    >
+      <div>
+        Amount:
+        <strong id="paymentAmountDisplay">
+          $0.00
+        </strong>
+      </div>
+    </div>
+
+    <div
+      id="card-element"
+      style="
+        background:white;
+        border-radius:8px;
+        padding:12px;
+        margin-bottom:1rem;
+      "
+    ></div>
+
+    <div
+      id="card-errors"
+      style="
+        color:#ef4444;
+        font-size:0.85rem;
+        margin-bottom:1rem;
+      "
+    ></div>
+
+    <button
+      type="button"
+      id="confirmPaymentBtn"
+      class="primary-btn"
+    >
+      Pay & Publish Delivery
+    </button>
+
+  </div>
+</section>
         <!-- ========================================================= -->
         <!-- MAP PANEL                                                 -->
         <!-- ========================================================= -->
