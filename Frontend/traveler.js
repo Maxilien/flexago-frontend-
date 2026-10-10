@@ -2508,20 +2508,30 @@ function initJobSearch() {
 }
 
 /* ============================================================
-   PAYOUT VIEW INITIALIZER — TRAVELER VERSION
+   PAYOUT VIEW INITIALIZER - TRAVELER VERSION
 ============================================================ */
+
 function initTravelerPayoutView() {
+  console.log("initTravelerPayoutView initialized");
 
-  console.log("✅ initTravelerPayoutView initialized");
+  const cardTab =
+    document.getElementById("travelerPayoutCardTab");
 
-  const cardTab = document.getElementById("travelerPayoutCardTab");
-  const bankTab = document.getElementById("travelerPayoutBankTab");
+  const bankTab =
+    document.getElementById("travelerPayoutBankTab");
 
-  const cardForm = document.getElementById("travelerPayoutCardForm");
-  const bankForm = document.getElementById("travelerPayoutBankForm");
+  const cardForm =
+    document.getElementById("travelerPayoutCardForm");
 
-  if (cardTab && bankTab && cardForm && bankForm) {
+  const bankForm =
+    document.getElementById("travelerPayoutBankForm");
 
+  if (
+    cardTab &&
+    bankTab &&
+    cardForm &&
+    bankForm
+  ) {
     cardTab.addEventListener("click", () => {
       cardTab.classList.add("active");
       bankTab.classList.remove("active");
@@ -2537,57 +2547,67 @@ function initTravelerPayoutView() {
       bankForm.classList.remove("hidden");
       cardForm.classList.add("hidden");
     });
-
   }
 
-  const saveBtn = document.getElementById("saveTravelerPayoutBtn");
+  const saveBtn =
+    document.getElementById("saveTravelerPayoutBtn");
 
-  console.log("✅ Save Button Found:", saveBtn);
+  console.log("Save button found:", saveBtn);
 
   if (!saveBtn) {
-    console.error("❌ saveTravelerPayoutBtn not found");
+    console.error(
+      "saveTravelerPayoutBtn not found"
+    );
+
     return;
   }
 
   saveBtn.addEventListener("click", async () => {
-
     try {
+      console.log("Traveler payout save button clicked");
 
-      console.log("✅ Save button clicked");
+      const activeTab =
+        document.querySelector(
+          "#dynamicView .toggle-btn.active"
+        );
 
-      const activeTab = document.querySelector(
-        "#dynamicView .toggle-btn.active"
-      );
-
-      const method = activeTab?.dataset.method;
+      const method =
+        activeTab?.dataset.method;
 
       if (!method) {
-        throw new Error("Please select a payout method.");
+        throw new Error(
+          "Please select a payout method."
+        );
       }
 
-      if (!window.travelerId) {
-        throw new Error("Traveler ID is missing. Please log in again.");
+      if (!window.userId) {
+        throw new Error(
+          "Traveler user ID is missing. Please refresh or log in again."
+        );
       }
 
       let payload;
 
       if (method === "card") {
+        const accountName =
+          document
+            .getElementById("travelerCardNameInput")
+            ?.value.trim() || "";
 
-        const accountName = document
-          .getElementById("travelerCardNameInput")
-          ?.value.trim();
+        const cardNumber =
+          document
+            .getElementById("travelerCardNumberInput")
+            ?.value.replace(/\D/g, "") || "";
 
-        const cardNumber = document
-          .getElementById("travelerCardNumberInput")
-          ?.value.replace(/\D/g, "");
+        const expiration =
+          document
+            .getElementById("travelerCardExpInput")
+            ?.value.trim() || "";
 
-        const expiration = document
-          .getElementById("travelerCardExpInput")
-          ?.value.trim();
-
-        const cvv = document
-          .getElementById("travelerCardCvvInput")
-          ?.value.replace(/\D/g, "");
+        const cvv =
+          document
+            .getElementById("travelerCardCvvInput")
+            ?.value.replace(/\D/g, "") || "";
 
         if (
           !accountName ||
@@ -2595,7 +2615,9 @@ function initTravelerPayoutView() {
           !expiration ||
           cvv.length < 3
         ) {
-          throw new Error("Please complete all debit card fields.");
+          throw new Error(
+            "Please complete all debit card fields."
+          );
         }
 
         payload = {
@@ -2603,24 +2625,26 @@ function initTravelerPayoutView() {
           accountName,
           last4: cardNumber.slice(-4)
         };
-
       } else if (method === "bank") {
+        const accountName =
+          document
+            .getElementById("travelerBankNameInput")
+            ?.value.trim() || "";
 
-        const accountName = document
-          .getElementById("travelerBankNameInput")
-          ?.value.trim();
+        const routingNumber =
+          document
+            .getElementById("travelerBankRoutingInput")
+            ?.value.replace(/\D/g, "") || "";
 
-        const routingNumber = document
-          .getElementById("travelerBankRoutingInput")
-          ?.value.replace(/\D/g, "");
+        const accountNumber =
+          document
+            .getElementById("travelerBankAccountInput")
+            ?.value.replace(/\D/g, "") || "";
 
-        const accountNumber = document
-          .getElementById("travelerBankAccountInput")
-          ?.value.replace(/\D/g, "");
-
-        const confirmAccountNumber = document
-          .getElementById("travelerBankConfirmInput")
-          ?.value.replace(/\D/g, "");
+        const confirmAccountNumber =
+          document
+            .getElementById("travelerBankConfirmInput")
+            ?.value.replace(/\D/g, "") || "";
 
         if (
           !accountName ||
@@ -2628,11 +2652,17 @@ function initTravelerPayoutView() {
           accountNumber.length < 4 ||
           !confirmAccountNumber
         ) {
-          throw new Error("Please complete all bank account fields.");
+          throw new Error(
+            "Please complete all bank account fields."
+          );
         }
 
-        if (accountNumber !== confirmAccountNumber) {
-          throw new Error("Bank account numbers do not match.");
+        if (
+          accountNumber !== confirmAccountNumber
+        ) {
+          throw new Error(
+            "Bank account numbers do not match."
+          );
         }
 
         payload = {
@@ -2640,40 +2670,67 @@ function initTravelerPayoutView() {
           accountName,
           last4: accountNumber.slice(-4)
         };
-
       } else {
-        throw new Error("Unsupported payout method.");
+        throw new Error(
+          "Unsupported payout method."
+        );
       }
 
-      console.log("✅ Saving payout method:", payload);
-      console.log("✅ Traveler ID:", window.travelerId);
+      console.log(
+        "Saving Traveler payout method:",
+        payload
+      );
+
+      console.log(
+        "Traveler user ID:",
+        window.userId
+      );
+
+      console.log(
+        "Traveler profile ID:",
+        window.travelerId
+      );
 
       saveBtn.disabled = true;
       saveBtn.textContent = "Saving...";
 
       const response = await fetch(
-        `https://flexago-backend.onrender.com/api/users/payout-method/${window.senderId}`,
+        `${BASE_URL}/api/users/payout-method/${window.userId}`,
         {
           method: "PUT",
+
           headers: {
             "Content-Type": "application/json"
           },
+
           body: JSON.stringify(payload)
         }
       );
 
-      console.log("✅ Response Status:", response.status);
-      console.log("✅ Response OK:", response.ok);
+      console.log(
+        "Response status:",
+        response.status
+      );
 
-      const responseText = await response.text();
+      console.log(
+        "Response OK:",
+        response.ok
+      );
 
-      console.log("✅ Raw Response:", responseText);
+      const responseText =
+        await response.text();
+
+      console.log(
+        "Raw response:",
+        responseText
+      );
 
       let result = {};
 
       if (responseText) {
         try {
-          result = JSON.parse(responseText);
+          result =
+            JSON.parse(responseText);
         } catch (parseError) {
           throw new Error(
             `Backend returned an invalid response. Status: ${response.status}`
@@ -2690,20 +2747,26 @@ function initTravelerPayoutView() {
 
       if (!result.success) {
         throw new Error(
-          result.error || "Failed to save payout method."
+          result.error ||
+          "Failed to save payout method."
         );
       }
 
-      const methodDisplay = document.getElementById(
-        "senderPayoutMethodDisplay"
-      );
+      const methodDisplay =
+        document.getElementById(
+          "travelerPayoutMethodDisplay"
+        );
 
       if (methodDisplay) {
         const methodLabel =
-          payload.type === "card" ? "Debit Card" : "Bank Account";
+          payload.type === "card"
+            ? "Debit Card"
+            : "Bank Account";
 
         const iconName =
-          payload.type === "card" ? "credit-card" : "banknote";
+          payload.type === "card"
+            ? "credit-card"
+            : "banknote";
 
         methodDisplay.innerHTML = `
           <i data-lucide="${iconName}"></i>
@@ -2711,25 +2774,36 @@ function initTravelerPayoutView() {
         `;
 
         if (window.lucide) {
-          lucide.createIcons();
+          window.lucide.createIcons();
         }
       }
 
-      console.log("✅ Payout method saved:", result);
+      console.log(
+        "Traveler payout method saved:",
+        result
+      );
 
-      alert("Payout method saved successfully.");
-    } catch (err) {
-      console.error("❌ Payout save failed:", err);
+      alert(
+        "Payout method saved successfully."
+      );
+    } catch (error) {
+      console.error(
+        "Traveler payout save failed:",
+        error
+      );
 
-      alert(err.message || "Failed to save payout method.");
+      alert(
+        error.message ||
+        "Failed to save payout method."
+      );
     } finally {
       saveBtn.disabled = false;
-      saveBtn.textContent = "Save Payout Method";
+      saveBtn.textContent =
+        "Save Payout Method";
     }
   });
 }
-
-   /* ============================================================
+/* ============================================================
    FINAL DOM READY BOOTSTRAP — TRAVELER ACCOUNT DEFAULT
 ============================================================ */
 document.addEventListener("DOMContentLoaded", () => {
