@@ -2437,7 +2437,7 @@ function initTravelerPayoutView() {
 document.addEventListener("DOMContentLoaded", () => {
 
   safe(initTravelerSidebar);
-  safe(initTravelerJobs);
+  //safe(initTravelerJobs);
   safe(initTravelerMap);
   safe(initChatWidget);
   safe(initJobDetailsModal);
