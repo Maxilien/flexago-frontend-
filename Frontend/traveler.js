@@ -2446,9 +2446,7 @@ document.addEventListener("DOMContentLoaded", () => {
   safe(loadTravelerIdentity);
   safe(initTravelerPhotoUpload);
 
-  // Payouts
-  safe(initTravelerPayoutView);
-  safe(initTravelerPaymentFormatting);
+
 
   // ⭐ Default view = Account & Identity
   loadPage("account");
