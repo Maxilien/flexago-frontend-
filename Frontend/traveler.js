@@ -2286,15 +2286,28 @@ function initTravelerAccountView() {
 }
 
 /* ============================================================
-   PAGE SWITCHING (FINAL — FIXED)
+   PAGE SWITCHING
 ============================================================ */
+
 function loadPage(view) {
-  const dynamic = document.getElementById("dynamicView");
-  const jobsLayout = document.getElementById("jobsLayout");
+  const dynamic =
+    document.getElementById("dynamicView");
 
-  if (!dynamic || !jobsLayout) return;
+  const jobsLayout =
+    document.getElementById("jobsLayout");
 
-  // ===== JOBS VIEW =====
+  if (!dynamic || !jobsLayout) {
+    console.error(
+      "dynamicView or jobsLayout was not found"
+    );
+
+    return;
+  }
+
+  /* ==========================================================
+     JOBS VIEW
+  ========================================================== */
+
   if (view === "jobs") {
     dynamic.classList.add("hidden");
     jobsLayout.classList.remove("hidden");
@@ -2309,42 +2322,144 @@ function loadPage(view) {
     return;
   }
 
-  // ===== OTHER VIEWS =====
+  /* ==========================================================
+     ALL OTHER VIEWS
+  ========================================================== */
+
   jobsLayout.classList.add("hidden");
   dynamic.classList.remove("hidden");
 
+  /* ==========================================================
+     ACCOUNT VIEW
+  ========================================================== */
+
   if (view === "account") {
-    dynamic.innerHTML = document.getElementById("travelerAccountView").innerHTML;
-    setTimeout(() => initTravelerAccountView(), 20);
+    const accountView =
+      document.getElementById(
+        "travelerAccountView"
+      );
+
+    if (!accountView) {
+      console.error(
+        "travelerAccountView not found"
+      );
+
+      return;
+    }
+
+    dynamic.innerHTML =
+      accountView.innerHTML;
+
+    setTimeout(() => {
+      safe(initTravelerAccountView);
+
+      if (window.lucide) {
+        window.lucide.createIcons();
+      }
+    }, 20);
   }
+
+  /* ==========================================================
+     VERIFICATION VIEW
+  ========================================================== */
 
   else if (view === "verification") {
-    dynamic.innerHTML = document.getElementById("template-verification").innerHTML;
-    setTimeout(() => initVerificationPage(), 20);
+    const verificationView =
+      document.getElementById(
+        "template-verification"
+      );
+
+    if (!verificationView) {
+      console.error(
+        "template-verification not found"
+      );
+
+      return;
+    }
+
+    dynamic.innerHTML =
+      verificationView.innerHTML;
+
+    setTimeout(() => {
+      safe(initVerificationPage);
+
+      if (window.lucide) {
+        window.lucide.createIcons();
+      }
+    }, 20);
   }
 
-  // ⭐⭐⭐ PAYMENTS (PAYOUTS) — CORRECT BRANCH ⭐⭐⭐
-else if (view === "payments") {
-  const paymentsTemplate =
-    document.getElementById("template-payments");
+  /* ==========================================================
+     PAYOUTS VIEW
+  ========================================================== */
 
-  if (!paymentsTemplate) {
-    console.error("template-payments not found");
-    return;
+  else if (view === "payments") {
+    const payoutsView =
+      document.getElementById(
+        "travelerPaymentsView"
+      );
+
+    if (!payoutsView) {
+      console.error(
+        "travelerPaymentsView not found"
+      );
+
+      return;
+    }
+
+    dynamic.innerHTML =
+      payoutsView.innerHTML;
+
+    setTimeout(() => {
+      safe(initTravelerPayoutView);
+      safe(initTravelerPaymentFormatting);
+
+      if (window.lucide) {
+        window.lucide.createIcons();
+      }
+    }, 20);
   }
 
-  dynamic.innerHTML = paymentsTemplate.innerHTML;
+  /* ==========================================================
+     SUPPORT VIEW
+  ========================================================== */
 
-  setTimeout(() => {
-    safe(initPayoutsPage);
-  }, 20);
-}
   else if (view === "support") {
-    dynamic.innerHTML = document.getElementById("supportPanel").innerHTML;
-    setTimeout(() => initSupportPage(), 20);
+    const supportPanel =
+      document.getElementById(
+        "supportPanel"
+      );
+
+    if (!supportPanel) {
+      console.error(
+        "supportPanel not found"
+      );
+
+      return;
+    }
+
+    dynamic.innerHTML =
+      supportPanel.innerHTML;
+
+    setTimeout(() => {
+      safe(initSupportPage);
+
+      if (window.lucide) {
+        window.lucide.createIcons();
+      }
+    }, 20);
+  }
+
+  /* ==========================================================
+     UNKNOWN VIEW
+  ========================================================== */
+
+  else {
+    console.error(
+      `Unknown traveler view: ${view}`
+    );
   }
 }
-
 /* ============================================================
    SIDEBAR NAVIGATION (FINAL)
 ============================================================ */
@@ -2629,9 +2744,7 @@ document.addEventListener("DOMContentLoaded", () => {
   safe(loadTravelerIdentity);
   safe(initTravelerPhotoUpload);
 
-  // Payouts
-safe(initTravelerPayoutView);
-safe(initTravelerPaymentFormatting);
+
 
   // ⭐ Default view = Account & Identity
   loadPage("account");
