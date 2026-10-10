@@ -208,6 +208,361 @@ async function initializeSenderStripePayment() {
   );
 }
 /* ============================================================
+   WAIT FOR DELIVERY PAYMENT CONFIRMATION
+============================================================ */
+
+async function waitForDeliveryPaymentConfirmation(
+  deliveryId,
+  options = {}
+) {
+  const maxAttempts =
+    Number(options.maxAttempts) || 20;
+
+  const delayMs =
+    Number(options.delayMs) || 1500;
+
+  for (
+    let attempt = 1;
+    attempt <= maxAttempts;
+    attempt += 1
+  ) {
+    const response = await fetch(
+      `${BASE_URL}/api/payments/delivery/${deliveryId}/status`
+    );
+
+    const responseText =
+      await response.text();
+
+    let result = {};
+
+    if (responseText) {
+      try {
+        result =
+          JSON.parse(responseText);
+      } catch (parseError) {
+        throw new Error(
+          `Payment status returned an invalid response. Status: ${response.status}`
+        );
+      }
+    }
+
+    if (!response.ok) {
+      throw new Error(
+        result.error ||
+        `Unable to verify payment. Status: ${response.status}`
+      );
+    }
+
+    console.log(
+      `Payment status check ${attempt}:`,
+      result
+    );
+
+    if (
+      result.paymentStatus === "paid" &&
+      result.deliveryStatus === "available"
+    ) {
+      return result;
+    }
+
+    if (
+      result.paymentStatus === "failed" ||
+      result.deliveryStatus === "payment_failed"
+    ) {
+      throw new Error(
+        "The delivery payment failed."
+      );
+    }
+
+    await new Promise(resolve => {
+      setTimeout(resolve, delayMs);
+    });
+  }
+
+  throw new Error(
+    "Payment was submitted, but confirmation is taking longer than expected. Please check the delivery status before trying again."
+  );
+}
+/* ============================================================
+   SENDER PAYMENT CONFIRMATION
+============================================================ */
+
+function initSenderPaymentConfirmation() {
+  const confirmPaymentBtn =
+    document.getElementById("confirmPaymentBtn");
+
+  if (!confirmPaymentBtn) {
+    console.error("confirmPaymentBtn not found");
+    return;
+  }
+
+  if (
+    confirmPaymentBtn.dataset.paymentBound === "true"
+  ) {
+    return;
+  }
+
+  confirmPaymentBtn.dataset.paymentBound = "true";
+
+  confirmPaymentBtn.addEventListener(
+    "click",
+    async () => {
+      const originalButtonText =
+        confirmPaymentBtn.textContent;
+
+      const cardErrors =
+        document.getElementById("card-errors");
+
+      try {
+        if (cardErrors) {
+          cardErrors.textContent = "";
+        }
+
+        if (!window.activeDeliveryId) {
+          throw new Error(
+            "Delivery ID is missing. Please create the delivery again."
+          );
+        }
+
+        if (!window.senderId) {
+          throw new Error(
+            "Sender ID is missing. Please log in again."
+          );
+        }
+
+        if (
+          !senderStripe ||
+          !senderCardElement ||
+          !senderCardMounted
+        ) {
+          await initializeSenderStripePayment();
+        }
+
+        if (
+          !senderStripe ||
+          !senderCardElement
+        ) {
+          throw new Error(
+            "The secure payment form is unavailable."
+          );
+        }
+
+        confirmPaymentBtn.disabled = true;
+        confirmPaymentBtn.textContent =
+          "Preparing payment...";
+
+        const paymentResponse =
+          await fetch(
+            `${BASE_URL}/api/payments/create-delivery-payment`,
+            {
+              method: "POST",
+
+              headers: {
+                "Content-Type": "application/json"
+              },
+
+              body: JSON.stringify({
+                deliveryId:
+                  window.activeDeliveryId,
+
+                senderId:
+                  window.senderId
+              })
+            }
+          );
+
+        const paymentResponseText =
+          await paymentResponse.text();
+
+        let paymentResult = {};
+
+        if (paymentResponseText) {
+          try {
+            paymentResult =
+              JSON.parse(paymentResponseText);
+          } catch (parseError) {
+            throw new Error(
+              `Payment endpoint returned an invalid response. Status: ${paymentResponse.status}`
+            );
+          }
+        }
+
+        console.log(
+          "Create delivery payment response:",
+          paymentResult
+        );
+
+        if (
+          !paymentResponse.ok ||
+          !paymentResult.success
+        ) {
+          throw new Error(
+            paymentResult.error ||
+            `Unable to prepare payment. Status: ${paymentResponse.status}`
+          );
+        }
+
+        if (!paymentResult.clientSecret) {
+          throw new Error(
+            "The backend did not return a PaymentIntent client secret."
+          );
+        }
+
+        if (
+          paymentResult.paymentStatus === "succeeded"
+        ) {
+          confirmPaymentBtn.textContent =
+            "Verifying payment...";
+        } else {
+          confirmPaymentBtn.textContent =
+            "Processing payment...";
+
+          const senderName =
+            document
+              .getElementById("senderName")
+              ?.value.trim() || "";
+
+          const senderEmail =
+            document
+              .getElementById("senderEmail")
+              ?.value.trim() || "";
+
+          const confirmationResult =
+            await senderStripe.confirmCardPayment(
+              paymentResult.clientSecret,
+              {
+                payment_method: {
+                  card: senderCardElement,
+
+                  billing_details: {
+                    name:
+                      senderName ||
+                      undefined,
+
+                    email:
+                      senderEmail ||
+                      undefined
+                  }
+                }
+              }
+            );
+
+          if (confirmationResult.error) {
+            throw new Error(
+              confirmationResult.error.message ||
+              "Stripe could not confirm the payment."
+            );
+          }
+
+          const paymentIntent =
+            confirmationResult.paymentIntent;
+
+          if (!paymentIntent) {
+            throw new Error(
+              "Stripe did not return a PaymentIntent."
+            );
+          }
+
+          console.log(
+            "Stripe payment confirmation:",
+            paymentIntent
+          );
+
+          if (
+            paymentIntent.status !== "succeeded" &&
+            paymentIntent.status !== "processing"
+          ) {
+            throw new Error(
+              `Payment requires additional processing. Stripe status: ${paymentIntent.status}`
+            );
+          }
+
+          confirmPaymentBtn.textContent =
+            "Verifying payment...";
+        }
+
+        const fundedDelivery =
+          await waitForDeliveryPaymentConfirmation(
+            window.activeDeliveryId
+          );
+
+        console.log(
+          "Delivery payment funded:",
+          fundedDelivery
+        );
+
+        const paymentSection =
+          document.getElementById(
+            "paymentSection"
+          );
+
+        const createView =
+          document.getElementById(
+            "createView"
+          );
+
+        const waitingSection =
+          document.getElementById(
+            "waiting-section"
+          );
+
+        if (paymentSection) {
+          paymentSection.classList.add(
+            "hidden"
+          );
+        }
+
+        if (createView) {
+          createView.classList.add(
+            "hidden"
+          );
+        }
+
+        if (waitingSection) {
+          waitingSection.style.display =
+            "block";
+        }
+
+        if (
+          typeof subscribeToDeliveryUpdates ===
+          "function"
+        ) {
+          subscribeToDeliveryUpdates(
+            window.activeDeliveryId
+          );
+        }
+
+        confirmPaymentBtn.textContent =
+          "Payment Complete";
+
+        alert(
+          "Payment confirmed. Your delivery is now published and available to travelers."
+        );
+      } catch (error) {
+        console.error(
+          "Pay and Publish failed:",
+          error
+        );
+
+        if (cardErrors) {
+          cardErrors.textContent =
+            error.message ||
+            "Unable to complete payment.";
+        }
+
+        alert(
+          error.message ||
+          "Unable to complete payment."
+        );
+
+        confirmPaymentBtn.disabled = false;
+        confirmPaymentBtn.textContent =
+          originalButtonText;
+      }
+    }
+  );
+}
+/* ============================================================
    SAFE WRAPPER
    ============================================================ */
 function safe(fn) {
@@ -1615,6 +1970,7 @@ document.addEventListener("DOMContentLoaded", () => {
   safe(initSenderCreateForm);
   safe(initSenderPhotoUpload);
   safe(initSenderGenerateDelivery);
+  safe(initSenderPaymentConfirmation);
   safe(initSenderAccountView);
   safe(loadAccountAndIdentity);
 
