@@ -2393,45 +2393,228 @@ function initJobSearch() {
 }
 
 /* ============================================================
-   PAYOUT VIEW INITIALIZER
+   PAYOUT VIEW INITIALIZER — TRAVELER VERSION
 ============================================================ */
 function initTravelerPayoutView() {
 
+  console.log("✅ initTravelerPayoutView initialized");
+
+  const cardTab = document.getElementById("travelerPayoutCardTab");
+  const bankTab = document.getElementById("travelerPayoutBankTab");
+
+  const cardForm = document.getElementById("travelerPayoutCardForm");
+  const bankForm = document.getElementById("travelerPayoutBankForm");
+
+  if (cardTab && bankTab && cardForm && bankForm) {
+
+    cardTab.addEventListener("click", () => {
+      cardTab.classList.add("active");
+      bankTab.classList.remove("active");
+
+      cardForm.classList.remove("hidden");
+      bankForm.classList.add("hidden");
+    });
+
+    bankTab.addEventListener("click", () => {
+      bankTab.classList.add("active");
+      cardTab.classList.remove("active");
+
+      bankForm.classList.remove("hidden");
+      cardForm.classList.add("hidden");
+    });
+
+  }
+
   const saveBtn = document.getElementById("saveTravelerPayoutBtn");
-  if (!saveBtn) return;
 
-  saveBtn.addEventListener("click", () => {
+  console.log("✅ Save Button Found:", saveBtn);
 
-    const method = document.querySelector(".toggle-btn.active")?.dataset.method;
+  if (!saveBtn) {
+    console.error("❌ saveTravelerPayoutBtn not found");
+    return;
+  }
 
-    let payload = {};
+  saveBtn.addEventListener("click", async () => {
 
-    if (method === "card") {
-      payload = {
-        type: "card",
-        name: document.getElementById("travelerCardNameInput").value.trim(),
-        number: document.getElementById("travelerCardNumberInput").value.trim(),
-        exp: document.getElementById("travelerCardExpInput").value.trim(),
-        cvv: document.getElementById("travelerCardCvvInput").value.trim()
-      };
+    try {
+
+      console.log("✅ Save button clicked");
+
+      const activeTab = document.querySelector(
+        "#dynamicView .toggle-btn.active"
+      );
+
+      const method = activeTab?.dataset.method;
+
+      if (!method) {
+        throw new Error("Please select a payout method.");
+      }
+
+      if (!window.travelerId) {
+        throw new Error("Traveler ID is missing. Please log in again.");
+      }
+
+      let payload;
+
+      if (method === "card") {
+
+        const accountName = document
+          .getElementById("travelerCardNameInput")
+          ?.value.trim();
+
+        const cardNumber = document
+          .getElementById("travelerCardNumberInput")
+          ?.value.replace(/\D/g, "");
+
+        const expiration = document
+          .getElementById("travelerCardExpInput")
+          ?.value.trim();
+
+        const cvv = document
+          .getElementById("travelerCardCvvInput")
+          ?.value.replace(/\D/g, "");
+
+        if (
+          !accountName ||
+          cardNumber.length < 4 ||
+          !expiration ||
+          cvv.length < 3
+        ) {
+          throw new Error("Please complete all debit card fields.");
+        }
+
+        payload = {
+          type: "card",
+          accountName,
+          last4: cardNumber.slice(-4)
+        };
+
+      } else if (method === "bank") {
+
+        const accountName = document
+          .getElementById("travelerBankNameInput")
+          ?.value.trim();
+
+        const routingNumber = document
+          .getElementById("travelerBankRoutingInput")
+          ?.value.replace(/\D/g, "");
+
+        const accountNumber = document
+          .getElementById("travelerBankAccountInput")
+          ?.value.replace(/\D/g, "");
+
+        const confirmAccountNumber = document
+          .getElementById("travelerBankConfirmInput")
+          ?.value.replace(/\D/g, "");
+
+        if (
+          !accountName ||
+          !routingNumber ||
+          accountNumber.length < 4 ||
+          !confirmAccountNumber
+        ) {
+          throw new Error("Please complete all bank account fields.");
+        }
+
+        if (accountNumber !== confirmAccountNumber) {
+          throw new Error("Bank account numbers do not match.");
+        }
+
+        payload = {
+          type: "bank",
+          accountName,
+          last4: accountNumber.slice(-4)
+        };
+
+      } else {
+        throw new Error("Unsupported payout method.");
+      }
+
+      console.log("✅ Saving payout method:", payload);
+      console.log("✅ Traveler ID:", window.travelerId);
+
+      saveBtn.disabled = true;
+      saveBtn.textContent = "Saving...";
+
+      const response = await fetch(
+        `https://flexago-backend.onrender.com/api/users/payout-method/${window.senderId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(payload)
+        }
+      );
+
+      console.log("✅ Response Status:", response.status);
+      console.log("✅ Response OK:", response.ok);
+
+      const responseText = await response.text();
+
+      console.log("✅ Raw Response:", responseText);
+
+      let result = {};
+
+      if (responseText) {
+        try {
+          result = JSON.parse(responseText);
+        } catch (parseError) {
+          throw new Error(
+            `Backend returned an invalid response. Status: ${response.status}`
+          );
+        }
+      }
+
+      if (!response.ok) {
+        throw new Error(
+          result.error ||
+          `Request failed with status ${response.status}`
+        );
+      }
+
+      if (!result.success) {
+        throw new Error(
+          result.error || "Failed to save payout method."
+        );
+      }
+
+      const methodDisplay = document.getElementById(
+        "senderPayoutMethodDisplay"
+      );
+
+      if (methodDisplay) {
+        const methodLabel =
+          payload.type === "card" ? "Debit Card" : "Bank Account";
+
+        const iconName =
+          payload.type === "card" ? "credit-card" : "banknote";
+
+        methodDisplay.innerHTML = `
+          <i data-lucide="${iconName}"></i>
+          <span>${methodLabel} ending in ${payload.last4}</span>
+        `;
+
+        if (window.lucide) {
+          lucide.createIcons();
+        }
+      }
+
+      console.log("✅ Payout method saved:", result);
+
+      alert("Payout method saved successfully.");
+    } catch (err) {
+      console.error("❌ Payout save failed:", err);
+
+      alert(err.message || "Failed to save payout method.");
+    } finally {
+      saveBtn.disabled = false;
+      saveBtn.textContent = "Save Payout Method";
     }
-
-    else if (method === "bank") {
-      payload = {
-        type: "bank",
-        name: document.getElementById("travelerBankNameInput").value.trim(),
-        routing: document.getElementById("travelerBankRoutingInput").value.trim(),
-        account: document.getElementById("travelerBankAccountInput").value.trim(),
-        confirm: document.getElementById("travelerBankConfirmInput").value.trim()
-      };
-    }
-
-    console.log("Saving payout method:", payload);
-
-    // TODO: send to backend
   });
 }
-/* ============================================================
+
+   /* ============================================================
    FINAL DOM READY BOOTSTRAP — TRAVELER ACCOUNT DEFAULT
 ============================================================ */
 document.addEventListener("DOMContentLoaded", () => {
@@ -2446,7 +2629,9 @@ document.addEventListener("DOMContentLoaded", () => {
   safe(loadTravelerIdentity);
   safe(initTravelerPhotoUpload);
 
-
+  // Payouts
+safe(initTravelerPayoutView);
+safe(initTravelerPaymentFormatting);
 
   // ⭐ Default view = Account & Identity
   loadPage("account");

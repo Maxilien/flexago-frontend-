@@ -718,25 +718,25 @@
 </div>
 
 <!-- ========================================================= -->
-<!-- PAYOUTS VIEW (TRAVELER VERSION — FINAL)                   -->
+<!-- PAYOUTS VIEW (TRAVELER VERSION)                           -->
 <!-- ========================================================= -->
-<section id="travelerPayoutsView" class="hidden">
+<section id="travelerPaymentsView" class="page-template hidden">
   <div class="panel" id="travelerPayoutsPanel">
 
     <header class="panel-header">
       <div>
         <div class="panel-title" data-i18n="traveler.payouts.title">
-          Payout Methods
+          Payouts
         </div>
+
         <div class="panel-subtitle" data-i18n="traveler.payouts.subtitle">
-          Manage how you receive your earnings.
+          Manage how you receive your delivery earnings.
         </div>
       </div>
     </header>
 
     <div class="panel-body">
 
-      <!-- CURRENT METHOD -->
       <section class="section-block">
         <h2 class="section-title" data-i18n="traveler.payouts.current_method">
           Current Payout Method
@@ -744,82 +744,133 @@
 
         <div id="travelerPayoutMethodDisplay" class="payout-method-display">
           <i data-lucide="credit-card"></i>
-          <span data-i18n="traveler.payouts.no_method">No payout method added</span>
+          <span data-i18n="traveler.payouts.no_method">
+            No payout method added
+          </span>
         </div>
       </section>
 
-      <!-- ADD / EDIT -->
       <section class="section-block">
+
         <h2 class="section-title" data-i18n="traveler.payouts.add_edit_title">
           Add or Edit Payout Method
         </h2>
 
         <div class="payout-method-toggle">
-          <button class="toggle-btn active" data-method="card" id="travelerPayoutCardTab">
+
+          <button
+            type="button"
+            class="toggle-btn active"
+            data-method="card"
+            id="travelerPayoutCardTab"
+          >
             <i data-lucide="credit-card"></i>
-            <span data-i18n="traveler.payouts.card">Debit Card</span>
+            <span data-i18n="traveler.payouts.card">
+              Debit Card
+            </span>
           </button>
 
-          <button class="toggle-btn" data-method="bank" id="travelerPayoutBankTab">
+          <button
+            type="button"
+            class="toggle-btn"
+            data-method="bank"
+            id="travelerPayoutBankTab"
+          >
             <i data-lucide="banknote"></i>
-            <span data-i18n="traveler.payouts.bank">Bank Account</span>
+            <span data-i18n="traveler.payouts.bank">
+              Bank Account
+            </span>
           </button>
+
         </div>
 
-        <!-- CARD FORM -->
         <div id="travelerPayoutCardForm" class="payout-form">
-          <input class="input-field"
-                 id="travelerCardNameInput"
-                 placeholder="Name on card" />
 
-          <input class="input-field"
-                 id="travelerCardNumberInput"
-                 placeholder="Card number" />
+          <input
+            class="input-field"
+            id="travelerCardNameInput"
+            placeholder="Name on card"
+            data-i18n-placeholder="traveler.payouts.card_name"
+          />
+
+          <input
+            class="input-field"
+            id="travelerCardNumberInput"
+            placeholder="Card number"
+            data-i18n-placeholder="traveler.payouts.card_number"
+          />
 
           <div class="input-row">
-            <input class="input-field"
-                   id="travelerCardExpInput"
-                   placeholder="MM/YY" />
 
-            <input class="input-field"
-                   id="travelerCardCvvInput"
-                   placeholder="CVC" />
+            <input
+              class="input-field"
+              id="travelerCardExpInput"
+              placeholder="MM/YY"
+              data-i18n-placeholder="traveler.payouts.exp_placeholder"
+            />
+
+            <input
+              class="input-field"
+              id="travelerCardCvvInput"
+              placeholder="CVC"
+              data-i18n-placeholder="traveler.payouts.cvv_placeholder"
+            />
+
           </div>
+
         </div>
 
-        <!-- BANK FORM -->
         <div id="travelerPayoutBankForm" class="payout-form hidden">
-          <input class="input-field"
-                 id="travelerBankNameInput"
-                 placeholder="Account holder name" />
 
-          <input class="input-field"
-                 id="travelerBankRoutingInput"
-                 placeholder="Routing number" />
+          <input
+            class="input-field"
+            id="travelerBankNameInput"
+            placeholder="Account holder name"
+            data-i18n-placeholder="traveler.payouts.bank_name_placeholder"
+          />
 
-          <input class="input-field"
-                 id="travelerBankAccountInput"
-                 placeholder="Account number" />
+          <input
+            class="input-field"
+            id="travelerBankRoutingInput"
+            placeholder="Routing number"
+            data-i18n-placeholder="traveler.payouts.routing_placeholder"
+          />
 
-          <input class="input-field"
-                 id="travelerBankConfirmInput"
-                 placeholder="Re-enter account number" />
+          <input
+            class="input-field"
+            id="travelerBankAccountInput"
+            placeholder="Account number"
+            data-i18n-placeholder="traveler.payouts.account_placeholder"
+          />
+
+          <input
+            class="input-field"
+            id="travelerBankConfirmInput"
+            placeholder="Re-enter account number"
+            data-i18n-placeholder="traveler.payouts.confirm_account_placeholder"
+          />
+
         </div>
 
       </section>
 
-      <!-- SAVE BUTTON -->
       <section class="section-block">
-        <button id="saveTravelerPayoutBtn"
-                class="primary-btn disabled"
-                disabled>
+
+        <button
+          type="button"
+          id="saveTravelerPayoutBtn"
+          class="primary-btn"
+          data-i18n="traveler.payouts.save"
+        >
           Save Payout Method
         </button>
+
       </section>
 
     </div>
-  </div>
 
+  </div>
+</section>
 <!-- ================= SUPPORT PANEL ================= -->
 <div id="supportPanel" class="hidden">
   <div class="support-box">
