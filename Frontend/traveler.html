@@ -749,7 +749,51 @@
           </span>
         </div>
       </section>
+<!-- ==========================================================
+     STRIPE CONNECT PAYOUTS
+=========================================================== -->
 
+<div class="payout-card mb-4">
+
+  <div class="card-header">
+    <h3>Stripe Payout Account</h3>
+    <p>
+      Connect your bank account securely through Stripe
+      to receive delivery payouts.
+    </p>
+  </div>
+
+  <div
+    id="stripeConnectStatus"
+    class="status-badge status-warning"
+  >
+    Not Connected
+  </div>
+
+  <div class="mt-3">
+    <button
+      type="button"
+      id="connectStripeBtn"
+      class="primary-btn"
+    >
+      Connect Stripe Account
+    </button>
+
+    <button
+      type="button"
+      id="refreshStripeStatusBtn"
+      class="secondary-btn"
+    >
+      Refresh Status
+    </button>
+  </div>
+
+  <div
+    id="stripeConnectDetails"
+    class="mt-3 small-text"
+  ></div>
+
+</div>
       <section class="section-block">
 
         <h2 class="section-title" data-i18n="traveler.payouts.add_edit_title">

@@ -2510,10 +2510,355 @@ function initJobSearch() {
 /* ============================================================
    PAYOUT VIEW INITIALIZER - TRAVELER VERSION
 ============================================================ */
+/* ============================================================
+   TRAVELER STRIPE CONNECT STATUS
+============================================================ */
 
+async function loadTravelerStripeStatus() {
+  if (!window.travelerId) {
+    throw new Error(
+      "Traveler profile ID is missing. Please refresh and try again."
+    );
+  }
+
+  const statusDisplay =
+    document.getElementById("stripeConnectStatus");
+
+  const detailsDisplay =
+    document.getElementById("stripeConnectDetails");
+
+  const connectBtn =
+    document.getElementById("connectStripeBtn");
+
+  if (statusDisplay) {
+    statusDisplay.innerHTML = `
+      <i data-lucide="loader-circle"></i>
+      <span>Checking Stripe status...</span>
+    `;
+  }
+
+  const response = await fetch(
+    `${BASE_URL}/api/traveler-stripe/status/${window.travelerId}`
+  );
+
+  const responseText =
+    await response.text();
+
+  let result = {};
+
+  if (responseText) {
+    try {
+      result = JSON.parse(responseText);
+    } catch (parseError) {
+      throw new Error(
+        `Stripe status returned an invalid response. Status: ${response.status}`
+      );
+    }
+  }
+
+  if (!response.ok || !result.success) {
+    throw new Error(
+      result.error ||
+      `Unable to retrieve Stripe status. Status: ${response.status}`
+    );
+  }
+
+  console.log(
+    "Traveler Stripe status:",
+    result
+  );
+
+  if (!result.connected) {
+    if (statusDisplay) {
+      statusDisplay.innerHTML = `
+        <i data-lucide="circle-alert"></i>
+        <span>Not Connected</span>
+      `;
+    }
+
+    if (detailsDisplay) {
+      detailsDisplay.textContent =
+        "Connect Stripe to receive delivery payouts.";
+    }
+
+    if (connectBtn) {
+      connectBtn.textContent =
+        "Connect Stripe Account";
+
+      connectBtn.disabled = false;
+    }
+  } else if (result.onboardingComplete) {
+    if (statusDisplay) {
+      statusDisplay.innerHTML = `
+        <i data-lucide="circle-check"></i>
+        <span>Connected and Ready for Payouts</span>
+      `;
+    }
+
+    if (detailsDisplay) {
+      detailsDisplay.innerHTML = `
+        <div>
+          Stripe account: ${result.accountId}
+        </div>
+        <div>
+          Payouts enabled: Yes
+        </div>
+      `;
+    }
+
+    if (connectBtn) {
+      connectBtn.textContent =
+        "Stripe Connected";
+
+      connectBtn.disabled = true;
+    }
+  } else {
+    if (statusDisplay) {
+      statusDisplay.innerHTML = `
+        <i data-lucide="clock"></i>
+        <span>Onboarding Incomplete</span>
+      `;
+    }
+
+    if (detailsDisplay) {
+      const requiredItems =
+        Array.isArray(result.currentlyDue)
+          ? result.currentlyDue.length
+          : 0;
+
+      detailsDisplay.innerHTML = `
+        <div>
+          Stripe account: ${result.accountId}
+        </div>
+        <div>
+          Remaining requirements: ${requiredItems}
+        </div>
+      `;
+    }
+
+    if (connectBtn) {
+      connectBtn.textContent =
+        "Continue Stripe Onboarding";
+
+      connectBtn.disabled = false;
+    }
+  }
+
+  if (window.lucide) {
+    window.lucide.createIcons();
+  }
+
+  return result;
+}
+
+/* ============================================================
+   START TRAVELER STRIPE ONBOARDING
+============================================================ */
+
+async function startTravelerStripeOnboarding() {
+  if (!window.travelerId) {
+    throw new Error(
+      "Traveler profile ID is missing. Please refresh and try again."
+    );
+  }
+
+  const connectBtn =
+    document.getElementById("connectStripeBtn");
+
+  const originalButtonText =
+    connectBtn?.textContent ||
+    "Connect Stripe Account";
+
+  try {
+    if (connectBtn) {
+      connectBtn.disabled = true;
+      connectBtn.textContent =
+        "Preparing Stripe...";
+    }
+
+    const accountResponse = await fetch(
+      `${BASE_URL}/api/traveler-stripe/create-account`,
+      {
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({
+          travelerId:
+            window.travelerId,
+
+          country: "US"
+        })
+      }
+    );
+
+    const accountResponseText =
+      await accountResponse.text();
+
+    let accountResult = {};
+
+    if (accountResponseText) {
+      try {
+        accountResult =
+          JSON.parse(accountResponseText);
+      } catch (parseError) {
+        throw new Error(
+          `Stripe account endpoint returned an invalid response. Status: ${accountResponse.status}`
+        );
+      }
+    }
+
+    if (
+      !accountResponse.ok ||
+      !accountResult.success
+    ) {
+      throw new Error(
+        accountResult.error ||
+        `Unable to create Stripe account. Status: ${accountResponse.status}`
+      );
+    }
+
+    console.log(
+      "Stripe connected account:",
+      accountResult
+    );
+
+    if (connectBtn) {
+      connectBtn.textContent =
+        "Opening Stripe...";
+    }
+
+    const linkResponse = await fetch(
+      `${BASE_URL}/api/traveler-stripe/onboarding-link`,
+      {
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({
+          travelerId:
+            window.travelerId
+        })
+      }
+    );
+
+    const linkResponseText =
+      await linkResponse.text();
+
+    let linkResult = {};
+
+    if (linkResponseText) {
+      try {
+        linkResult =
+          JSON.parse(linkResponseText);
+      } catch (parseError) {
+        throw new Error(
+          `Stripe onboarding endpoint returned an invalid response. Status: ${linkResponse.status}`
+        );
+      }
+    }
+
+    if (
+      !linkResponse.ok ||
+      !linkResult.success
+    ) {
+      throw new Error(
+        linkResult.error ||
+        `Unable to create Stripe onboarding link. Status: ${linkResponse.status}`
+      );
+    }
+
+    if (!linkResult.onboardingUrl) {
+      throw new Error(
+        "Stripe did not return an onboarding URL."
+      );
+    }
+
+    window.location.assign(
+      linkResult.onboardingUrl
+    );
+  } catch (error) {
+    console.error(
+      "Traveler Stripe onboarding failed:",
+      error
+    );
+
+    alert(
+      error.message ||
+      "Unable to start Stripe onboarding."
+    );
+
+    if (connectBtn) {
+      connectBtn.disabled = false;
+      connectBtn.textContent =
+        originalButtonText;
+    }
+  }
+}
 function initTravelerPayoutView() {
   console.log("initTravelerPayoutView initialized");
+  const connectStripeBtn =
+    document.getElementById(
+      "connectStripeBtn"
+    );
 
+  const refreshStripeStatusBtn =
+    document.getElementById(
+      "refreshStripeStatusBtn"
+    );
+
+  if (connectStripeBtn) {
+    connectStripeBtn.addEventListener(
+      "click",
+      async () => {
+        await startTravelerStripeOnboarding();
+      }
+    );
+  }
+
+  if (refreshStripeStatusBtn) {
+    refreshStripeStatusBtn.addEventListener(
+      "click",
+      async () => {
+        try {
+          refreshStripeStatusBtn.disabled = true;
+          refreshStripeStatusBtn.textContent =
+            "Checking...";
+
+          await loadTravelerStripeStatus();
+        } catch (error) {
+          console.error(
+            "Stripe status refresh failed:",
+            error
+          );
+
+          alert(
+            error.message ||
+            "Unable to refresh Stripe status."
+          );
+        } finally {
+          refreshStripeStatusBtn.disabled = false;
+          refreshStripeStatusBtn.textContent =
+            "Refresh Status";
+        }
+      }
+    );
+  }
+
+  if (window.travelerId) {
+    loadTravelerStripeStatus().catch(
+      error => {
+        console.error(
+          "Initial Stripe status check failed:",
+          error
+        );
+      }
+    );
+  }
   const cardTab =
     document.getElementById("travelerPayoutCardTab");
 
