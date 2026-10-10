@@ -150,7 +150,7 @@ async function initializeSenderStripePayment() {
   }
 
   senderStripe = window.Stripe(
-    "pk_test_51TtZ6OJr0LlyCjEtaDGeR6sZPSqLIVhIbLojBqTYWCUXz4J3LwM9YGQ0UF8koilptmgUVjCoOLe1Hykw6ABnll5I00jltl5Bnf"
+    "pk_test_51TtZ6fJgbApUnpicUnhLPQwXPT8hRJK5BFix4gLJUcpmlHzfqK6HIWBzW3i5qbORh6c7nGqpAhTME6a3eej5rf7E00szc8T2WX"
   );
 
   senderStripeElements =
