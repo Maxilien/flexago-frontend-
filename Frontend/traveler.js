@@ -2393,6 +2393,45 @@ function initJobSearch() {
 }
 
 /* ============================================================
+   PAYOUT VIEW INITIALIZER
+============================================================ */
+function initTravelerPayoutView() {
+
+  const saveBtn = document.getElementById("saveTravelerPayoutBtn");
+  if (!saveBtn) return;
+
+  saveBtn.addEventListener("click", () => {
+
+    const method = document.querySelector(".toggle-btn.active")?.dataset.method;
+
+    let payload = {};
+
+    if (method === "card") {
+      payload = {
+        type: "card",
+        name: document.getElementById("travelerCardNameInput").value.trim(),
+        number: document.getElementById("travelerCardNumberInput").value.trim(),
+        exp: document.getElementById("travelerCardExpInput").value.trim(),
+        cvv: document.getElementById("travelerCardCvvInput").value.trim()
+      };
+    }
+
+    else if (method === "bank") {
+      payload = {
+        type: "bank",
+        name: document.getElementById("travelerBankNameInput").value.trim(),
+        routing: document.getElementById("travelerBankRoutingInput").value.trim(),
+        account: document.getElementById("travelerBankAccountInput").value.trim(),
+        confirm: document.getElementById("travelerBankConfirmInput").value.trim()
+      };
+    }
+
+    console.log("Saving payout method:", payload);
+
+    // TODO: send to backend
+  });
+}
+/* ============================================================
    FINAL DOM READY BOOTSTRAP — TRAVELER ACCOUNT DEFAULT
 ============================================================ */
 document.addEventListener("DOMContentLoaded", () => {
@@ -2407,6 +2446,9 @@ document.addEventListener("DOMContentLoaded", () => {
   safe(loadTravelerIdentity);
   safe(initTravelerPhotoUpload);
 
+  // Payouts
+  safe(initTravelerPayoutView);
+  safe(initTravelerPaymentFormatting);
 
   // ⭐ Default view = Account & Identity
   loadPage("account");
@@ -2418,3 +2460,35 @@ document.addEventListener("DOMContentLoaded", () => {
 
 });
 
+/* ============================================================
+   PAYMENT FORMATTING (CARD + EXP + CVC)
+============================================================ */
+function initTravelerPaymentFormatting() {
+
+  const cardNumberInput = document.getElementById("travelerCardNumberInput");
+  if (cardNumberInput) {
+    cardNumberInput.addEventListener("input", () => {
+      let v = cardNumberInput.value.replace(/\D/g, "").slice(0, 16);
+      v = v.match(/.{1,4}/g)?.join("-") || "";
+      cardNumberInput.value = v;
+    });
+  }
+
+  const expInput = document.getElementById("travelerCardExpInput");
+  if (expInput) {
+    expInput.addEventListener("input", () => {
+      let v = expInput.value.replace(/\D/g, "").slice(0, 4);
+      if (v.length >= 3) {
+        v = v.slice(0, 2) + "/" + v.slice(2);
+      }
+      expInput.value = v;
+    });
+  }
+
+  const cvvInput = document.getElementById("travelerCardCvvInput");
+  if (cvvInput) {
+    cvvInput.addEventListener("input", () => {
+      cvvInput.value = cvvInput.value.replace(/\D/g, "").slice(0, 4);
+    });
+  }
+}
