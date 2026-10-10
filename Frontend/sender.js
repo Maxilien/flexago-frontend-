@@ -119,6 +119,95 @@ function loadStripeScript() {
   return stripeScriptPromise;
 }
 /* ============================================================
+   SENDER STRIPE PAYMENT ELEMENT
+============================================================ */
+
+let senderStripe = null;
+let senderStripeElements = null;
+let senderCardElement = null;
+let senderCardMounted = false;
+
+async function initializeSenderStripePayment() {
+  if (senderCardMounted) {
+    return;
+  }
+
+  const cardContainer =
+    document.getElementById("card-element");
+
+  if (!cardContainer) {
+    throw new Error(
+      "Stripe card container was not found."
+    );
+  }
+
+  await loadStripeScript();
+
+  if (!window.Stripe) {
+    throw new Error(
+      "Stripe.js is unavailable."
+    );
+  }
+
+  senderStripe = window.Stripe(
+    "pk_test_51TtZ6OJr0LlyCjEtaDGeR6sZPSqLIVhIbLojBqTYWCUXz4J3LwM9YGQ0UF8koilptmgUVjCoOLe1Hykw6ABnll5I00jltl5Bnf"
+  );
+
+  senderStripeElements =
+    senderStripe.elements();
+
+  senderCardElement =
+    senderStripeElements.create(
+      "card",
+      {
+        style: {
+          base: {
+            color: "#111827",
+            fontFamily: "Arial, sans-serif",
+            fontSize: "16px",
+
+            "::placeholder": {
+              color: "#6b7280"
+            }
+          },
+
+          invalid: {
+            color: "#dc2626"
+          }
+        }
+      }
+    );
+
+  senderCardElement.mount(
+    "#card-element"
+  );
+
+  senderCardElement.on(
+    "change",
+    event => {
+      const errorDisplay =
+        document.getElementById(
+          "card-errors"
+        );
+
+      if (!errorDisplay) {
+        return;
+      }
+
+      errorDisplay.textContent =
+        event.error
+          ? event.error.message
+          : "";
+    }
+  );
+
+  senderCardMounted = true;
+
+  console.log(
+    "Stripe Card Element mounted successfully"
+  );
+}
+/* ============================================================
    SAFE WRAPPER
    ============================================================ */
 function safe(fn) {
@@ -867,14 +956,30 @@ function initSenderGenerateDelivery() {
           `$${estimatedPrice.toFixed(2)}`;
       }
 
-      if (paymentSection) {
-        paymentSection.classList.remove("hidden");
+if (paymentSection) {
+  paymentSection.classList.remove("hidden");
 
-        paymentSection.scrollIntoView({
-          behavior: "smooth",
-          block: "start"
-        });
-      }
+  paymentSection.scrollIntoView({
+    behavior: "smooth",
+    block: "start"
+  });
+
+  try {
+    await initializeSenderStripePayment();
+  } catch (stripeError) {
+    console.error(
+      "Stripe initialization failed:",
+      stripeError
+    );
+
+    alert(
+      stripeError.message ||
+      "Unable to load secure payment form."
+    );
+
+    return;
+  }
+}
 
       alert(
         "Delivery created successfully. Please complete payment to publish the delivery."
