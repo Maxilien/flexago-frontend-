@@ -52,6 +52,73 @@ const socket = io(WS_URL, {
   transports: ["websocket"]
 });
 /* ============================================================
+   SAFE STRIPE.JS LOADER
+============================================================ */
+
+let stripeScriptPromise = null;
+
+function loadStripeScript() {
+  if (window.Stripe) {
+    return Promise.resolve(window.Stripe);
+  }
+
+  if (stripeScriptPromise) {
+    return stripeScriptPromise;
+  }
+
+  stripeScriptPromise = new Promise((resolve, reject) => {
+    const existingScript =
+      document.getElementById("flexagoStripeScript");
+
+    if (existingScript) {
+      existingScript.addEventListener("load", () => {
+        if (window.Stripe) {
+          resolve(window.Stripe);
+        } else {
+          reject(
+            new Error("Stripe.js loaded but Stripe is unavailable.")
+          );
+        }
+      });
+
+      existingScript.addEventListener("error", () => {
+        reject(new Error("Unable to load Stripe.js."));
+      });
+
+      return;
+    }
+
+    const script =
+      document.createElement("script");
+
+    script.id = "flexagoStripeScript";
+
+    script.src =
+      "https:" + "//js.stripe.com/v3/";
+
+    script.async = true;
+
+    script.onload = () => {
+      if (window.Stripe) {
+        console.log("Stripe.js loaded successfully");
+        resolve(window.Stripe);
+      } else {
+        reject(
+          new Error("Stripe.js loaded but Stripe is unavailable.")
+        );
+      }
+    };
+
+    script.onerror = () => {
+      reject(new Error("Unable to load Stripe.js."));
+    };
+
+    document.head.appendChild(script);
+  });
+
+  return stripeScriptPromise;
+}
+/* ============================================================
    SAFE WRAPPER
    ============================================================ */
 function safe(fn) {
