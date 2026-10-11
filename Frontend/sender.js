@@ -942,20 +942,42 @@ function getInsuranceBoolean() {
   }
 });
 
-<!-- ======================== SIZE SELECTOR — UI ONLY ======================== -->
+/* ======================== SIZE SELECTOR ======================== */
 
-let selectedSize = "small";
+window.selectedSize = "small";
 
-document.querySelectorAll(".size-pill").forEach(btn => {
-  btn.addEventListener("click", () => {
-    document.querySelectorAll(".size-pill").forEach(b => b.classList.remove("selected"));
-    btn.classList.add("selected");
-    selectedSize = btn.dataset.size;
+document
+  .querySelectorAll("#sizePills .pill")
+  .forEach(btn => {
+
+    btn.addEventListener("click", () => {
+
+      document
+        .querySelectorAll("#sizePills .pill")
+        .forEach(pill =>
+          pill.classList.remove("active")
+        );
+
+      btn.classList.add("active");
+
+      window.selectedSize =
+        btn.dataset.value;
+
+      console.log(
+        "Selected Size:",
+        window.selectedSize
+      );
+
+      updateEstimateUI(
+        window.currentDistanceMiles || 0
+      );
+    });
+
   });
-});
 
-window.getSelectedSize = () => selectedSize;
-
+window.getSelectedSize = () => {
+  return window.selectedSize;
+};
 
 /* ============================================================
    PHOTO UPLOAD
@@ -1463,34 +1485,30 @@ function renderMyDeliveries(list) {
     `;
 
 /* ============================================================
-   TRAVELER DETAILS (FINAL — matches your backend)
+   TRAVELER DETAILS
 ============================================================ */
 if (d.travelerDetails && typeof d.travelerDetails === "object") {
   const t = d.travelerDetails;
 
+  const travelerName =
+    `${t.firstName || ""} ${t.lastName || ""}`.trim() ||
+    "Unassigned";
+
+  const travelerRating =
+    t.rating || "N/A";
+
   html += `
     <div class="delivery-row traveler-info">
       <span><strong>Traveler:</strong></span>
-      <span>${t.firstName || ""} ${t.lastName || ""}</span>
-    </div>
-
-    <div class="delivery-row traveler-info">
-      <span><strong>Phone:</strong></span>
-      <span>${t.phone || "N/A"}</span>
-    </div>
-
-    <div class="delivery-row traveler-info">
-      <span><strong>Email:</strong></span>
-      <span>${t.email || "N/A"}</span>
+      <span>${travelerName}</span>
     </div>
 
     <div class="delivery-row traveler-info">
       <span><strong>Rating:</strong></span>
-      <span>${t.rating || "N/A"}</span>
+      <span>⭐ ${travelerRating}</span>
     </div>
   `;
 }
-
 /* ============================================================
    PICKUP VERIFICATION (Step C)
 ============================================================ */
@@ -1593,8 +1611,8 @@ container.innerHTML = `
     <p><strong>Traveler:</strong> Loading...</p>
   </div>
 
-  <p><strong>Price:</strong> $${delivery.price ?? "0.00"}</p>
-  <p><strong>Payout:</strong> $${delivery.payoutAmount ?? "0.00"}</p>
+<p><strong>Price:</strong> $${delivery.price ?? "0.00"}</p>
+
 
   <hr style="margin:1rem 0; opacity:0.3;">
 
@@ -1620,11 +1638,10 @@ container.innerHTML = `
     if (tJson.success) {
       const t = tJson.data;
 
-      travelerSection.innerHTML = `
-        <p><strong>Traveler:</strong> ${t.user.firstName} ${t.user.lastName}</p>
-        <p><strong>Phone:</strong> ${t.user.phone || "N/A"}</p>
-        <p><strong>Email:</strong> ${t.user.email}</p>
-      `;
+  travelerSection.innerHTML = `
+  <p><strong>Traveler:</strong> ${t.user.firstName} ${t.user.lastName}</p>
+  <p><strong>Rating:</strong> ⭐ ${t.rating || 5}</p>
+`;
     } else {
       travelerSection.innerHTML = `<p>Traveler info unavailable</p>`;
     }
