@@ -433,36 +433,78 @@ async function verifyPickup(jobId) {
 
 /* ============================================================
    JOB LOADING (FETCH ALL JOBS FOR THIS TRAVELER)
-   ============================================================ */
+============================================================ */
+
 async function loadJobs() {
   try {
+
     const res = await fetch(`${BASE_URL}/api/deliveries`);
     const json = await res.json();
-    const all = json.data || json;
 
-    availableJobs = all.filter(j => j.status === "available");
+    const all = json.data || [];
 
-    acceptedJobs = all.filter(j =>
-      j.status === "accepted" &&
-      j.traveler === window.travelerId
+    const travelerIds = [
+      String(window.userId || ""),
+      String(window.travelerId || "")
+    ];
+
+    const belongsToTraveler = (job) => {
+      const id = String(
+        job.travelerId?._id ||
+        job.travelerId ||
+        job.traveler ||
+        ""
+      );
+
+      return travelerIds.includes(id);
+    };
+
+    availableJobs = all.filter(
+      j => j.status === "available"
     );
 
-    pickedUpJobs = all.filter(j =>
-      j.status === "picked_up" &&
-      j.traveler === window.travelerId
+    acceptedJobs = all.filter(
+      j =>
+        j.status === "accepted" &&
+        belongsToTraveler(j)
     );
 
-    completedJobs = all.filter(j =>
-      j.status === "delivered" &&
-      j.traveler === window.travelerId
+    pickedUpJobs = all.filter(
+      j =>
+        (
+          j.status === "picked_up" ||
+          j.status === "in_transit"
+        ) &&
+        belongsToTraveler(j)
     );
+
+    completedJobs = all.filter(
+      j =>
+        (
+          j.status === "delivered" ||
+          j.status === "payout_pending" ||
+          j.status === "payout_completed"
+        ) &&
+        belongsToTraveler(j)
+    );
+
+    console.log("Traveler jobs loaded", {
+      available: availableJobs.length,
+      accepted: acceptedJobs.length,
+      pickedUp: pickedUpJobs.length,
+      completed: completedJobs.length
+    });
 
     refreshJobs();
+    refreshEarnings();
+
   } catch (err) {
-    console.error("Error loading jobs:", err);
+    console.error(
+      "Error loading jobs:",
+      err
+    );
   }
 }
-
 /* ============================================================
    MARKERS (CLEAN + FINAL)
    ============================================================ */
