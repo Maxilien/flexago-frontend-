@@ -785,30 +785,29 @@ function refreshEarnings() {
     );
 
     if (
-      job.status === "payout_completed"
-    ) {
-      completedCount++;
+  job.status === "payout_completed" ||
+  job.status === "payout_pending"
+) {
+  completedCount++;
 
-      if (
-        completedDate >= startOfToday
-      ) {
-        todayTotal += payout;
-      }
+  if (
+    completedDate >= startOfToday
+  ) {
+    todayTotal += payout;
+  }
 
-      if (
-        completedDate >= startOfWeek
-      ) {
-        weekTotal += payout;
-      }
-    }
+  if (
+    completedDate >= startOfWeek
+  ) {
+    weekTotal += payout;
+  }
+}
 
-    if (
-      job.status === "payout_pending"
-    ) {
-      pendingTotal += payout;
-      completedCount++;
-    }
-
+if (
+  job.status === "payout_pending"
+) {
+  pendingTotal += payout;
+}
     if (
       job.status === "accepted" ||
       job.status === "in_transit" ||
