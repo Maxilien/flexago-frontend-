@@ -679,18 +679,117 @@ function refreshJobs() {
 }
 
 /* ============================================================
-   EARNINGS
-   ============================================================ */
+   EARNINGS SUMMARY
+============================================================ */
 function refreshEarnings() {
-  const earningsEl = document.getElementById("earningsValue");
-  if (!earningsEl) return;
+  const todayEl = document.getElementById("todayEarnings");
+  const weekEl = document.getElementById("weekEarnings");
+  const pendingEl = document.getElementById("pendingPayout");
+  const pipelineEl = document.getElementById("pipelineValue");
+  const completedEl = document.getElementById("completedCount");
 
-  const total = completedJobs.reduce((sum, job) => {
-    const price = Number(job.price || 0);
-    return sum + (isNaN(price) ? 0 : price);
-  }, 0);
+  if (
+    !todayEl ||
+    !weekEl ||
+    !pendingEl ||
+    !pipelineEl ||
+    !completedEl
+  ) {
+    return;
+  }
 
-  earningsEl.textContent = `$${total.toFixed(2)}`;
+  const now = new Date();
+
+  const startOfToday = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate()
+  );
+
+  const startOfWeek = new Date(startOfToday);
+  startOfWeek.setDate(
+    startOfWeek.getDate() - startOfWeek.getDay()
+  );
+
+  let todayTotal = 0;
+  let weekTotal = 0;
+  let pendingTotal = 0;
+  let pipelineTotal = 0;
+  let completedCount = 0;
+
+  const allJobs = [
+    ...(completedJobs || []),
+    ...(acceptedJobs || []),
+    ...(pickedUpJobs || [])
+  ];
+
+  allJobs.forEach(job => {
+    const payout = Number(
+      job.payoutAmount ||
+      job.payout ||
+      0
+    );
+
+    if (isNaN(payout)) {
+      return;
+    }
+
+    const completedDate = new Date(
+      job.payoutCompletedAt ||
+      job.completedAt ||
+      job.deliveredAt ||
+      job.updatedAt ||
+      job.createdAt
+    );
+
+    if (
+      job.status === "payout_completed"
+    ) {
+      completedCount++;
+
+      if (
+        completedDate >= startOfToday
+      ) {
+        todayTotal += payout;
+      }
+
+      if (
+        completedDate >= startOfWeek
+      ) {
+        weekTotal += payout;
+      }
+    }
+
+    if (
+      job.status === "payout_pending"
+    ) {
+      pendingTotal += payout;
+      completedCount++;
+    }
+
+    if (
+      job.status === "accepted" ||
+      job.status === "in_transit" ||
+      job.status === "picked_up"
+    ) {
+      pipelineTotal += payout;
+    }
+  });
+
+  todayEl.textContent =
+    `$${todayTotal.toFixed(2)}`;
+
+  weekEl.textContent =
+    `$${weekTotal.toFixed(2)}`;
+
+  pendingEl.textContent =
+    `$${pendingTotal.toFixed(2)}`;
+
+  pipelineEl.textContent =
+    `$${pipelineTotal.toFixed(2)}`;
+
+  completedEl.textContent =
+    completedCount;
 }
 /* ============================================================
    SIGNATURE PAD SETUP
