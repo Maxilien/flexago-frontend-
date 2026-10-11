@@ -870,78 +870,256 @@ function initSenderAutocomplete(map) {
   attachAutocomplete(pickupInput, pickupDropdown, "pickup-lat", "pickup-lng", true);
   attachAutocomplete(dropoffInput, dropoffDropdown, "dropoff-lat", "dropoff-lng", false);
 }
-// ======================== FLEXAGO PRICING ENGINE — FINAL MODEL (NO SIZE) ========================
+// ======================== FLEXAGO PRICING ENGINE ========================
 
-function calculateEstimatedCost({ deliveryType, distanceMiles, weight, insuranceType }) {
+function calculateEstimatedCost({
+  deliveryType,
+  distanceMiles,
+  weight,
+  insuranceType,
+  declaredValue,
+  packageType,
+  size
+}) {
+
   let cost = 0;
 
-  // Insurance fees (UI uses "basic" / "premium" / "waive")
-  let insuranceFee = 0;
-  if (insuranceType === "basic") insuranceFee = 15;
-  if (insuranceType === "premium") insuranceFee = 25;
+  /* ========================
+     BASE DISTANCE COST
+  ======================== */
 
-  // Local
   if (deliveryType === "local") {
-    if (typeof distanceMiles === "number" && !isNaN(distanceMiles)) {
-      cost = distanceMiles * 0.75;
-    }
+    cost += Number(distanceMiles || 0) * 0.75;
   }
 
-  // Nationwide
   if (deliveryType === "nationwide") {
-    cost = 50 + (weight * 0.40);
+    cost += 50;
   }
 
-  // International
   if (deliveryType === "international") {
-    cost = 200;
+    cost += 200;
   }
 
-  // Add insurance fee
+  /* ========================
+     SIZE FEE
+  ======================== */
+
+  if (size === "medium") {
+    cost += 2;
+  }
+
+  if (size === "large") {
+    cost += 5;
+  }
+
+  /* ========================
+     WEIGHT FEE
+  ======================== */
+
+  if (weight > 10 && weight <= 25) {
+    cost += 2;
+  } else if (weight > 25 && weight <= 50) {
+    cost += 5;
+  } else if (weight > 50) {
+    cost += 10;
+  }
+
+  /* ========================
+     PACKAGE TYPE FEE
+  ======================== */
+
+  switch (packageType) {
+
+    case "small_box":
+      cost += 1;
+      break;
+
+    case "medium_box":
+      cost += 2;
+      break;
+
+    case "large_box":
+      cost += 4;
+      break;
+
+    case "bag":
+      cost += 2;
+      break;
+
+    case "fragile":
+      cost += 5;
+      break;
+
+    case "electronics":
+      cost += 5;
+      break;
+
+    case "other":
+      cost += 2;
+      break;
+
+    default:
+      break;
+  }
+
+  /* ========================
+     INSURANCE FEE
+  ======================== */
+
+  let insuranceFee = 0;
+
+  if (
+    insuranceType === "basic"
+  ) {
+    insuranceFee =
+      Math.min(
+        Math.max(
+          declaredValue * 0.03,
+          2
+        ),
+        10
+      );
+  }
+
+  if (
+    insuranceType === "premium"
+  ) {
+    insuranceFee =
+      Math.min(
+        Math.max(
+          declaredValue * 0.05,
+          5
+        ),
+        50
+      );
+  }
+
   cost += insuranceFee;
 
-  return cost;
+  return Math.max(0, cost);
 }
 
-function updateEstimateUI(distanceMiles = null) {
-  const deliveryTypeEl = document.getElementById("deliveryType");
-  const insuranceEl = document.getElementById("insuranceType");
-  const weightEl = document.getElementById("weightInput");
-  const estimateEl = document.getElementById("estimateValue");
+function updateEstimateUI(
+  distanceMiles = null
+) {
 
-  if (!deliveryTypeEl || !insuranceEl || !weightEl || !estimateEl) return;
+  const deliveryTypeEl =
+    document.getElementById("deliveryType");
 
-  const deliveryType = deliveryTypeEl.value;
-  const insuranceType = insuranceEl.value;
-  const weight = parseFloat(weightEl.value) || 0;
+  const insuranceEl =
+    document.getElementById("insuranceType");
 
-  const cost = calculateEstimatedCost({
-    deliveryType,
-    distanceMiles,
-    weight,
-    insuranceType
-  });
+  const weightEl =
+    document.getElementById("weightInput");
 
-  estimateEl.textContent = `$${cost.toFixed(2)}`;
-  window.currentPrice = cost;
+  const valueEl =
+    document.getElementById("valueInput");
+
+  const packageTypeEl =
+    document.getElementById("packageType");
+
+  const estimateEl =
+    document.getElementById("estimateValue");
+
+  if (
+    !deliveryTypeEl ||
+    !insuranceEl ||
+    !weightEl ||
+    !valueEl ||
+    !packageTypeEl ||
+    !estimateEl
+  ) {
+    return;
+  }
+
+  const deliveryType =
+    deliveryTypeEl.value;
+
+  const insuranceType =
+    insuranceEl.value;
+
+  const weight =
+    parseFloat(weightEl.value) || 0;
+
+  const declaredValue =
+    parseFloat(valueEl.value) || 0;
+
+  const packageType =
+    packageTypeEl.value;
+
+  const size =
+    window.selectedSize || "small";
+
+  const cost =
+    calculateEstimatedCost({
+
+      deliveryType,
+
+      distanceMiles,
+
+      weight,
+
+      insuranceType,
+
+      declaredValue,
+
+      packageType,
+
+      size
+    });
+
+  estimateEl.textContent =
+    `$${cost.toFixed(2)}`;
+
+  window.currentPrice =
+    cost;
 }
 
 // Convert insurance string → Boolean for backend
 function getInsuranceBoolean() {
-  const insuranceValue = document.getElementById("insuranceType").value;
 
-  return (insuranceValue === "basic" || insuranceValue === "premium");
+  const insuranceValue =
+    document.getElementById(
+      "insuranceType"
+    ).value;
+
+  return (
+    insuranceValue === "basic" ||
+    insuranceValue === "premium"
+  );
 }
 
-// Force updates when inputs change
-["deliveryType", "insuranceType", "weightInput"].forEach(id => {
-  const el = document.getElementById(id);
-  if (el) {
-    el.addEventListener("change", () => updateEstimateUI(window.currentDistanceMiles || 0));
-    el.addEventListener("input", () => updateEstimateUI(window.currentDistanceMiles || 0));
-  }
-});
+// Auto refresh price
+[
+  "deliveryType",
+  "insuranceType",
+  "weightInput",
+  "valueInput",
+  "packageType"
+].forEach(id => {
 
+  const el =
+    document.getElementById(id);
+
+  if (!el) return;
+
+  el.addEventListener(
+    "change",
+    () =>
+      updateEstimateUI(
+        window.currentDistanceMiles || 0
+      )
+  );
+
+  el.addEventListener(
+    "input",
+    () =>
+      updateEstimateUI(
+        window.currentDistanceMiles || 0
+      )
+  );
+
+});
 /* ======================== SIZE SELECTOR ======================== */
 
 window.selectedSize = "small";
