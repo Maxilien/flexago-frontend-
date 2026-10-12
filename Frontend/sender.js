@@ -1,7 +1,7 @@
-
+﻿
 
 /* ============================================================
-   AUTH GUARD — SENDER ONLY
+   AUTH GUARD â€” SENDER ONLY
    ============================================================ */
 
 const user = JSON.parse(localStorage.getItem("user"));
@@ -16,7 +16,7 @@ if (user.role !== "sender") {
   window.location.href = "login.html";
 }
 
-// ⭐ CORRECT — load senderId from the actual user object
+// â­ CORRECT â€” load senderId from the actual user object
 window.senderId = user._id;
 window.senderEmail = user.email;
 
@@ -29,7 +29,7 @@ if (!window.senderId) {
 }
 
 /* ============================================================
-   FLEXAGO SENDER — GLOBAL STATE
+   FLEXAGO SENDER â€” GLOBAL STATE
    ============================================================ */
 
 let senderDirectionsService = null;
@@ -1272,15 +1272,15 @@ function initSenderPhotoUpload() {
   photoInput.addEventListener("change", () => {
     const file = photoInput.files[0];
     if (file) {
-      const reader = new FileReader();   // ⭐ REQUIRED
+      const reader = new FileReader();   // â­ REQUIRED
 
       reader.onload = e => {
         const base64 = e.target.result;
 
-        // ⭐ Store globally so generateDelivery can access it
+        // â­ Store globally so generateDelivery can access it
         window.uploadedPhotoBase64 = base64;
 
-        // ⭐ Update preview
+        // â­ Update preview
         photoPreview.src = base64;
         photoPreview.style.display = "block";
       };
@@ -1661,7 +1661,7 @@ if (paymentSection) {
   });
 }
 /* ============================================================
-   LOAD SENDER DELIVERIES (FINAL — matches your backend)
+   LOAD SENDER DELIVERIES (FINAL â€” matches your backend)
 ============================================================ */
 async function loadSenderDeliveries() {
   try {
@@ -1678,10 +1678,10 @@ async function loadSenderDeliveries() {
     // Filter deliveries belonging to this sender
     const mine = all.filter(d => d.senderId === window.senderId);
 
-    // ⭐ Your backend stores traveler under "traveler", NOT "travelerId"
+    // â­ Your backend stores traveler under "traveler", NOT "travelerId"
     for (let d of mine) {
       if (d.traveler) {
-        // traveler is already a string ID — but backend does NOT expose traveler API
+        // traveler is already a string ID â€” but backend does NOT expose traveler API
         // so we cannot fetch traveler profile here
         // Instead, we attach the raw traveler ID
         d.travelerDetails = { id: d.traveler };
@@ -1693,31 +1693,65 @@ async function loadSenderDeliveries() {
     console.error("Error loading sender deliveries:", err);
   }
 }
+/* ============================================================
+ Delivery Status
+============================================================ */
+function formatDeliveryStatus(status) {
+  switch (status) {
+    case "created":
+      return "Created";
 
+    case "available":
+      return "Available";
+
+    case "accepted":
+      return "Accepted";
+
+    case "in_transit":
+      return "In Transit";
+
+    case "delivered":
+    case "payout_pending":
+    case "payout_completed":
+      return "Delivered";
+
+    default:
+      return status || "Unknown";
+  }
+}
 /* ============================================================
    RENDER DELIVERY LIST (with traveler details)
 ============================================================ */
 function renderMyDeliveries(list) {
-  const container = document.getElementById("myDeliveriesList");
+
+  const container =
+    document.getElementById(
+      "myDeliveriesList"
+    );
+
   container.innerHTML = "";
 
   if (!list || list.length === 0) {
-    container.innerHTML = `<p class="empty-text">No deliveries found.</p>`;
+    container.innerHTML =
+      `<p class="empty-text">No deliveries found.</p>`;
     return;
   }
 
   list.forEach(d => {
-    const div = document.createElement("div");
-    div.className = "delivery-card";
+
+    const div =
+      document.createElement("div");
+
+    div.className =
+      "delivery-card";
 
     let html = `
-      <!-- ITEM DESCRIPTION -->
+
       <div class="delivery-row">
         <span><strong>Item Description:</strong></span>
         <span>${d.package?.description || "Package"}</span>
       </div>
 
-      <!-- STATUS -->
       <div class="delivery-row">
         <span><strong>Status:</strong></span>
         <span class="delivery-status status-${d.status}">
@@ -1725,43 +1759,31 @@ function renderMyDeliveries(list) {
         </span>
       </div>
 
-      <!-- PICKUP -->
       <div class="delivery-row">
         <span>Pickup:</span>
         <span>${d.pickup?.address || "N/A"}</span>
       </div>
 
-      <!-- DROPOFF -->
       <div class="delivery-row">
         <span>Dropoff:</span>
         <span>${d.dropoff?.address || "N/A"}</span>
       </div>
 
-      <!-- PRICE -->
       <div class="delivery-row">
         <span>Price:</span>
         <span>$${d.price?.toFixed(2) || "0.00"}</span>
       </div>
 
-      <!-- PAYOUT -->
-      <div class="delivery-row">
-        <span>Payout:</span>
-        <span>$${d.payoutAmount?.toFixed(2) || "0.00"}</span>
-      </div>
-
-      <!-- DELIVERY TYPE -->
       <div class="delivery-row">
         <span>Type:</span>
         <span>${d.package?.deliveryType || "N/A"}</span>
       </div>
 
-      <!-- INSURANCE -->
       <div class="delivery-row">
         <span>Insurance:</span>
         <span>${d.package?.insurance ? "Yes" : "No"}</span>
       </div>
     `;
-
 /* ============================================================
    TRAVELER DETAILS
 ============================================================ */
@@ -1783,7 +1805,7 @@ if (d.travelerDetails && typeof d.travelerDetails === "object") {
 
     <div class="delivery-row traveler-info">
       <span><strong>Rating:</strong></span>
-      <span>⭐ ${travelerRating}</span>
+      <span>â­ ${travelerRating}</span>
     </div>
   `;
 }
@@ -1793,7 +1815,7 @@ if (d.travelerDetails && typeof d.travelerDetails === "object") {
 html += `
   <div class="delivery-row">
     <span><strong>Pickup Code:</strong></span>
-    <span>${d.pickupCode || "—"}</span>
+    <span>${d.pickupCode || "â€”"}</span>
   </div>
 
   <div class="delivery-row">
@@ -1827,124 +1849,174 @@ html += `
 }
 
 /* ============================================================
-   STATUS FORMATTER (corrected)
-============================================================ */
-function formatDeliveryStatus(status) {
-  switch (status) {
-    case "created":
-      return "Created";
-    case "available":
-      return "Available";
-    case "accepted":
-      return "Accepted";
-    case "in_transit":
-      return "In Transit";
-    case "delivered":
-      return "Delivered";
-    case "payout_pending":
-      return "Payout Pending";
-    case "payout_completed":
-      return "Payout Completed";
-    default:
-      return status || "Unknown";
-  }
-}
-
-/* ============================================================
    OPEN DELIVERY STATUS VIEW
 ============================================================ */
 async function openDeliveryStatus(delivery) {
-  const container = document.getElementById("deliveryStatusContent");
+  const container =
+    document.getElementById("deliveryStatusContent");
 
-container.innerHTML = `
-  <h3 style="margin-bottom:1rem;">Delivery #${delivery._id}</h3>
-
-  <p><strong>Status:</strong> ${formatDeliveryStatus(delivery.status)}</p>
-  <p><strong>Pickup:</strong> ${delivery.pickup?.address || "N/A"}</p>
-  <p><strong>Dropoff:</strong> ${delivery.dropoff?.address || "N/A"}</p>
-
-  <!-- ⭐ PICKUP VERIFICATION (Step C) -->
-  <p><strong>Pickup Code:</strong> ${delivery.pickupCode || "—"}</p>
-  <p><strong>Verified:</strong> ${delivery.pickupVerified ? "Yes" : "No"}</p>
-
-<hr style="margin:1rem 0; opacity:0.3;">
-
-<h4>Proof of Delivery</h4>
-
-<p>
-  <strong>Signed By:</strong>
-  ${delivery.signedBy || "Not provided"}
-</p>
-
-<p>
-  <strong>Delivered:</strong>
-  ${
-    delivery.completedAt
-      ? new Date(delivery.completedAt).toLocaleString()
-      : "N/A"
-  }
-</p>
-
-${delivery.proofPhoto ? `
-  <div style="margin-top:1rem;">
-    <strong>Delivery Photo:</strong><br>
-    ${delivery.proofPhoto}
-  </div>
-` : ""}
-
-${delivery.signatureUrl ? `
-  <div style="margin-top:1rem;">
-    <strong>Signature:</strong><br>
-    ${delivery.signatureUrl}
-  </div>
-` : ""}
-
-
-  <div id="dsTravelerInfo" class="delivery-status-section">
-    <p><strong>Traveler:</strong> Loading...</p>
-  </div>
-
-<p><strong>Price:</strong> $${delivery.price ?? "0.00"}</p>
-
-
-  <hr style="margin:1rem 0; opacity:0.3;">
-
-  <button class="primary-btn" onclick="showSenderView('myDeliveriesView')">
-    Back to My Deliveries
-  </button>
-`;
-
-
-  showSenderView("deliveryStatusView");
-
-  const travelerSection = document.getElementById("dsTravelerInfo");
-
-  if (!delivery.travelerId) {
-    travelerSection.innerHTML = `<p><strong>Traveler:</strong> Not assigned yet</p>`;
+  if (!container) {
+    console.error(
+      "deliveryStatusContent was not found."
+    );
     return;
   }
 
-  try {
-    const tRes = await fetch(`${BASE_URL}/api/travelers/${delivery.travelerId}`);
-    const tJson = await tRes.json();
+  const travelerFirstName =
+    delivery.travelerDetails?.firstName || "";
 
-    if (tJson.success) {
-      const t = tJson.data;
+  const travelerLastName =
+    delivery.travelerDetails?.lastName || "";
 
-  travelerSection.innerHTML = `
-  <p><strong>Traveler:</strong> ${t.user.firstName} ${t.user.lastName}</p>
-  <p><strong>Rating:</strong> ⭐ ${t.rating || 5}</p>
-`;
-    } else {
-      travelerSection.innerHTML = `<p>Traveler info unavailable</p>`;
-    }
-  } catch (err) {
-    travelerSection.innerHTML = `<p>Error loading traveler info</p>`;
+  const travelerName =
+    `${travelerFirstName} ${travelerLastName}`.trim() ||
+    "Not assigned yet";
+
+  const travelerRating =
+    delivery.travelerDetails?.rating ?? "N/A";
+
+  const deliveredDate =
+    delivery.completedAt ||
+    delivery.deliveredAt;
+
+  const deliveredDisplay =
+    deliveredDate
+      ? new Date(deliveredDate).toLocaleString()
+      : "N/A";
+
+  const formattedPrice =
+    Number(delivery.price || 0).toFixed(2);
+
+  const proofPhotoHtml =
+    delivery.proofPhoto
+      ? `
+        <div style="margin-top:1rem;">
+          <strong>Delivery Photo:</strong>
+          <br>
+
+          ${delivery.proofPhoto}
+        </div>
+      `
+      : `
+        <p>Delivery photo not available.</p>
+      `;
+
+  const signatureHtml =
+    delivery.signatureUrl
+      ? `
+        <div style="margin-top:1rem;">
+          <strong>Signature:</strong>
+          <br>
+
+          ${delivery.signatureUrl}
+        </div>
+      `
+      : `
+        <p>Signature not available.</p>
+      `;
+
+  container.innerHTML = `
+    <h3 style="margin-bottom:1rem;">
+      Delivery #${delivery._id}
+    </h3>
+
+    <p>
+      <strong>Status:</strong>
+      ${formatDeliveryStatus(delivery.status)}
+    </p>
+
+    <p>
+      <strong>Pickup:</strong>
+      ${delivery.pickup?.address || "N/A"}
+    </p>
+
+    <p>
+      <strong>Dropoff:</strong>
+      ${delivery.dropoff?.address || "N/A"}
+    </p>
+
+    <p>
+      <strong>Pickup Code:</strong>
+      ${delivery.pickupCode || "-"}
+    </p>
+
+    <p>
+      <strong>Verified:</strong>
+      ${delivery.pickupVerified ? "Yes" : "No"}
+    </p>
+
+    <div class="delivery-status-section">
+      <p>
+        <strong>Traveler:</strong>
+        ${travelerName}
+      </p>
+
+      <p>
+        <strong>Rating:</strong>
+        ${
+          travelerRating === "N/A"
+            ? "N/A"
+            : `Rating ${travelerRating}`
+        }
+      </p>
+    </div>
+
+    <p>
+      <strong>Price:</strong>
+      $${formattedPrice}
+    </p>
+
+    <hr style="margin:1rem 0; opacity:0.3;">
+
+    <h4 style="margin-bottom:0.75rem;">
+      Proof of Delivery
+    </h4>
+
+    <p>
+      <strong>Signed By:</strong>
+      ${delivery.signedBy || "Not provided"}
+    </p>
+
+    <p>
+      <strong>Delivered:</strong>
+      ${deliveredDisplay}
+    </p>
+
+    ${proofPhotoHtml}
+
+    ${signatureHtml}
+
+    <hr style="margin:1rem 0; opacity:0.3;">
+
+    <button
+      type="button"
+      class="primary-btn"
+      id="backToMyDeliveriesBtn"
+    >
+      Back to My Deliveries
+    </button>
+  `;
+
+  showSenderView("deliveryStatusView");
+
+  const backButton =
+    document.getElementById(
+      "backToMyDeliveriesBtn"
+    );
+
+  if (backButton) {
+    backButton.addEventListener(
+      "click",
+      () => {
+        showSenderView(
+          "myDeliveriesView"
+        );
+      }
+    );
   }
 }
-
 /* ============================================================
-   LOGOUT — CLEAR AUTH + REDIRECT (OLD SYSTEM)
+   LOGOUT â€” CLEAR AUTH + REDIRECT (OLD SYSTEM)
    ============================================================ */
 function logout() {
   localStorage.removeItem("user");
@@ -1956,7 +2028,7 @@ function logout() {
   window.location.href = "login.html";
 }
 /* ============================================================
-   LOAD ACCOUNT & IDENTITY — FULL PROFILE POPULATION
+   LOAD ACCOUNT & IDENTITY â€” FULL PROFILE POPULATION
 ============================================================ */
 async function loadAccountAndIdentity() {
   try {
@@ -1990,13 +2062,13 @@ async function loadAccountAndIdentity() {
     // VERIFIED BADGES
     // ============================
     document.getElementById("verifiedPhone").innerText =
-      user.phone ? "✓ Verified" : "Not Verified";
+      user.phone ? "âœ“ Verified" : "Not Verified";
 
     document.getElementById("verifiedEmail").innerText =
-      user.email ? "✓ Verified" : "Not Verified";
+      user.email ? "âœ“ Verified" : "Not Verified";
 
     document.getElementById("verifiedIdentity").innerText =
-      user.kycVerified ? "✓ Verified" : "Pending";
+      user.kycVerified ? "âœ“ Verified" : "Pending";
 
     // ============================
     // PERSONAL INFORMATION FIELDS
@@ -2019,7 +2091,7 @@ async function loadAccountAndIdentity() {
 }
 
 /* ============================================================
-   SAVE ACCOUNT CHANGES — ADDRESS ONLY (IDENTITY LOCKED)
+   SAVE ACCOUNT CHANGES â€” ADDRESS ONLY (IDENTITY LOCKED)
 ============================================================ */
 async function saveSenderAccount() {
   try {
@@ -2058,11 +2130,11 @@ async function saveSenderAccount() {
   }
 }
 /* ============================================================
-   PAYOUT VIEW INITIALIZER — SENDER VERSION
+   PAYOUT VIEW INITIALIZER â€” SENDER VERSION
 ============================================================ */
 function initSenderPayoutView() {
 
-  console.log("✅ initSenderPayoutView initialized");
+  console.log("âœ… initSenderPayoutView initialized");
 
   const cardTab = document.getElementById("senderPayoutCardTab");
   const bankTab = document.getElementById("senderPayoutBankTab");
@@ -2090,16 +2162,16 @@ function initSenderPayoutView() {
 
   const saveBtn = document.getElementById("saveSenderPayoutBtn");
 
-  console.log("✅ Save Button Found:", saveBtn);
+  console.log("âœ… Save Button Found:", saveBtn);
 
   if (!saveBtn) {
-    console.error("❌ saveSenderPayoutBtn not found");
+    console.error("âŒ saveSenderPayoutBtn not found");
     return;
   }
 
   saveBtn.addEventListener("click", async () => {
     try {
-      console.log("✅ Save button clicked");
+      console.log("âœ… Save button clicked");
 
       const activeTab = document.querySelector(
         "#paymentsView .toggle-btn.active"
@@ -2187,8 +2259,8 @@ function initSenderPayoutView() {
         throw new Error("Unsupported payout method.");
       }
 
-      console.log("✅ Saving payout method:", payload);
-      console.log("✅ Sender ID:", window.senderId);
+      console.log("âœ… Saving payout method:", payload);
+      console.log("âœ… Sender ID:", window.senderId);
 
       saveBtn.disabled = true;
       saveBtn.textContent = "Saving...";
@@ -2204,12 +2276,12 @@ function initSenderPayoutView() {
         }
       );
 
-      console.log("✅ Response Status:", response.status);
-      console.log("✅ Response OK:", response.ok);
+      console.log("âœ… Response Status:", response.status);
+      console.log("âœ… Response OK:", response.ok);
 
       const responseText = await response.text();
 
-      console.log("✅ Raw Response:", responseText);
+      console.log("âœ… Raw Response:", responseText);
 
       let result = {};
 
@@ -2257,11 +2329,11 @@ function initSenderPayoutView() {
         }
       }
 
-      console.log("✅ Payout method saved:", result);
+      console.log("âœ… Payout method saved:", result);
 
       alert("Payout method saved successfully.");
     } catch (err) {
-      console.error("❌ Payout save failed:", err);
+      console.error("âŒ Payout save failed:", err);
 
       alert(err.message || "Failed to save payout method.");
     } finally {
@@ -2271,7 +2343,7 @@ function initSenderPayoutView() {
   });
 }
 /* ============================================================
-   FINAL DOM READY BOOTSTRAP — ACCOUNT DEFAULT
+   FINAL DOM READY BOOTSTRAP â€” ACCOUNT DEFAULT
 ============================================================ */
 document.addEventListener("DOMContentLoaded", () => {
   safe(initSenderIcons);

@@ -1,0 +1,2407 @@
+
+
+/* ============================================================
+   AUTH GUARD — SENDER ONLY
+   ============================================================ */
+
+const user = JSON.parse(localStorage.getItem("user"));
+
+// 1. Must be logged in
+if (!user) {
+  window.location.href = "login.html";
+}
+
+// 2. Must be a sender
+if (user.role !== "sender") {
+  window.location.href = "login.html";
+}
+
+// ⭐ CORRECT — load senderId from the actual user object
+window.senderId = user._id;
+window.senderEmail = user.email;
+
+console.log("SenderId loaded:", window.senderId);
+
+// 3. Must have senderId
+if (!window.senderId) {
+  alert("Error: Sender ID missing. Please log in again.");
+  window.location.href = "login.html";
+}
+
+/* ============================================================
+   FLEXAGO SENDER — GLOBAL STATE
+   ============================================================ */
+
+let senderDirectionsService = null;
+let senderDirectionsRenderer = null;
+let senderMap = null;
+
+// Custom markers
+let pickupMarker = null;
+let dropoffMarker = null;
+
+/* ============================================================
+   BASE URL + SOCKET
+   ============================================================ */
+
+const BASE_URL = "https://flexago-backend.onrender.com";
+const WS_URL = "wss://flexago-backend.onrender.com";
+
+const socket = io(WS_URL, {
+  path: "/socket.io",
+  transports: ["websocket"]
+});
+/* ============================================================
+   SAFE STRIPE.JS LOADER
+============================================================ */
+
+let stripeScriptPromise = null;
+
+function loadStripeScript() {
+  if (window.Stripe) {
+    return Promise.resolve(window.Stripe);
+  }
+
+  if (stripeScriptPromise) {
+    return stripeScriptPromise;
+  }
+
+  stripeScriptPromise = new Promise((resolve, reject) => {
+    const existingScript =
+      document.getElementById("flexagoStripeScript");
+
+    if (existingScript) {
+      existingScript.addEventListener("load", () => {
+        if (window.Stripe) {
+          resolve(window.Stripe);
+        } else {
+          reject(
+            new Error("Stripe.js loaded but Stripe is unavailable.")
+          );
+        }
+      });
+
+      existingScript.addEventListener("error", () => {
+        reject(new Error("Unable to load Stripe.js."));
+      });
+
+      return;
+    }
+
+    const script =
+      document.createElement("script");
+
+    script.id = "flexagoStripeScript";
+
+    script.src =
+      "https:" + "//js.stripe.com/v3/";
+
+    script.async = true;
+
+    script.onload = () => {
+      if (window.Stripe) {
+        console.log("Stripe.js loaded successfully");
+        resolve(window.Stripe);
+      } else {
+        reject(
+          new Error("Stripe.js loaded but Stripe is unavailable.")
+        );
+      }
+    };
+
+    script.onerror = () => {
+      reject(new Error("Unable to load Stripe.js."));
+    };
+
+    document.head.appendChild(script);
+  });
+
+  return stripeScriptPromise;
+}
+/* ============================================================
+   SENDER STRIPE PAYMENT ELEMENT
+============================================================ */
+
+let senderStripe = null;
+let senderStripeElements = null;
+let senderCardElement = null;
+let senderCardMounted = false;
+
+async function initializeSenderStripePayment() {
+  if (senderCardMounted) {
+    return;
+  }
+
+  const cardContainer =
+    document.getElementById("card-element");
+
+  if (!cardContainer) {
+    throw new Error(
+      "Stripe card container was not found."
+    );
+  }
+
+  await loadStripeScript();
+
+  if (!window.Stripe) {
+    throw new Error(
+      "Stripe.js is unavailable."
+    );
+  }
+
+  senderStripe = window.Stripe(
+    "pk_test_51TtZ6fJgbApUnpicUnhLPQwXPT8hRJK5BFix4gLJUcpmlHzfqK6HIWBzW3i5qbORh6c7nGqpAhTME6a3eej5rf7E00szc8T2WX"
+  );
+
+  senderStripeElements =
+    senderStripe.elements();
+
+  senderCardElement =
+    senderStripeElements.create(
+      "card",
+      {
+        style: {
+          base: {
+            color: "#111827",
+            fontFamily: "Arial, sans-serif",
+            fontSize: "16px",
+
+            "::placeholder": {
+              color: "#6b7280"
+            }
+          },
+
+          invalid: {
+            color: "#dc2626"
+          }
+        }
+      }
+    );
+
+  senderCardElement.mount(
+    "#card-element"
+  );
+
+  senderCardElement.on(
+    "change",
+    event => {
+      const errorDisplay =
+        document.getElementById(
+          "card-errors"
+        );
+
+      if (!errorDisplay) {
+        return;
+      }
+
+      errorDisplay.textContent =
+        event.error
+          ? event.error.message
+          : "";
+    }
+  );
+
+  senderCardMounted = true;
+
+  console.log(
+    "Stripe Card Element mounted successfully"
+  );
+}
+/* ============================================================
+   WAIT FOR DELIVERY PAYMENT CONFIRMATION
+============================================================ */
+
+async function waitForDeliveryPaymentConfirmation(
+  deliveryId,
+  options = {}
+) {
+  const maxAttempts =
+    Number(options.maxAttempts) || 20;
+
+  const delayMs =
+    Number(options.delayMs) || 1500;
+
+  for (
+    let attempt = 1;
+    attempt <= maxAttempts;
+    attempt += 1
+  ) {
+    const response = await fetch(
+      `${BASE_URL}/api/payments/delivery/${deliveryId}/status`
+    );
+
+    const responseText =
+      await response.text();
+
+    let result = {};
+
+    if (responseText) {
+      try {
+        result =
+          JSON.parse(responseText);
+      } catch (parseError) {
+        throw new Error(
+          `Payment status returned an invalid response. Status: ${response.status}`
+        );
+      }
+    }
+
+    if (!response.ok) {
+      throw new Error(
+        result.error ||
+        `Unable to verify payment. Status: ${response.status}`
+      );
+    }
+
+    console.log(
+      `Payment status check ${attempt}:`,
+      result
+    );
+
+    if (
+      result.paymentStatus === "paid" &&
+      result.deliveryStatus === "available"
+    ) {
+      return result;
+    }
+
+    if (
+      result.paymentStatus === "failed" ||
+      result.deliveryStatus === "payment_failed"
+    ) {
+      throw new Error(
+        "The delivery payment failed."
+      );
+    }
+
+    await new Promise(resolve => {
+      setTimeout(resolve, delayMs);
+    });
+  }
+
+  throw new Error(
+    "Payment was submitted, but confirmation is taking longer than expected. Please check the delivery status before trying again."
+  );
+}
+/* ============================================================
+   SENDER PAYMENT CONFIRMATION
+============================================================ */
+
+function initSenderPaymentConfirmation() {
+  const confirmPaymentBtn =
+    document.getElementById("confirmPaymentBtn");
+
+  if (!confirmPaymentBtn) {
+    console.error("confirmPaymentBtn not found");
+    return;
+  }
+
+  if (
+    confirmPaymentBtn.dataset.paymentBound === "true"
+  ) {
+    return;
+  }
+
+  confirmPaymentBtn.dataset.paymentBound = "true";
+
+  confirmPaymentBtn.addEventListener(
+    "click",
+    async () => {
+      const originalButtonText =
+        confirmPaymentBtn.textContent;
+
+      const cardErrors =
+        document.getElementById("card-errors");
+
+      try {
+        if (cardErrors) {
+          cardErrors.textContent = "";
+        }
+
+        if (!window.activeDeliveryId) {
+          throw new Error(
+            "Delivery ID is missing. Please create the delivery again."
+          );
+        }
+
+        if (!window.senderId) {
+          throw new Error(
+            "Sender ID is missing. Please log in again."
+          );
+        }
+
+        if (
+          !senderStripe ||
+          !senderCardElement ||
+          !senderCardMounted
+        ) {
+          await initializeSenderStripePayment();
+        }
+
+        if (
+          !senderStripe ||
+          !senderCardElement
+        ) {
+          throw new Error(
+            "The secure payment form is unavailable."
+          );
+        }
+
+        confirmPaymentBtn.disabled = true;
+        confirmPaymentBtn.textContent =
+          "Preparing payment...";
+
+        const paymentResponse =
+          await fetch(
+            `${BASE_URL}/api/payments/create-delivery-payment`,
+            {
+              method: "POST",
+
+              headers: {
+                "Content-Type": "application/json"
+              },
+
+              body: JSON.stringify({
+                deliveryId:
+                  window.activeDeliveryId,
+
+                senderId:
+                  window.senderId
+              })
+            }
+          );
+
+        const paymentResponseText =
+          await paymentResponse.text();
+
+        let paymentResult = {};
+
+        if (paymentResponseText) {
+          try {
+            paymentResult =
+              JSON.parse(paymentResponseText);
+          } catch (parseError) {
+            throw new Error(
+              `Payment endpoint returned an invalid response. Status: ${paymentResponse.status}`
+            );
+          }
+        }
+
+        console.log(
+          "Create delivery payment response:",
+          paymentResult
+        );
+
+        if (
+          !paymentResponse.ok ||
+          !paymentResult.success
+        ) {
+          throw new Error(
+            paymentResult.error ||
+            `Unable to prepare payment. Status: ${paymentResponse.status}`
+          );
+        }
+
+        if (!paymentResult.clientSecret) {
+          throw new Error(
+            "The backend did not return a PaymentIntent client secret."
+          );
+        }
+
+        if (
+          paymentResult.paymentStatus === "succeeded"
+        ) {
+          confirmPaymentBtn.textContent =
+            "Verifying payment...";
+        } else {
+          confirmPaymentBtn.textContent =
+            "Processing payment...";
+
+          const senderName =
+            document
+              .getElementById("senderName")
+              ?.value.trim() || "";
+
+          const senderEmail =
+            document
+              .getElementById("senderEmail")
+              ?.value.trim() || "";
+
+          const confirmationResult =
+            await senderStripe.confirmCardPayment(
+              paymentResult.clientSecret,
+              {
+                payment_method: {
+                  card: senderCardElement,
+
+                  billing_details: {
+                    name:
+                      senderName ||
+                      undefined,
+
+                    email:
+                      senderEmail ||
+                      undefined
+                  }
+                }
+              }
+            );
+
+          if (confirmationResult.error) {
+            throw new Error(
+              confirmationResult.error.message ||
+              "Stripe could not confirm the payment."
+            );
+          }
+
+          const paymentIntent =
+            confirmationResult.paymentIntent;
+
+          if (!paymentIntent) {
+            throw new Error(
+              "Stripe did not return a PaymentIntent."
+            );
+          }
+
+          console.log(
+            "Stripe payment confirmation:",
+            paymentIntent
+          );
+
+          if (
+            paymentIntent.status !== "succeeded" &&
+            paymentIntent.status !== "processing"
+          ) {
+            throw new Error(
+              `Payment requires additional processing. Stripe status: ${paymentIntent.status}`
+            );
+          }
+
+          confirmPaymentBtn.textContent =
+            "Verifying payment...";
+        }
+
+        const fundedDelivery =
+          await waitForDeliveryPaymentConfirmation(
+            window.activeDeliveryId
+          );
+
+        console.log(
+          "Delivery payment funded:",
+          fundedDelivery
+        );
+
+        const paymentSection =
+          document.getElementById(
+            "paymentSection"
+          );
+
+        const createView =
+          document.getElementById(
+            "createView"
+          );
+
+        const waitingSection =
+          document.getElementById(
+            "waiting-section"
+          );
+
+        if (paymentSection) {
+          paymentSection.classList.add(
+            "hidden"
+          );
+        }
+
+        if (createView) {
+          createView.classList.add(
+            "hidden"
+          );
+        }
+
+        if (waitingSection) {
+          waitingSection.style.display =
+            "block";
+        }
+
+        if (
+          typeof subscribeToDeliveryUpdates ===
+          "function"
+        ) {
+          subscribeToDeliveryUpdates(
+            window.activeDeliveryId
+          );
+        }
+
+        confirmPaymentBtn.textContent =
+          "Payment Complete";
+
+        alert(
+          "Payment confirmed. Your delivery is now published and available to travelers."
+        );
+      } catch (error) {
+        console.error(
+          "Pay and Publish failed:",
+          error
+        );
+
+        if (cardErrors) {
+          cardErrors.textContent =
+            error.message ||
+            "Unable to complete payment.";
+        }
+
+        alert(
+          error.message ||
+          "Unable to complete payment."
+        );
+
+        confirmPaymentBtn.disabled = false;
+        confirmPaymentBtn.textContent =
+          originalButtonText;
+      }
+    }
+  );
+}
+/* ============================================================
+   SAFE WRAPPER
+   ============================================================ */
+function safe(fn) {
+  try {
+    fn();
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+/* ============================================================
+   SIDEBAR SWITCHING (UPDATED FOR NEW VIEWS)
+============================================================ */
+function initSenderSidebar() {
+  const items = document.querySelectorAll(".sidebar-item");
+
+  items.forEach(btn => {
+    btn.addEventListener("click", () => {
+      // highlight active
+      items.forEach(i => i.classList.remove("active"));
+      btn.classList.add("active");
+
+      const view = btn.getAttribute("data-view");
+
+      switch (view) {
+        case "account":
+          showSenderView("accountView");
+          break;
+
+        case "create":
+          showSenderView("createView");
+          break;
+
+        case "myDeliveries":
+          hideAllPanels();
+          document.getElementById("myDeliveriesView").classList.remove("hidden");
+          loadSenderDeliveries();
+          break;
+
+        case "deliveryStatus":
+          showSenderView("deliveryStatusView");
+          break;
+
+        case "payments":
+          showSenderView("paymentsView");
+          break;
+
+        case "verification":
+          showSenderView("verificationView");
+          break;
+
+        case "support":
+          showSenderView("supportView");
+          break;
+
+        default:
+          console.warn("Unknown view:", view);
+      }
+
+      window.scrollTo(0, 0);
+    });
+  });
+}
+/* ============================================================
+   SHOW VIEW (SECTION-BASED)
+   ============================================================ */
+function showSenderView(viewId) {
+  // hide all views
+  const views = document.querySelectorAll("section[id$='View']");
+  views.forEach(v => v.classList.add("hidden"));
+
+  // show selected view
+  const target = document.getElementById(viewId);
+  if (target) target.classList.remove("hidden");
+
+  // re-init icons
+  safe(initSenderIcons);
+
+  // re-init map AFTER createView becomes visible
+  if (viewId === "createView") {
+    setTimeout(() => {
+      safe(initSenderMap);
+    }, 150);
+  }
+}
+/* ============================================================
+   HIDE ALL SENDER PANELS
+============================================================ */
+function hideAllPanels() {
+  const panels = document.querySelectorAll('section[id$="View"]');
+  panels.forEach(p => p.classList.add("hidden"));
+}
+
+/* ============================================================
+   ICON REFRESH
+   ============================================================ */
+function initSenderIcons() {
+  if (window.lucide) {
+    lucide.createIcons();
+  }
+}
+
+/* ============================================================
+   OPTIONAL: LOAD SENDER IDENTITY
+   ============================================================ */
+async function loadSenderIdentity() {
+  try {
+    if (!window.userId) return;
+
+    const res = await fetch(`${BASE_URL}/api/sender/user/${window.userId}`);
+    if (!res.ok) return;
+
+    const sender = await res.json();
+    window.senderId = sender._id;
+  } catch (err) {
+    console.error("Error loading sender identity:", err);
+  }
+}
+
+/* ============================================================
+   CREATE DELIVERY INITIALIZER
+   ============================================================ */
+function initSenderCreateForm() {
+  // Initialize map AFTER view is visible
+  safe(initSenderMap);
+}
+
+/* ============================================================
+   MAP + ROUTE
+   ============================================================ */
+function initSenderMap() {
+  const mapElement = document.getElementById("mapContainer");
+  if (!mapElement || !window.google || !google.maps) return;
+
+  // Prevent multiple map instances
+  if (!senderMap) {
+    senderMap = new google.maps.Map(mapElement, {
+      center: { lat: 30.2672, lng: -97.7431 },
+      zoom: 8,
+      disableDefaultUI: true
+    });
+
+    senderDirectionsService = new google.maps.DirectionsService();
+    senderDirectionsRenderer = new google.maps.DirectionsRenderer({
+      map: senderMap,
+      suppressMarkers: false
+    });
+
+    initSenderAutocomplete(senderMap);
+  }
+}
+
+function drawSenderRoute() {
+  const pickupLat = parseFloat(document.getElementById("pickup-lat").value);
+  const pickupLng = parseFloat(document.getElementById("pickup-lng").value);
+  const dropLat = parseFloat(document.getElementById("dropoff-lat").value);
+  const dropLng = parseFloat(document.getElementById("dropoff-lng").value);
+
+  if (
+    !Number.isFinite(pickupLat) ||
+    !Number.isFinite(pickupLng) ||
+    !Number.isFinite(dropLat) ||
+    !Number.isFinite(dropLng)
+  ) return;
+
+  if (!senderDirectionsService || !senderDirectionsRenderer || !window.google || !google.maps) return;
+
+  const request = {
+    origin: { lat: pickupLat, lng: pickupLng },
+    destination: { lat: dropLat, lng: dropLng },
+    travelMode: google.maps.TravelMode.DRIVING
+  };
+
+  senderDirectionsService.route(request, (result, status) => {
+    if (status === "OK" && result.routes && result.routes[0] && result.routes[0].legs[0]) {
+      senderDirectionsRenderer.setDirections(result);
+
+      const distanceMeters = result.routes[0].legs[0].distance.value;
+      const distanceMiles = distanceMeters / 1609.34;
+
+      updateEstimateUI(distanceMiles);
+    }
+  });
+}
+
+/* ============================================================
+   AUTOCOMPLETE
+   ============================================================ */
+function initSenderAutocomplete(map) {
+  const pickupInput = document.getElementById("pickupInput");
+  const dropoffInput = document.getElementById("dropoffInput");
+
+  const pickupDropdown = document.getElementById("senderPickupAutocomplete");
+  const dropoffDropdown = document.getElementById("senderDropoffAutocomplete");
+
+  if (!pickupInput || !dropoffInput || !pickupDropdown || !dropoffDropdown) return;
+  if (!window.google || !google.maps || !google.maps.places) return;
+
+  const service = new google.maps.places.AutocompleteService();
+  const geocoder = new google.maps.Geocoder();
+
+  function attachAutocomplete(input, dropdown, latField, lngField, isPickup) {
+    input.addEventListener("input", () => {
+      const query = input.value.trim();
+      if (query.length < 3) {
+        dropdown.classList.add("hidden");
+        dropdown.innerHTML = "";
+        return;
+      }
+
+      service.getPlacePredictions(
+        { input: query, types: ["address"] },
+        (predictions, status) => {
+          if (status !== google.maps.places.PlacesServiceStatus.OK || !predictions) {
+            dropdown.classList.add("hidden");
+            dropdown.innerHTML = "";
+            return;
+          }
+
+          dropdown.innerHTML = "";
+          dropdown.classList.remove("hidden");
+
+          predictions.forEach(pred => {
+            const item = document.createElement("div");
+            item.className = "autocomplete-item";
+            item.textContent = pred.description;
+
+            item.addEventListener("click", () => {
+              input.value = pred.description;
+              dropdown.classList.add("hidden");
+              dropdown.innerHTML = "";
+
+              geocoder.geocode({ placeId: pred.place_id }, (results, status) => {
+                if (status === "OK" && results[0]) {
+                  const loc = results[0].geometry.location;
+
+                  const lat = loc.lat();
+                  const lng = loc.lng();
+
+                  document.getElementById(latField).value = lat;
+                  document.getElementById(lngField).value = lng;
+
+                  if (isPickup) {
+                    window.pickupData = { address: input.value, lat, lng };
+                  } else {
+                    window.dropoffData = { address: input.value, lat, lng };
+                  }
+
+                  map.setCenter(loc);
+                  map.setZoom(13);
+
+                  // Custom markers: Pickup = red P, Dropoff = blue D
+                  if (isPickup) {
+                    if (pickupMarker) pickupMarker.setMap(null);
+                    pickupMarker = new google.maps.Marker({
+                      position: loc,
+                      map,
+                      label: {
+                        text: "P",
+                        color: "white",
+                        fontWeight: "bold"
+                      },
+                      icon: {
+                        path: google.maps.SymbolPath.CIRCLE,
+                        scale: 10,
+                        fillColor: "#ef4444", // red
+                        fillOpacity: 1,
+                        strokeWeight: 2,
+                        strokeColor: "white"
+                      }
+                    });
+                  } else {
+                    if (dropoffMarker) dropoffMarker.setMap(null);
+                    dropoffMarker = new google.maps.Marker({
+                      position: loc,
+                      map,
+                      label: {
+                        text: "D",
+                        color: "white",
+                        fontWeight: "bold"
+                      },
+                      icon: {
+                        path: google.maps.SymbolPath.CIRCLE,
+                        scale: 10,
+                        fillColor: "#3b82f6", // blue
+                        fillOpacity: 1,
+                        strokeWeight: 2,
+                        strokeColor: "white"
+                      }
+                    });
+                  }
+
+                  drawSenderRoute();
+                }
+              });
+            });
+
+            dropdown.appendChild(item);
+          });
+        }
+      );
+    });
+  }
+
+  attachAutocomplete(pickupInput, pickupDropdown, "pickup-lat", "pickup-lng", true);
+  attachAutocomplete(dropoffInput, dropoffDropdown, "dropoff-lat", "dropoff-lng", false);
+}
+// ============================================================
+// FLEXAGO PRICING ENGINE
+//
+// Total =
+// distance
+// + declared value
+// + weight
+// + size
+// + package type
+// + insurance
+// ============================================================
+
+function calculateEstimatedCost({
+  deliveryType,
+  distanceMiles,
+  weight,
+  declaredValue,
+  packageType,
+  size,
+  insuranceType
+}) {
+  const safeDistance =
+    Number.isFinite(Number(distanceMiles))
+      ? Math.max(0, Number(distanceMiles))
+      : 0;
+
+  const safeWeight =
+    Number.isFinite(Number(weight))
+      ? Math.max(0, Number(weight))
+      : 0;
+
+  const safeDeclaredValue =
+    Number.isFinite(Number(declaredValue))
+      ? Math.max(0, Number(declaredValue))
+      : 0;
+
+  /* ==========================================================
+     1. DISTANCE PRICE
+  ========================================================== */
+
+  let distanceFee = 0;
+
+  if (deliveryType === "local") {
+    distanceFee =
+      safeDistance * 0.75;
+  }
+
+  if (deliveryType === "nationwide") {
+    distanceFee =
+      50 + safeDistance * 0.50;
+  }
+
+  if (deliveryType === "international") {
+    distanceFee =
+      200 + safeDistance * 0.25;
+  }
+
+  /* ==========================================================
+     2. DECLARED VALUE FEE
+
+     1% of declared value
+     Maximum $20
+  ========================================================== */
+
+  const declaredValueFee =
+    Math.min(
+      safeDeclaredValue * 0.01,
+      20
+    );
+
+  /* ==========================================================
+     3. WEIGHT FEE
+  ========================================================== */
+
+  let weightFee = 0;
+
+  if (
+    safeWeight > 10 &&
+    safeWeight <= 25
+  ) {
+    weightFee = 2;
+  } else if (
+    safeWeight > 25 &&
+    safeWeight <= 50
+  ) {
+    weightFee = 5;
+  } else if (
+    safeWeight > 50
+  ) {
+    weightFee = 10;
+  }
+
+  /* ==========================================================
+     4. SIZE FEE
+  ========================================================== */
+
+  const sizeFees = {
+    small: 0,
+    medium: 2,
+    large: 5
+  };
+
+  const sizeFee =
+    sizeFees[size] ?? 0;
+
+  /* ==========================================================
+     5. PACKAGE TYPE FEE
+  ========================================================== */
+
+  const packageTypeFees = {
+    envelope: 0,
+    documents: 0,
+    small_box: 1,
+    medium_box: 2,
+    large_box: 4,
+    bag: 2,
+    fragile: 5,
+    electronics: 5,
+    other: 2
+  };
+
+  const packageTypeFee =
+    packageTypeFees[packageType] ?? 0;
+
+  /* ==========================================================
+     6. INSURANCE FEE
+
+     This is added last.
+  ========================================================== */
+
+  let insuranceFee = 0;
+
+  if (insuranceType === "basic") {
+    insuranceFee =
+      Math.min(
+        Math.max(
+          safeDeclaredValue * 0.03,
+          2
+        ),
+        10
+      );
+  }
+
+  if (insuranceType === "premium") {
+    insuranceFee =
+      Math.min(
+        Math.max(
+          safeDeclaredValue * 0.05,
+          5
+        ),
+        50
+      );
+  }
+
+  /* ==========================================================
+     FINAL TOTAL
+  ========================================================== */
+
+  const total =
+    distanceFee +
+    declaredValueFee +
+    weightFee +
+    sizeFee +
+    packageTypeFee +
+    insuranceFee;
+
+  return {
+    distanceFee,
+    declaredValueFee,
+    weightFee,
+    sizeFee,
+    packageTypeFee,
+    insuranceFee,
+    total:
+      Math.round(total * 100) / 100
+  };
+}
+
+// ============================================================
+// UPDATE ESTIMATE UI
+// ============================================================
+
+function updateEstimateUI(
+  newDistanceMiles = null
+) {
+  const deliveryTypeEl =
+    document.getElementById(
+      "deliveryType"
+    );
+
+  const insuranceEl =
+    document.getElementById(
+      "insuranceType"
+    );
+
+  const weightEl =
+    document.getElementById(
+      "weightInput"
+    );
+
+  const valueEl =
+    document.getElementById(
+      "valueInput"
+    );
+
+  const packageTypeEl =
+    document.getElementById(
+      "packageType"
+    );
+
+  const estimateEl =
+    document.getElementById(
+      "estimateValue"
+    );
+
+  if (
+    !deliveryTypeEl ||
+    !insuranceEl ||
+    !weightEl ||
+    !valueEl ||
+    !packageTypeEl ||
+    !estimateEl
+  ) {
+    console.warn(
+      "Pricing fields are missing."
+    );
+
+    return;
+  }
+
+  /*
+   * Only replace cached mileage when a valid
+   * distance is explicitly provided.
+   */
+  if (
+    newDistanceMiles !== null &&
+    newDistanceMiles !== undefined &&
+    Number.isFinite(
+      Number(newDistanceMiles)
+    )
+  ) {
+    window.currentDistanceMiles =
+      Math.max(
+        0,
+        Number(newDistanceMiles)
+      );
+  }
+
+  const distanceMiles =
+    Number(
+      window.currentDistanceMiles
+    ) || 0;
+
+  const pricing =
+    calculateEstimatedCost({
+      deliveryType:
+        deliveryTypeEl.value,
+
+      distanceMiles,
+
+      weight:
+        parseFloat(
+          weightEl.value
+        ) || 0,
+
+      declaredValue:
+        parseFloat(
+          valueEl.value
+        ) || 0,
+
+      packageType:
+        packageTypeEl.value,
+
+      size:
+        window.selectedSize ||
+        "small",
+
+      insuranceType:
+        insuranceEl.value
+    });
+
+  estimateEl.textContent =
+    `$${pricing.total.toFixed(2)}`;
+
+  window.currentPrice =
+    pricing.total;
+
+  window.currentPriceBreakdown =
+    pricing;
+
+  console.log(
+    "Flexago price breakdown:",
+    pricing
+  );
+}
+
+// ============================================================
+// INSURANCE HELPER
+// ============================================================
+
+function getInsuranceBoolean() {
+  const insuranceEl =
+    document.getElementById(
+      "insuranceType"
+    );
+
+  if (!insuranceEl) {
+    return false;
+  }
+
+  return (
+    insuranceEl.value === "basic" ||
+    insuranceEl.value === "premium"
+  );
+}
+
+// ============================================================
+// STANDARD INPUT LISTENERS
+// ============================================================
+
+[
+  "deliveryType",
+  "insuranceType",
+  "weightInput",
+  "valueInput",
+  "packageType"
+].forEach(id => {
+  const element =
+    document.getElementById(id);
+
+  if (!element) {
+    return;
+  }
+
+  const recalculatePrice = () => {
+    /*
+     * Do not pass 0 here.
+     * Reuse the existing cached mileage.
+     */
+    updateEstimateUI();
+  };
+
+  element.addEventListener(
+    "change",
+    recalculatePrice
+  );
+
+  element.addEventListener(
+    "input",
+    recalculatePrice
+  );
+});
+/* ======================== SIZE SELECTOR ======================== */
+
+window.selectedSize = "small";
+
+document
+  .querySelectorAll("#sizePills .pill")
+  .forEach(btn => {
+
+    btn.addEventListener("click", () => {
+
+      document
+        .querySelectorAll("#sizePills .pill")
+        .forEach(pill =>
+          pill.classList.remove("active")
+        );
+
+      btn.classList.add("active");
+
+      window.selectedSize =
+        btn.dataset.value;
+
+      console.log(
+        "Selected Size:",
+        window.selectedSize
+      );
+
+      updateEstimateUI();
+    });
+
+  });
+
+window.getSelectedSize = () => {
+  return window.selectedSize;
+};
+
+/* ============================================================
+   PHOTO UPLOAD
+   ============================================================ */
+function initSenderPhotoUpload() {
+  const photoInput = document.getElementById("photoInput");
+  const photoUploadBtn = document.getElementById("photoUploadBtn");
+  const photoPreview = document.getElementById("photoPreview");
+
+  if (!photoInput || !photoUploadBtn || !photoPreview) return;
+
+  photoUploadBtn.addEventListener("click", () => photoInput.click());
+
+  photoInput.addEventListener("change", () => {
+    const file = photoInput.files[0];
+    if (file) {
+      const reader = new FileReader();   // ⭐ REQUIRED
+
+      reader.onload = e => {
+        const base64 = e.target.result;
+
+        // ⭐ Store globally so generateDelivery can access it
+        window.uploadedPhotoBase64 = base64;
+
+        // ⭐ Update preview
+        photoPreview.src = base64;
+        photoPreview.style.display = "block";
+      };
+
+      reader.readAsDataURL(file);
+    }
+  });
+}
+
+function initSenderAccountView() {
+  const uploadBtn = document.getElementById("senderProfilePhotoUploadBtn");
+  const fileInput = document.getElementById("senderProfilePhotoInput");
+  const preview = document.getElementById("senderProfilePhotoPreview");
+
+  if (!uploadBtn || !fileInput || !preview) {
+    console.warn("AccountView elements missing");
+    return;
+  }
+
+  uploadBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    fileInput.click();
+  });
+
+  fileInput.addEventListener("change", () => {
+    const file = fileInput.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      preview.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+/* ============================================================
+   GENERATE DELIVERY
+============================================================ */
+
+function initSenderGenerateDelivery() {
+  const btn = document.getElementById("generate-matches-btn");
+
+  if (!btn) {
+    return;
+  }
+
+  if (!window.senderId) {
+    window.senderId =
+      window.user?._id ||
+      window.user?.id;
+
+    console.log(
+      "SenderId initialized:",
+      window.senderId
+    );
+  }
+
+  btn.addEventListener("click", async () => {
+    console.log("Generate button clicked");
+
+    const pickupLat = Number(
+      document.getElementById("pickup-lat")?.value
+    );
+
+    const pickupLng = Number(
+      document.getElementById("pickup-lng")?.value
+    );
+
+    const dropoffLat = Number(
+      document.getElementById("dropoff-lat")?.value
+    );
+
+    const dropoffLng = Number(
+      document.getElementById("dropoff-lng")?.value
+    );
+
+    if (!window.pickupData) {
+      window.pickupData = {
+        address:
+          document.getElementById("pickupInput")?.value.trim() || "",
+
+        lat: pickupLat,
+        lng: pickupLng
+      };
+    }
+
+    if (!window.dropoffData) {
+      window.dropoffData = {
+        address:
+          document.getElementById("dropoffInput")?.value.trim() || "",
+
+        lat: dropoffLat,
+        lng: dropoffLng
+      };
+    }
+
+    const pickup = window.pickupData;
+    const dropoff = window.dropoffData;
+
+    if (
+      !Number.isFinite(pickup?.lat) ||
+      !Number.isFinite(pickup?.lng) ||
+      !Number.isFinite(dropoff?.lat) ||
+      !Number.isFinite(dropoff?.lng)
+    ) {
+      alert(
+        "Pickup and dropoff must have valid coordinates."
+      );
+
+      return;
+    }
+
+    const weight =
+      document.getElementById("weightInput")?.value;
+
+    const deliveryType =
+      document.getElementById("deliveryType")?.value;
+
+    const packageType =
+      document.getElementById("packageType")?.value;
+
+    const insurance =
+      getInsuranceBoolean();
+
+    const senderName =
+      document.getElementById("senderName")?.value.trim();
+
+    const senderPhone =
+      document.getElementById("senderPhone")?.value.trim();
+
+    const senderEmail =
+      document.getElementById("senderEmail")?.value.trim();
+
+    const receiverName =
+      document.getElementById("receiverName")?.value.trim();
+
+    const receiverPhone =
+      document.getElementById("receiverPhone")?.value.trim();
+
+    const receiverEmail =
+      document.getElementById("receiverEmail")?.value.trim();
+
+    const receiverAddress =
+      document.getElementById("receiverAddress")?.value.trim();
+
+    const receiverInstructions =
+      document.getElementById("receiverInstructions")?.value.trim();
+
+    const notes =
+      document.getElementById("notesInput")?.value.trim();
+
+    if (
+      !senderName ||
+      !senderPhone ||
+      !senderEmail
+    ) {
+      alert("Please complete all sender fields.");
+      return;
+    }
+
+    if (
+      !receiverName ||
+      !receiverPhone ||
+      !receiverEmail ||
+      !receiverAddress
+    ) {
+      alert("Please complete all receiver fields.");
+      return;
+    }
+
+    if (!weight) {
+      alert("Please enter package weight.");
+      return;
+    }
+
+    if (!window.senderId) {
+      alert(
+        "Sender ID is missing. Please log in again."
+      );
+
+      return;
+    }
+
+    const estimatedPrice =
+      Number(window.currentPrice);
+
+    if (
+      !Number.isFinite(estimatedPrice) ||
+      estimatedPrice <= 0
+    ) {
+      alert(
+        "Please calculate a valid delivery price before continuing."
+      );
+
+      return;
+    }
+
+    const photoUrl =
+      window.uploadedPhotoBase64 || "";
+
+    const deliveryData = {
+      senderId: window.senderId,
+
+      sender: {
+        name: senderName,
+        phone: senderPhone,
+        email: senderEmail
+      },
+
+      pickup: {
+        address: pickup.address,
+
+        location: {
+          type: "Point",
+          coordinates: [
+            Number(pickup.lng),
+            Number(pickup.lat)
+          ]
+        }
+      },
+
+      dropoff: {
+        address: dropoff.address,
+
+        location: {
+          type: "Point",
+          coordinates: [
+            Number(dropoff.lng),
+            Number(dropoff.lat)
+          ]
+        },
+
+        instructions:
+          receiverInstructions || ""
+      },
+
+      package: {
+        type: packageType,
+        weight: Number(weight),
+        size: window.getSelectedSize(),
+        description:
+          document.getElementById("itemDescription")?.value.trim() || "",
+
+        declaredValue:
+          Number(
+            document.getElementById("valueInput")?.value
+          ) || 0,
+
+        photoUrl,
+        insurance,
+        deliveryType
+      },
+
+      receiver: {
+        name: receiverName,
+        phone: receiverPhone,
+        email: receiverEmail,
+        address: receiverAddress,
+        instructions:
+          receiverInstructions || ""
+      },
+
+      notes: notes || "",
+      price: estimatedPrice
+    };
+
+    console.log(
+      "FINAL DELIVERY PAYLOAD:",
+      deliveryData
+    );
+
+    btn.disabled = true;
+    btn.textContent = "Creating delivery...";
+
+    try {
+      const response = await fetch(
+        `${BASE_URL}/api/deliveries`,
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type": "application/json"
+          },
+
+          body: JSON.stringify(deliveryData)
+        }
+      );
+
+      const responseText =
+        await response.text();
+
+      let result = {};
+
+      if (responseText) {
+        result = JSON.parse(responseText);
+      }
+
+      console.log(
+        "Delivery creation response:",
+        result
+      );
+
+      if (!response.ok || !result.success) {
+        throw new Error(
+          result.error ||
+          `Delivery creation failed with status ${response.status}`
+        );
+      }
+
+      window.activeDeliveryId =
+        result.data._id;
+
+      window.pendingDelivery =
+        result.data;
+
+      const paymentSection =
+        document.getElementById("paymentSection");
+
+      const paymentAmountDisplay =
+        document.getElementById(
+          "paymentAmountDisplay"
+        );
+
+      if (paymentAmountDisplay) {
+        paymentAmountDisplay.textContent =
+          `$${estimatedPrice.toFixed(2)}`;
+      }
+
+if (paymentSection) {
+  paymentSection.classList.remove("hidden");
+
+  paymentSection.scrollIntoView({
+    behavior: "smooth",
+    block: "start"
+  });
+
+  try {
+    await initializeSenderStripePayment();
+  } catch (stripeError) {
+    console.error(
+      "Stripe initialization failed:",
+      stripeError
+    );
+
+    alert(
+      stripeError.message ||
+      "Unable to load secure payment form."
+    );
+
+    return;
+  }
+}
+
+      alert(
+        "Delivery created successfully. Please complete payment to publish the delivery."
+      );
+    } catch (error) {
+      console.error(
+        "Error generating delivery:",
+        error
+      );
+
+      alert(
+        error.message ||
+        "Failed to create delivery."
+      );
+    } finally {
+      btn.disabled = false;
+      btn.textContent =
+        "Generate traveler matches";
+
+      if (window.lucide) {
+        window.lucide.createIcons();
+      }
+    }
+  });
+}
+/* ============================================================
+   LOAD SENDER DELIVERIES (FINAL — matches your backend)
+============================================================ */
+async function loadSenderDeliveries() {
+  try {
+    const res = await fetch(`${BASE_URL}/api/deliveries`);
+    const json = await res.json();
+
+    if (!json.success) {
+      console.error("Failed to load deliveries:", json.error);
+      return;
+    }
+
+    const all = json.data;
+
+    // Filter deliveries belonging to this sender
+    const mine = all.filter(d => d.senderId === window.senderId);
+
+    // ⭐ Your backend stores traveler under "traveler", NOT "travelerId"
+    for (let d of mine) {
+      if (d.traveler) {
+        // traveler is already a string ID — but backend does NOT expose traveler API
+        // so we cannot fetch traveler profile here
+        // Instead, we attach the raw traveler ID
+        d.travelerDetails = { id: d.traveler };
+      }
+    }
+
+    renderMyDeliveries(mine);
+  } catch (err) {
+    console.error("Error loading sender deliveries:", err);
+  }
+}
+/* ============================================================
+ Delivery Status
+============================================================ */
+function formatDeliveryStatus(status) {
+  switch (status) {
+    case "created":
+      return "Created";
+
+    case "available":
+      return "Available";
+
+    case "accepted":
+      return "Accepted";
+
+    case "in_transit":
+      return "In Transit";
+
+    case "delivered":
+    case "payout_pending":
+    case "payout_completed":
+      return "Delivered";
+
+    default:
+      return status || "Unknown";
+  }
+}
+/* ============================================================
+   RENDER DELIVERY LIST (with traveler details)
+============================================================ */
+function renderMyDeliveries(list) {
+
+  const container =
+    document.getElementById(
+      "myDeliveriesList"
+    );
+
+  container.innerHTML = "";
+
+  if (!list || list.length === 0) {
+    container.innerHTML =
+      `<p class="empty-text">No deliveries found.</p>`;
+    return;
+  }
+
+  list.forEach(d => {
+
+    const div =
+      document.createElement("div");
+
+    div.className =
+      "delivery-card";
+
+    let html = `
+
+      <div class="delivery-row">
+        <span><strong>Item Description:</strong></span>
+        <span>${d.package?.description || "Package"}</span>
+      </div>
+
+      <div class="delivery-row">
+        <span><strong>Status:</strong></span>
+        <span class="delivery-status status-${d.status}">
+          ${formatDeliveryStatus(d.status)}
+        </span>
+      </div>
+
+      <div class="delivery-row">
+        <span>Pickup:</span>
+        <span>${d.pickup?.address || "N/A"}</span>
+      </div>
+
+      <div class="delivery-row">
+        <span>Dropoff:</span>
+        <span>${d.dropoff?.address || "N/A"}</span>
+      </div>
+
+      <div class="delivery-row">
+        <span>Price:</span>
+        <span>$${d.price?.toFixed(2) || "0.00"}</span>
+      </div>
+
+      <div class="delivery-row">
+        <span>Type:</span>
+        <span>${d.package?.deliveryType || "N/A"}</span>
+      </div>
+
+      <div class="delivery-row">
+        <span>Insurance:</span>
+        <span>${d.package?.insurance ? "Yes" : "No"}</span>
+      </div>
+    `;
+/* ============================================================
+   TRAVELER DETAILS
+============================================================ */
+if (d.travelerDetails && typeof d.travelerDetails === "object") {
+  const t = d.travelerDetails;
+
+  const travelerName =
+    `${t.firstName || ""} ${t.lastName || ""}`.trim() ||
+    "Unassigned";
+
+  const travelerRating =
+    t.rating || "N/A";
+
+  html += `
+    <div class="delivery-row traveler-info">
+      <span><strong>Traveler:</strong></span>
+      <span>${travelerName}</span>
+    </div>
+
+    <div class="delivery-row traveler-info">
+      <span><strong>Rating:</strong></span>
+      <span>⭐ ${travelerRating}</span>
+    </div>
+  `;
+}
+/* ============================================================
+   PICKUP VERIFICATION (Step C)
+============================================================ */
+html += `
+  <div class="delivery-row">
+    <span><strong>Pickup Code:</strong></span>
+    <span>${d.pickupCode || "—"}</span>
+  </div>
+
+  <div class="delivery-row">
+    <span><strong>Verified:</strong></span>
+    <span>${d.pickupVerified ? "Yes" : "No"}</span>
+  </div>
+`;
+
+    /* PHOTO PREVIEW */
+    if (d.package?.photoUrl) {
+      html += `
+        <div class="delivery-row">
+          <img src="${d.package.photoUrl}" alt="Package Photo" class="delivery-photo-preview">
+        </div>
+      `;
+    }
+
+    /* CREATED DATE */
+    html += `
+      <div class="delivery-row">
+        <small>${new Date(d.createdAt).toLocaleString()}</small>
+      </div>
+    `;
+
+    div.innerHTML = html;
+
+    div.onclick = () => openDeliveryStatus(d);
+
+    container.appendChild(div);
+  });
+}
+
+/* ============================================================
+   OPEN DELIVERY STATUS VIEW
+============================================================ */
+async function openDeliveryStatus(delivery) {
+  const container =
+    document.getElementById("deliveryStatusContent");
+
+  if (!container) {
+    console.error(
+      "deliveryStatusContent was not found."
+    );
+    return;
+  }
+
+  const travelerFirstName =
+    delivery.travelerDetails?.firstName || "";
+
+  const travelerLastName =
+    delivery.travelerDetails?.lastName || "";
+
+  const travelerName =
+    ${travelerFirstName} ${travelerLastName}`.trim() ||
+    "Not assigned yet";
+
+  const travelerRating =
+    delivery.travelerDetails?.rating ?? "N/A";
+
+  const deliveredDate =
+    delivery.completedAt ||
+    delivery.deliveredAt;
+
+  const deliveredDisplay =
+    deliveredDate
+      ? new Date(deliveredDate).toLocaleString()
+      : "N/A";
+
+  const formattedPrice =
+    Number(delivery.price || 0).toFixed(2);
+
+  const proofPhotoHtml =
+    delivery.proofPhoto
+      ? 
+        <div style="margin-top:1rem;">
+          <strong>Delivery Photo:</strong>
+          <br>
+
+          ${delivery.proofPhoto}
+        </div>
+      
+      :
+        <p>Delivery photo not available.</p>
+      ;
+
+  const signatureHtml =
+    delivery.signatureUrl
+      ? 
+        <div style="margin-top:1rem;">
+          <strong>Signature:</strong>
+          <br>
+
+          ${delivery.signatureUrl}
+        </div>
+      
+      : 
+        <p>Signature not available.</p>
+      ;
+
+  container.innerHTML = 
+    <h3 style="margin-bottom:1rem;">
+      Delivery #${delivery._id}
+    </h3>
+
+    <p>
+      <strong>Status:</strong>
+      ${formatDeliveryStatus(delivery.status)}
+    </p>
+
+    <p>
+      <strong>Pickup:</strong>
+      ${delivery.pickup?.address || "N/A"}
+    </p>
+
+    <p>
+      <strong>Dropoff:</strong>
+      ${delivery.dropoff?.address || "N/A"}
+    </p>
+
+    <p>
+      <strong>Pickup Code:</strong>
+      ${delivery.pickupCode || "—"}
+    </p>
+
+    <p>
+      <strong>Verified:</strong>
+      ${delivery.pickupVerified ? "Yes" : "No"}
+    </p>
+
+    <div class="delivery-status-section">
+      <p>
+        <strong>Traveler:</strong>
+        ${travelerName}
+      </p>
+
+      <p>
+        <strong>Rating:</strong>
+        ${
+          travelerRating === "N/A"
+            ? "N/A"
+            : ⭐ ${travelerRating}`
+        }
+      </p>
+    </div>
+
+    <p>
+      <strong>Price:</strong>
+      $${formattedPrice}
+    </p>
+
+    <hr style="margin:1rem 0; opacity:0.3;">
+
+    <h4 style="margin-bottom:0.75rem;">
+      Proof of Delivery
+    </h4>
+
+    <p>
+      <strong>Signed By:</strong>
+      ${delivery.signedBy || "Not provided"}
+    </p>
+
+    <p>
+      <strong>Delivered:</strong>
+      ${deliveredDisplay}
+    </p>
+
+    ${proofPhotoHtml}
+
+    ${signatureHtml}
+
+    <hr style="margin:1rem 0; opacity:0.3;">
+
+    <button
+      type="button"
+      class="primary-btn"
+      id="backToMyDeliveriesBtn"
+    >
+      Back to My Deliveries
+    </button>
+  ;
+
+  showSenderView("deliveryStatusView");
+
+  const backButton =
+    document.getElementById(
+      "backToMyDeliveriesBtn"
+    );
+
+  if (backButton) {
+    backButton.addEventListener(
+      "click",
+      () => {
+        showSenderView(
+          "myDeliveriesView"
+        );
+      }
+    );
+  }
+}
+
+/* ============================================================
+   LOGOUT — CLEAR AUTH + REDIRECT (OLD SYSTEM)
+   ============================================================ */
+function logout() {
+  localStorage.removeItem("user");
+  localStorage.removeItem("userId");
+  localStorage.removeItem("senderId");
+  localStorage.removeItem("travelerId");
+  localStorage.removeItem("senderEmail");
+
+  window.location.href = "login.html";
+}
+/* ============================================================
+   LOAD ACCOUNT & IDENTITY — FULL PROFILE POPULATION
+============================================================ */
+async function loadAccountAndIdentity() {
+  try {
+    const userId = window.senderId;
+    if (!userId) {
+      console.error("Missing senderId");
+      return;
+    }
+
+    const res = await fetch(`${BASE_URL}/api/users/${userId}`);
+    if (!res.ok) {
+      console.error("Failed to fetch user profile");
+      return;
+    }
+
+    const user = await res.json();
+
+    // ============================
+    // HEADER SECTION
+    // ============================
+    document.getElementById("senderNameHeader").innerText =
+      `${user.firstName || ""} ${user.lastName || ""}`;
+
+    document.getElementById("joinedDate").innerText =
+      new Date(user.createdAt).getFullYear();
+
+    document.getElementById("deliveryCount").innerText =
+      user.totalDeliveries || 0;
+
+    // ============================
+    // VERIFIED BADGES
+    // ============================
+    document.getElementById("verifiedPhone").innerText =
+      user.phone ? "✓ Verified" : "Not Verified";
+
+    document.getElementById("verifiedEmail").innerText =
+      user.email ? "✓ Verified" : "Not Verified";
+
+    document.getElementById("verifiedIdentity").innerText =
+      user.kycVerified ? "✓ Verified" : "Pending";
+
+    // ============================
+    // PERSONAL INFORMATION FIELDS
+    // ============================
+    document.getElementById("firstName").value = user.firstName || "";
+    document.getElementById("lastName").value = user.lastName || "";
+    document.getElementById("dob").value = user.dob || "";
+    document.getElementById("phone").value = user.phone || "";
+    document.getElementById("email").value = user.email || "";
+
+    document.getElementById("address").value = user.address || "";
+    document.getElementById("city").value = user.city || "";
+    document.getElementById("state").value = user.state || "";
+    document.getElementById("zipcode").value = user.zipcode || "";
+    document.getElementById("country").value = user.country || "";
+
+  } catch (err) {
+    console.error("Error loading account & identity:", err);
+  }
+}
+
+/* ============================================================
+   SAVE ACCOUNT CHANGES — ADDRESS ONLY (IDENTITY LOCKED)
+============================================================ */
+async function saveSenderAccount() {
+  try {
+    const userId = window.senderId;
+    if (!userId) {
+      alert("Missing sender ID.");
+      return;
+    }
+
+    // Only editable fields (Option A)
+    const payload = {
+      address: document.getElementById("address").value.trim(),
+      city: document.getElementById("city").value.trim(),
+      state: document.getElementById("state").value.trim(),
+      zipcode: document.getElementById("zipcode").value.trim(),
+      country: document.getElementById("country").value.trim(),
+    };
+
+    const res = await fetch(`${BASE_URL}/api/users/${userId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    const json = await res.json();
+
+    if (!json.success) {
+      alert("Failed to update account: " + json.error);
+      return;
+    }
+
+    alert("Account updated successfully!");
+  } catch (err) {
+    console.error("Error saving account:", err);
+    alert("An error occurred while saving changes.");
+  }
+}
+/* ============================================================
+   PAYOUT VIEW INITIALIZER — SENDER VERSION
+============================================================ */
+function initSenderPayoutView() {
+
+  console.log("✅ initSenderPayoutView initialized");
+
+  const cardTab = document.getElementById("senderPayoutCardTab");
+  const bankTab = document.getElementById("senderPayoutBankTab");
+
+  const cardForm = document.getElementById("senderPayoutCardForm");
+  const bankForm = document.getElementById("senderPayoutBankForm");
+
+  if (cardTab && bankTab && cardForm && bankForm) {
+    cardTab.addEventListener("click", () => {
+      cardTab.classList.add("active");
+      bankTab.classList.remove("active");
+
+      cardForm.classList.remove("hidden");
+      bankForm.classList.add("hidden");
+    });
+
+    bankTab.addEventListener("click", () => {
+      bankTab.classList.add("active");
+      cardTab.classList.remove("active");
+
+      bankForm.classList.remove("hidden");
+      cardForm.classList.add("hidden");
+    });
+  }
+
+  const saveBtn = document.getElementById("saveSenderPayoutBtn");
+
+  console.log("✅ Save Button Found:", saveBtn);
+
+  if (!saveBtn) {
+    console.error("❌ saveSenderPayoutBtn not found");
+    return;
+  }
+
+  saveBtn.addEventListener("click", async () => {
+    try {
+      console.log("✅ Save button clicked");
+
+      const activeTab = document.querySelector(
+        "#paymentsView .toggle-btn.active"
+      );
+
+      const method = activeTab?.dataset.method;
+
+      if (!method) {
+        throw new Error("Please select a payout method.");
+      }
+
+      if (!window.senderId) {
+        throw new Error("Sender ID is missing. Please log in again.");
+      }
+
+      let payload;
+
+      if (method === "card") {
+        const accountName = document
+          .getElementById("senderCardNameInput")
+          ?.value.trim();
+
+        const cardNumber = document
+          .getElementById("senderCardNumberInput")
+          ?.value.replace(/\D/g, "");
+
+        const expiration = document
+          .getElementById("senderCardExpInput")
+          ?.value.trim();
+
+        const cvv = document
+          .getElementById("senderCardCvvInput")
+          ?.value.replace(/\D/g, "");
+
+        if (
+          !accountName ||
+          cardNumber.length < 4 ||
+          !expiration ||
+          cvv.length < 3
+        ) {
+          throw new Error("Please complete all debit card fields.");
+        }
+
+        payload = {
+          type: "card",
+          accountName,
+          last4: cardNumber.slice(-4)
+        };
+      } else if (method === "bank") {
+        const accountName = document
+          .getElementById("senderBankNameInput")
+          ?.value.trim();
+
+        const routingNumber = document
+          .getElementById("senderBankRoutingInput")
+          ?.value.replace(/\D/g, "");
+
+        const accountNumber = document
+          .getElementById("senderBankAccountInput")
+          ?.value.replace(/\D/g, "");
+
+        const confirmAccountNumber = document
+          .getElementById("senderBankConfirmInput")
+          ?.value.replace(/\D/g, "");
+
+        if (
+          !accountName ||
+          !routingNumber ||
+          accountNumber.length < 4 ||
+          !confirmAccountNumber
+        ) {
+          throw new Error("Please complete all bank account fields.");
+        }
+
+        if (accountNumber !== confirmAccountNumber) {
+          throw new Error("Bank account numbers do not match.");
+        }
+
+        payload = {
+          type: "bank",
+          accountName,
+          last4: accountNumber.slice(-4)
+        };
+      } else {
+        throw new Error("Unsupported payout method.");
+      }
+
+      console.log("✅ Saving payout method:", payload);
+      console.log("✅ Sender ID:", window.senderId);
+
+      saveBtn.disabled = true;
+      saveBtn.textContent = "Saving...";
+
+      const response = await fetch(
+        `https://flexago-backend.onrender.com/api/users/payout-method/${window.senderId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(payload)
+        }
+      );
+
+      console.log("✅ Response Status:", response.status);
+      console.log("✅ Response OK:", response.ok);
+
+      const responseText = await response.text();
+
+      console.log("✅ Raw Response:", responseText);
+
+      let result = {};
+
+      if (responseText) {
+        try {
+          result = JSON.parse(responseText);
+        } catch (parseError) {
+          throw new Error(
+            `Backend returned an invalid response. Status: ${response.status}`
+          );
+        }
+      }
+
+      if (!response.ok) {
+        throw new Error(
+          result.error ||
+          `Request failed with status ${response.status}`
+        );
+      }
+
+      if (!result.success) {
+        throw new Error(
+          result.error || "Failed to save payout method."
+        );
+      }
+
+      const methodDisplay = document.getElementById(
+        "senderPayoutMethodDisplay"
+      );
+
+      if (methodDisplay) {
+        const methodLabel =
+          payload.type === "card" ? "Debit Card" : "Bank Account";
+
+        const iconName =
+          payload.type === "card" ? "credit-card" : "banknote";
+
+        methodDisplay.innerHTML = `
+          <i data-lucide="${iconName}"></i>
+          <span>${methodLabel} ending in ${payload.last4}</span>
+        `;
+
+        if (window.lucide) {
+          lucide.createIcons();
+        }
+      }
+
+      console.log("✅ Payout method saved:", result);
+
+      alert("Payout method saved successfully.");
+    } catch (err) {
+      console.error("❌ Payout save failed:", err);
+
+      alert(err.message || "Failed to save payout method.");
+    } finally {
+      saveBtn.disabled = false;
+      saveBtn.textContent = "Save Payout Method";
+    }
+  });
+}
+/* ============================================================
+   FINAL DOM READY BOOTSTRAP — ACCOUNT DEFAULT
+============================================================ */
+document.addEventListener("DOMContentLoaded", () => {
+  safe(initSenderIcons);
+  safe(loadSenderIdentity);
+  safe(initSenderSidebar);
+  safe(initSenderCreateForm);
+  safe(initSenderPhotoUpload);
+  safe(initSenderGenerateDelivery);
+  safe(initSenderPaymentConfirmation);
+  safe(initSenderAccountView);
+  safe(loadAccountAndIdentity);
+
+  safe(initSenderPayoutView);
+  safe(initPaymentFormatting);
+
+  const saveBtn = document.getElementById("saveSenderAccountBtn");
+  if (saveBtn) {
+    saveBtn.addEventListener("click", saveSenderAccount);
+  }
+
+  const defaultView = document.getElementById("accountView");
+  if (defaultView) defaultView.classList.remove("hidden");
+
+  const accountBtn = document.querySelector(
+    '.sidebar-item[data-view="account"]'
+  );
+  if (accountBtn) accountBtn.classList.add("active");
+});
+/* ============================================================
+   PAYMENT FORMATTING (CARD + EXP + CVC)
+============================================================ */
+function initPaymentFormatting() {
+
+  const cardNumberInput = document.getElementById("senderCardNumberInput");
+  if (cardNumberInput) {
+    cardNumberInput.addEventListener("input", () => {
+      let v = cardNumberInput.value.replace(/\D/g, "").slice(0, 16);
+      v = v.match(/.{1,4}/g)?.join("-") || "";
+      cardNumberInput.value = v;
+    });
+  }
+
+  const expInput = document.getElementById("senderCardExpInput");
+  if (expInput) {
+    expInput.addEventListener("input", () => {
+      let v = expInput.value.replace(/\D/g, "").slice(0, 4);
+      if (v.length >= 3) {
+        v = v.slice(0, 2) + "/" + v.slice(2);
+      }
+      expInput.value = v;
+    });
+  }
+
+  const cvvInput = document.getElementById("senderCardCvvInput");
+  if (cvvInput) {
+    cvvInput.addEventListener("input", () => {
+      cvvInput.value = cvvInput.value.replace(/\D/g, "").slice(0, 4);
+    });
+  }
+}
