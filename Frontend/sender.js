@@ -1851,6 +1851,9 @@ html += `
 /* ============================================================
    OPEN DELIVERY STATUS VIEW
 ============================================================ */
+/* ============================================================
+   OPEN DELIVERY STATUS VIEW
+============================================================ */
 async function openDeliveryStatus(delivery) {
   const container =
     document.getElementById("deliveryStatusContent");
@@ -1862,158 +1865,317 @@ async function openDeliveryStatus(delivery) {
     return;
   }
 
+  container.innerHTML = "";
+
+  const addTextRow = (label, value) => {
+    const row = document.createElement("p");
+
+    const labelElement =
+      document.createElement("strong");
+
+    labelElement.textContent =
+      label + ": ";
+
+    row.appendChild(labelElement);
+
+    row.appendChild(
+      document.createTextNode(
+        value === null ||
+        value === undefined ||
+        value === ""
+          ? "N/A"
+          : String(value)
+      )
+    );
+
+    container.appendChild(row);
+  };
+
+  const title =
+    document.createElement("h3");
+
+  title.style.marginBottom =
+    "1rem";
+
+  title.textContent =
+    "Delivery #" + delivery._id;
+
+  container.appendChild(title);
+
+  addTextRow(
+    "Status",
+    formatDeliveryStatus(
+      delivery.status
+    )
+  );
+
+  addTextRow(
+    "Pickup",
+    delivery.pickup?.address ||
+    "N/A"
+  );
+
+  addTextRow(
+    "Dropoff",
+    delivery.dropoff?.address ||
+    "N/A"
+  );
+
+  addTextRow(
+    "Pickup Code",
+    delivery.pickupCode ||
+    "-"
+  );
+
+  addTextRow(
+    "Verified",
+    delivery.pickupVerified
+      ? "Yes"
+      : "No"
+  );
+
   const travelerFirstName =
-    delivery.travelerDetails?.firstName || "";
+    delivery.travelerDetails?.firstName ||
+    "";
 
   const travelerLastName =
-    delivery.travelerDetails?.lastName || "";
+    delivery.travelerDetails?.lastName ||
+    "";
 
   const travelerName =
-    `${travelerFirstName} ${travelerLastName}`.trim() ||
+    (
+      travelerFirstName +
+      " " +
+      travelerLastName
+    ).trim() ||
     "Not assigned yet";
 
   const travelerRating =
-    delivery.travelerDetails?.rating ?? "N/A";
+    delivery.travelerDetails?.rating;
+
+  addTextRow(
+    "Traveler",
+    travelerName
+  );
+
+  addTextRow(
+    "Rating",
+    travelerRating !== null &&
+    travelerRating !== undefined
+      ? "5 stars: " + travelerRating
+      : "N/A"
+  );
+
+  addTextRow(
+    "Price",
+    "$" +
+    Number(
+      delivery.price || 0
+    ).toFixed(2)
+  );
+
+  const divider =
+    document.createElement("hr");
+
+  divider.style.margin =
+    "1rem 0";
+
+  divider.style.opacity =
+    "0.3";
+
+  container.appendChild(divider);
+
+  const proofTitle =
+    document.createElement("h4");
+
+  proofTitle.style.marginBottom =
+    "0.75rem";
+
+  proofTitle.textContent =
+    "Proof of Delivery";
+
+  container.appendChild(
+    proofTitle
+  );
+
+  addTextRow(
+    "Signed By",
+    delivery.signedBy ||
+    "Not provided"
+  );
 
   const deliveredDate =
     delivery.completedAt ||
     delivery.deliveredAt;
 
-  const deliveredDisplay =
+  addTextRow(
+    "Delivered",
     deliveredDate
-      ? new Date(deliveredDate).toLocaleString()
-      : "N/A";
+      ? new Date(
+          deliveredDate
+        ).toLocaleString()
+      : "N/A"
+  );
 
-  const formattedPrice =
-    Number(delivery.price || 0).toFixed(2);
+  if (delivery.proofPhoto) {
+    const photoContainer =
+      document.createElement("div");
 
-  const proofPhotoHtml =
-    delivery.proofPhoto
-      ? `
-        <div style="margin-top:1rem;">
-          <strong>Delivery Photo:</strong>
-          <br>
+    photoContainer.style.marginTop =
+      "1rem";
 
-          ${delivery.proofPhoto}
-        </div>
-      `
-      : `
-        <p>Delivery photo not available.</p>
-      `;
+    const photoLabel =
+      document.createElement("strong");
 
-  const signatureHtml =
-    delivery.signatureUrl
-      ? `
-        <div style="margin-top:1rem;">
-          <strong>Signature:</strong>
-          <br>
+    photoLabel.textContent =
+      "Delivery Photo:";
 
-          ${delivery.signatureUrl}
-        </div>
-      `
-      : `
-        <p>Signature not available.</p>
-      `;
+    const photoBreak =
+      document.createElement("br");
 
-  container.innerHTML = `
-    <h3 style="margin-bottom:1rem;">
-      Delivery #${delivery._id}
-    </h3>
+    const photo =
+      document.createElement("img");
 
-    <p>
-      <strong>Status:</strong>
-      ${formatDeliveryStatus(delivery.status)}
-    </p>
+    photo.src =
+      delivery.proofPhoto;
 
-    <p>
-      <strong>Pickup:</strong>
-      ${delivery.pickup?.address || "N/A"}
-    </p>
+    photo.alt =
+      "Proof of delivery";
 
-    <p>
-      <strong>Dropoff:</strong>
-      ${delivery.dropoff?.address || "N/A"}
-    </p>
+    photo.style.maxWidth =
+      "220px";
 
-    <p>
-      <strong>Pickup Code:</strong>
-      ${delivery.pickupCode || "-"}
-    </p>
+    photo.style.borderRadius =
+      "8px";
 
-    <p>
-      <strong>Verified:</strong>
-      ${delivery.pickupVerified ? "Yes" : "No"}
-    </p>
+    photo.style.marginTop =
+      "8px";
 
-    <div class="delivery-status-section">
-      <p>
-        <strong>Traveler:</strong>
-        ${travelerName}
-      </p>
-
-      <p>
-        <strong>Rating:</strong>
-        ${
-          travelerRating === "N/A"
-            ? "N/A"
-            : `Rating ${travelerRating}`
-        }
-      </p>
-    </div>
-
-    <p>
-      <strong>Price:</strong>
-      $${formattedPrice}
-    </p>
-
-    <hr style="margin:1rem 0; opacity:0.3;">
-
-    <h4 style="margin-bottom:0.75rem;">
-      Proof of Delivery
-    </h4>
-
-    <p>
-      <strong>Signed By:</strong>
-      ${delivery.signedBy || "Not provided"}
-    </p>
-
-    <p>
-      <strong>Delivered:</strong>
-      ${deliveredDisplay}
-    </p>
-
-    ${proofPhotoHtml}
-
-    ${signatureHtml}
-
-    <hr style="margin:1rem 0; opacity:0.3;">
-
-    <button
-      type="button"
-      class="primary-btn"
-      id="backToMyDeliveriesBtn"
-    >
-      Back to My Deliveries
-    </button>
-  `;
-
-  showSenderView("deliveryStatusView");
-
-  const backButton =
-    document.getElementById(
-      "backToMyDeliveriesBtn"
+    photoContainer.appendChild(
+      photoLabel
     );
 
-  if (backButton) {
-    backButton.addEventListener(
-      "click",
-      () => {
-        showSenderView(
-          "myDeliveriesView"
-        );
-      }
+    photoContainer.appendChild(
+      photoBreak
+    );
+
+    photoContainer.appendChild(
+      photo
+    );
+
+    container.appendChild(
+      photoContainer
+    );
+  } else {
+    addTextRow(
+      "Delivery Photo",
+      "Not available"
     );
   }
+
+  if (delivery.signatureUrl) {
+    const signatureContainer =
+      document.createElement("div");
+
+    signatureContainer.style.marginTop =
+      "1rem";
+
+    const signatureLabel =
+      document.createElement("strong");
+
+    signatureLabel.textContent =
+      "Signature:";
+
+    const signatureBreak =
+      document.createElement("br");
+
+    const signature =
+      document.createElement("img");
+
+    signature.src =
+      delivery.signatureUrl;
+
+    signature.alt =
+      "Recipient signature";
+
+    signature.style.maxWidth =
+     "220px";
+
+   signature.style.background =
+      "#ffffff";
+
+    signature.style.padding =
+      "8px";
+
+    signature.style.borderRadius =
+      "8px";
+
+    signature.style.marginTop =
+      "8px";
+
+    signatureContainer.appendChild(
+      signatureLabel
+    );
+
+    signatureContainer.appendChild(
+      signatureBreak
+    );
+
+    signatureContainer.appendChild(
+      signature
+    );
+
+    container.appendChild(
+      signatureContainer
+    );
+  } else {
+    addTextRow(
+      "Signature",
+      "Not available"
+    );
+  }
+
+  const finalDivider =
+    document.createElement("hr");
+
+  finalDivider.style.margin =
+    "1rem 0";
+
+  finalDivider.style.opacity =
+    "0.3";
+
+  container.appendChild(
+    finalDivider
+  );
+
+  const backButton =
+    document.createElement("button");
+
+  backButton.type =
+    "button";
+
+  backButton.className =
+    "primary-btn";
+
+  backButton.textContent =
+    "Back to My Deliveries";
+
+  backButton.addEventListener(
+    "click",
+    () => {
+      showSenderView(
+        "myDeliveriesView"
+      );
+    }
+  );
+
+  container.appendChild(
+    backButton
+  );
+
+  showSenderView(
+    "deliveryStatusView"
+  );
 }
 /* ============================================================
    LOGOUT â€” CLEAR AUTH + REDIRECT (OLD SYSTEM)
