@@ -1805,7 +1805,7 @@ if (d.travelerDetails && typeof d.travelerDetails === "object") {
 
     <div class="delivery-row traveler-info">
       <span><strong>Rating:</strong></span>
-      <span>â­ ${travelerRating}</span>
+     <span>⭐ ${travelerRating}</span>
     </div>
   `;
 }
