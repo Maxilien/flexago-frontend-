@@ -1867,15 +1867,37 @@ container.innerHTML = `
   <p><strong>Pickup Code:</strong> ${delivery.pickupCode || "—"}</p>
   <p><strong>Verified:</strong> ${delivery.pickupVerified ? "Yes" : "No"}</p>
 
-  <p><strong>Signed By:</strong> ${delivery.proofOfDelivery?.signedBy || "Not provided"}</p>
+<hr style="margin:1rem 0; opacity:0.3;">
 
-  ${delivery.proofOfDelivery?.photoUrl ? `
-    <div style="margin-top:1rem;">
-      <strong>Delivery Photo:</strong><br>
-      <img src="${delivery.proofOfDelivery.photoUrl}"
-           style="max-width:160px; border-radius:8px; margin-top:0.4rem;">
-    </div>
-  ` : ""}
+<h4>Proof of Delivery</h4>
+
+<p>
+  <strong>Signed By:</strong>
+  ${delivery.signedBy || "Not provided"}
+</p>
+
+<p>
+  <strong>Delivered:</strong>
+  ${
+    delivery.completedAt
+      ? new Date(delivery.completedAt).toLocaleString()
+      : "N/A"
+  }
+</p>
+
+${delivery.proofPhoto ? `
+  <div style="margin-top:1rem;">
+    <strong>Delivery Photo:</strong><br>
+    ${delivery.proofPhoto}
+  </div>
+` : ""}
+
+${delivery.signatureUrl ? `
+  <div style="margin-top:1rem;">
+    <strong>Signature:</strong><br>
+    ${delivery.signatureUrl}
+  </div>
+` : ""}
 
   ${delivery.proofOfDelivery?.signatureUrl ? `
     <div style="margin-top:1rem;">
