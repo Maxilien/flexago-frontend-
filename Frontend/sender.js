@@ -1888,20 +1888,17 @@ container.innerHTML = `
 ${delivery.proofPhoto ? `
   <div style="margin-top:1rem;">
     <strong>Delivery Photo:</strong><br>
-    <img
-      src="${delivery.proofPhoto}"
-      style="
-        max-width:220px;
-        border-radius:8px;
- 
+    ${delivery.proofPhoto}
+  </div>
+` : ""}
 
 ${delivery.signatureUrl ? `
   <div style="margin-top:1rem;">
     <strong>Signature:</strong><br>
-    <img
-      src="${delivery.signatureUrl}"
-      style="
-      
+    ${delivery.signatureUrl}
+  </div>
+` : ""}
+
 
   <div id="dsTravelerInfo" class="delivery-status-section">
     <p><strong>Traveler:</strong> Loading...</p>
