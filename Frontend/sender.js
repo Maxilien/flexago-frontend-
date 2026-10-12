@@ -870,156 +870,220 @@ function initSenderAutocomplete(map) {
   attachAutocomplete(pickupInput, pickupDropdown, "pickup-lat", "pickup-lng", true);
   attachAutocomplete(dropoffInput, dropoffDropdown, "dropoff-lat", "dropoff-lng", false);
 }
-// ======================== FLEXAGO PRICING ENGINE ========================
+// ============================================================
+// FLEXAGO PRICING ENGINE
+//
+// Total =
+// distance
+// + declared value
+// + weight
+// + size
+// + package type
+// + insurance
+// ============================================================
 
 function calculateEstimatedCost({
   deliveryType,
   distanceMiles,
   weight,
-  insuranceType,
   declaredValue,
   packageType,
-  size
+  size,
+  insuranceType
 }) {
+  const safeDistance =
+    Number.isFinite(Number(distanceMiles))
+      ? Math.max(0, Number(distanceMiles))
+      : 0;
 
-  let cost = 0;
+  const safeWeight =
+    Number.isFinite(Number(weight))
+      ? Math.max(0, Number(weight))
+      : 0;
 
-  /* ========================
-     BASE DISTANCE COST
-  ======================== */
+  const safeDeclaredValue =
+    Number.isFinite(Number(declaredValue))
+      ? Math.max(0, Number(declaredValue))
+      : 0;
+
+  /* ==========================================================
+     1. DISTANCE PRICE
+  ========================================================== */
+
+  let distanceFee = 0;
 
   if (deliveryType === "local") {
-    cost += Number(distanceMiles || 0) * 0.75;
+    distanceFee =
+      safeDistance * 0.75;
   }
 
   if (deliveryType === "nationwide") {
-    cost += 50;
+    distanceFee =
+      50 + safeDistance * 0.50;
   }
 
   if (deliveryType === "international") {
-    cost += 200;
+    distanceFee =
+      200 + safeDistance * 0.25;
   }
 
-  /* ========================
-     SIZE FEE
-  ======================== */
+  /* ==========================================================
+     2. DECLARED VALUE FEE
 
-  if (size === "medium") {
-    cost += 2;
+     1% of declared value
+     Maximum $20
+  ========================================================== */
+
+  const declaredValueFee =
+    Math.min(
+      safeDeclaredValue * 0.01,
+      20
+    );
+
+  /* ==========================================================
+     3. WEIGHT FEE
+  ========================================================== */
+
+  let weightFee = 0;
+
+  if (
+    safeWeight > 10 &&
+    safeWeight <= 25
+  ) {
+    weightFee = 2;
+  } else if (
+    safeWeight > 25 &&
+    safeWeight <= 50
+  ) {
+    weightFee = 5;
+  } else if (
+    safeWeight > 50
+  ) {
+    weightFee = 10;
   }
 
-  if (size === "large") {
-    cost += 5;
-  }
+  /* ==========================================================
+     4. SIZE FEE
+  ========================================================== */
 
-  /* ========================
-     WEIGHT FEE
-  ======================== */
+  const sizeFees = {
+    small: 0,
+    medium: 2,
+    large: 5
+  };
 
-  if (weight > 10 && weight <= 25) {
-    cost += 2;
-  } else if (weight > 25 && weight <= 50) {
-    cost += 5;
-  } else if (weight > 50) {
-    cost += 10;
-  }
+  const sizeFee =
+    sizeFees[size] ?? 0;
 
-  /* ========================
-     PACKAGE TYPE FEE
-  ======================== */
+  /* ==========================================================
+     5. PACKAGE TYPE FEE
+  ========================================================== */
 
-  switch (packageType) {
+  const packageTypeFees = {
+    envelope: 0,
+    documents: 0,
+    small_box: 1,
+    medium_box: 2,
+    large_box: 4,
+    bag: 2,
+    fragile: 5,
+    electronics: 5,
+    other: 2
+  };
 
-    case "small_box":
-      cost += 1;
-      break;
+  const packageTypeFee =
+    packageTypeFees[packageType] ?? 0;
 
-    case "medium_box":
-      cost += 2;
-      break;
+  /* ==========================================================
+     6. INSURANCE FEE
 
-    case "large_box":
-      cost += 4;
-      break;
-
-    case "bag":
-      cost += 2;
-      break;
-
-    case "fragile":
-      cost += 5;
-      break;
-
-    case "electronics":
-      cost += 5;
-      break;
-
-    case "other":
-      cost += 2;
-      break;
-
-    default:
-      break;
-  }
-
-  /* ========================
-     INSURANCE FEE
-  ======================== */
+     This is added last.
+  ========================================================== */
 
   let insuranceFee = 0;
 
-  if (
-    insuranceType === "basic"
-  ) {
+  if (insuranceType === "basic") {
     insuranceFee =
       Math.min(
         Math.max(
-          declaredValue * 0.03,
+          safeDeclaredValue * 0.03,
           2
         ),
         10
       );
   }
 
-  if (
-    insuranceType === "premium"
-  ) {
+  if (insuranceType === "premium") {
     insuranceFee =
       Math.min(
         Math.max(
-          declaredValue * 0.05,
+          safeDeclaredValue * 0.05,
           5
         ),
         50
       );
   }
 
-  cost += insuranceFee;
+  /* ==========================================================
+     FINAL TOTAL
+  ========================================================== */
 
-  return Math.max(0, cost);
+  const total =
+    distanceFee +
+    declaredValueFee +
+    weightFee +
+    sizeFee +
+    packageTypeFee +
+    insuranceFee;
+
+  return {
+    distanceFee,
+    declaredValueFee,
+    weightFee,
+    sizeFee,
+    packageTypeFee,
+    insuranceFee,
+    total:
+      Math.round(total * 100) / 100
+  };
 }
 
-function updateEstimateUI(
-  distanceMiles = null
-) {
+// ============================================================
+// UPDATE ESTIMATE UI
+// ============================================================
 
+function updateEstimateUI(
+  newDistanceMiles = null
+) {
   const deliveryTypeEl =
-    document.getElementById("deliveryType");
+    document.getElementById(
+      "deliveryType"
+    );
 
   const insuranceEl =
-    document.getElementById("insuranceType");
+    document.getElementById(
+      "insuranceType"
+    );
 
   const weightEl =
-    document.getElementById("weightInput");
+    document.getElementById(
+      "weightInput"
+    );
 
   const valueEl =
-    document.getElementById("valueInput");
+    document.getElementById(
+      "valueInput"
+    );
 
   const packageTypeEl =
-    document.getElementById("packageType");
+    document.getElementById(
+      "packageType"
+    );
 
   const estimateEl =
-    document.getElementById("estimateValue");
+    document.getElementById(
+      "estimateValue"
+    );
 
   if (
     !deliveryTypeEl ||
@@ -1029,67 +1093,103 @@ function updateEstimateUI(
     !packageTypeEl ||
     !estimateEl
   ) {
+    console.warn(
+      "Pricing fields are missing."
+    );
+
     return;
   }
 
-  const deliveryType =
-    deliveryTypeEl.value;
+  /*
+   * Only replace cached mileage when a valid
+   * distance is explicitly provided.
+   */
+  if (
+    newDistanceMiles !== null &&
+    newDistanceMiles !== undefined &&
+    Number.isFinite(
+      Number(newDistanceMiles)
+    )
+  ) {
+    window.currentDistanceMiles =
+      Math.max(
+        0,
+        Number(newDistanceMiles)
+      );
+  }
 
-  const insuranceType =
-    insuranceEl.value;
+  const distanceMiles =
+    Number(
+      window.currentDistanceMiles
+    ) || 0;
 
-  const weight =
-    parseFloat(weightEl.value) || 0;
-
-  const declaredValue =
-    parseFloat(valueEl.value) || 0;
-
-  const packageType =
-    packageTypeEl.value;
-
-  const size =
-    window.selectedSize || "small";
-
-  const cost =
+  const pricing =
     calculateEstimatedCost({
-
-      deliveryType,
+      deliveryType:
+        deliveryTypeEl.value,
 
       distanceMiles,
 
-      weight,
+      weight:
+        parseFloat(
+          weightEl.value
+        ) || 0,
 
-      insuranceType,
+      declaredValue:
+        parseFloat(
+          valueEl.value
+        ) || 0,
 
-      declaredValue,
+      packageType:
+        packageTypeEl.value,
 
-      packageType,
+      size:
+        window.selectedSize ||
+        "small",
 
-      size
+      insuranceType:
+        insuranceEl.value
     });
 
   estimateEl.textContent =
-    `$${cost.toFixed(2)}`;
+    `$${pricing.total.toFixed(2)}`;
 
   window.currentPrice =
-    cost;
-}
+    pricing.total;
 
-// Convert insurance string → Boolean for backend
-function getInsuranceBoolean() {
+  window.currentPriceBreakdown =
+    pricing;
 
-  const insuranceValue =
-    document.getElementById(
-      "insuranceType"
-    ).value;
-
-  return (
-    insuranceValue === "basic" ||
-    insuranceValue === "premium"
+  console.log(
+    "Flexago price breakdown:",
+    pricing
   );
 }
 
-// Auto refresh price
+// ============================================================
+// INSURANCE HELPER
+// ============================================================
+
+function getInsuranceBoolean() {
+  const insuranceEl =
+    document.getElementById(
+      "insuranceType"
+    );
+
+  if (!insuranceEl) {
+    return false;
+  }
+
+  return (
+    insuranceEl.value === "basic" ||
+    insuranceEl.value === "premium"
+  );
+}
+
+// ============================================================
+// STANDARD INPUT LISTENERS
+// ============================================================
+
 [
   "deliveryType",
   "insuranceType",
@@ -1097,28 +1197,30 @@ function getInsuranceBoolean() {
   "valueInput",
   "packageType"
 ].forEach(id => {
-
-  const el =
+  const element =
     document.getElementById(id);
 
-  if (!el) return;
+  if (!element) {
+    return;
+  }
 
-  el.addEventListener(
+  const recalculatePrice = () => {
+    /*
+     * Do not pass 0 here.
+     * Reuse the existing cached mileage.
+     */
+    updateEstimateUI();
+  };
+
+  element.addEventListener(
     "change",
-    () =>
-      updateEstimateUI(
-        window.currentDistanceMiles || 0
-      )
+    recalculatePrice
   );
 
-  el.addEventListener(
+  element.addEventListener(
     "input",
-    () =>
-      updateEstimateUI(
-        window.currentDistanceMiles || 0
-      )
+    recalculatePrice
   );
-
 });
 /* ======================== SIZE SELECTOR ======================== */
 
@@ -1146,9 +1248,7 @@ document
         window.selectedSize
       );
 
-      updateEstimateUI(
-        window.currentDistanceMiles || 0
-      );
+      updateEstimateUI();
     });
 
   });
