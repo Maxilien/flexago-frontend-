@@ -1942,30 +1942,29 @@ async function openDeliveryStatus(delivery) {
     delivery.travelerDetails?.lastName ||
     "";
 
-  const travelerName =
-    (
-      travelerFirstName +
-      " " +
-      travelerLastName
-    ).trim() ||
-    "Not assigned yet";
+const travelerName =
+  (
+    travelerFirstName +
+    " " +
+    travelerLastName
+  ).trim() ||
+  "Not assigned yet";
 
-  const travelerRating =
-    delivery.travelerDetails?.rating;
+const travelerRating =
+  delivery.travelerDetails?.rating;
 
-  addTextRow(
-    "Traveler",
-    travelerName
-  );
+addTextRow(
+  "Traveler",
+  travelerName
+);
 
+// Only show rating when a traveler is assigned
+if (delivery.travelerId && travelerRating !== null && travelerRating !== undefined) {
   addTextRow(
     "Rating",
-    travelerRating !== null &&
-    travelerRating !== undefined
-      ? "5 stars: " + travelerRating
-      : "N/A"
+    `⭐ ${travelerRating}`
   );
-
+}
   addTextRow(
     "Price",
     "$" +

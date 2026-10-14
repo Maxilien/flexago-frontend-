@@ -266,7 +266,7 @@
               </div>
 
               <div class="summary-row">
-                <span data-i18n="traveler.payout.pending">Pending Payout</span>
+                <span data-i18n="traveler.payout.pending">Available Withdrawal</span>
                 <strong id="pendingPayout">$0.00</strong>
               </div>
 
@@ -749,28 +749,41 @@
           </span>
         </div>
       </section>
+
 <!-- ==========================================================
      STRIPE CONNECT PAYOUTS
 =========================================================== -->
 
-<div class="payout-card mb-4">
+<section class="section-block">
 
-  <div class="card-header">
-    <h3>Stripe Payout Account</h3>
-    <p>
-      Connect your bank account securely through Stripe
-      to receive delivery payouts.
-    </p>
-  </div>
+  <h2 class="section-title">
+    Stripe Connect Payouts
+  </h2>
 
   <div
     id="stripeConnectStatus"
-    class="status-badge status-warning"
+    class="payout-method-display"
   >
-    Not Connected
+    <i data-lucide="landmark"></i>
+    <span>
+      Not Connected
+    </span>
   </div>
 
-  <div class="mt-3">
+  <div
+    id="stripeConnectDetails"
+    style="margin-top:12px;"
+  ></div>
+
+  <div
+    style="
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:15px;
+    "
+  >
+
     <button
       type="button"
       id="connectStripeBtn"
@@ -786,14 +799,10 @@
     >
       Refresh Status
     </button>
+
   </div>
 
-  <div
-    id="stripeConnectDetails"
-    class="mt-3 small-text"
-  ></div>
-
-</div>
+</section>
       <section class="section-block">
 
         <h2 class="section-title" data-i18n="traveler.payouts.add_edit_title">
@@ -897,6 +906,7 @@
         </div>
 
       </section>
+
 
       <section class="section-block">
 
