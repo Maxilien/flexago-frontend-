@@ -545,7 +545,421 @@ select {
     font-size: 0.85rem;
   }
 }
+/* ============================================================
+   SENDER DELIVERY CHAT BUTTON
+============================================================ */
 
+.sender-delivery-chat-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+
+  background: linear-gradient(
+    135deg,
+    var(--blue),
+    var(--blue-dark)
+  );
+
+  border: none;
+  border-radius: 10px;
+
+  color: #ffffff;
+
+  font-size: 0.9rem;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.sender-delivery-chat-btn:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.sender-delivery-chat-btn:active {
+  transform: translateY(0);
+}
+
+.sender-delivery-chat-btn:focus-visible {
+  outline: 2px solid #60a5fa;
+  outline-offset: 2px;
+}
+
+.sender-delivery-chat-btn i,
+.sender-delivery-chat-btn svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  .sender-delivery-chat-btn {
+    padding: 0.7rem;
+    font-size: 0.85rem;
+  }
+}
+/* ============================================================
+   SENDER DELIVERY CHAT PANEL
+============================================================ */
+
+.sender-delivery-chat-panel {
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+
+  display: none;
+  align-items: center;
+  justify-content: center;
+
+  padding: 1rem;
+
+  background: rgba(2, 6, 23, 0.72);
+  backdrop-filter: blur(4px);
+}
+
+.sender-delivery-chat-panel.open {
+  display: flex;
+}
+
+/* ============================================================
+   DELIVERY CHAT DIALOG
+============================================================ */
+
+.sender-delivery-chat-dialog {
+  width: 100%;
+  max-width: 460px;
+  max-height: min(680px, 90vh);
+
+  display: flex;
+  flex-direction: column;
+
+  overflow: hidden;
+
+  background: var(--panel-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.55);
+}
+
+/* ============================================================
+   DELIVERY CHAT HEADER
+============================================================ */
+
+.sender-delivery-chat-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+
+  padding: 1rem;
+
+  border-bottom: 1px solid var(--border-color);
+}
+
+.sender-delivery-chat-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+
+  color: var(--text-light);
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.sender-delivery-chat-title i,
+.sender-delivery-chat-title svg {
+  width: 21px;
+  height: 21px;
+
+  flex-shrink: 0;
+
+  color: var(--blue);
+}
+
+.sender-delivery-chat-status {
+  margin-top: 0.2rem;
+
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  font-weight: 400;
+}
+
+/* ============================================================
+   CLOSE BUTTON
+============================================================ */
+
+.sender-delivery-chat-close {
+  width: 36px;
+  height: 36px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  padding: 0;
+
+  background: transparent;
+  border: 1px solid var(--border-color);
+  border-radius: 9px;
+
+  color: var(--text-muted);
+
+  cursor: pointer;
+}
+
+.sender-delivery-chat-close:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.sender-delivery-chat-close i,
+.sender-delivery-chat-close svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* ============================================================
+   MESSAGE HISTORY
+============================================================ */
+
+.sender-delivery-chat-messages {
+  min-height: 260px;
+  max-height: 430px;
+
+  flex: 1;
+
+  overflow-y: auto;
+  overscroll-behavior: contain;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 0.65rem;
+
+  padding: 1rem;
+
+  background: rgba(2, 6, 23, 0.3);
+}
+
+.sender-delivery-chat-empty {
+  margin: auto;
+
+  padding: 1rem;
+
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  line-height: 1.5;
+  text-align: center;
+}
+
+/* ============================================================
+   MESSAGE ROWS
+============================================================ */
+
+.sender-delivery-chat-message {
+  width: 100%;
+
+  display: flex;
+}
+
+.sender-delivery-chat-message.sent {
+  justify-content: flex-end;
+}
+
+.sender-delivery-chat-message.received {
+  justify-content: flex-start;
+}
+
+/* ============================================================
+   MESSAGE BUBBLES
+============================================================ */
+
+.sender-delivery-chat-message-bubble {
+  max-width: 78%;
+
+  padding: 0.65rem 0.8rem;
+
+  border-radius: 13px;
+
+  font-size: 0.85rem;
+  line-height: 1.45;
+
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.sender-delivery-chat-message.sent
+.sender-delivery-chat-message-bubble {
+  color: #ffffff;
+
+  background: linear-gradient(
+    135deg,
+    var(--blue),
+    var(--blue-dark)
+  );
+
+  border-bottom-right-radius: 4px;
+}
+
+.sender-delivery-chat-message.received
+.sender-delivery-chat-message-bubble {
+  color: var(--text-light);
+
+  background: rgba(148, 163, 184, 0.12);
+  border: 1px solid rgba(148, 163, 184, 0.14);
+
+  border-bottom-left-radius: 4px;
+}
+
+/* ============================================================
+   MESSAGE COMPOSER
+============================================================ */
+
+.sender-delivery-chat-composer {
+  display: flex;
+  align-items: flex-end;
+
+  gap: 0.65rem;
+
+  padding: 0.85rem;
+
+  border-top: 1px solid var(--border-color);
+
+  background: var(--panel-bg);
+}
+
+.sender-delivery-chat-input {
+  width: 100%;
+  min-height: 44px;
+  max-height: 120px;
+
+  resize: vertical;
+
+  padding: 0.7rem 0.8rem;
+
+  background: rgba(2, 6, 23, 0.55);
+
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+
+  color: var(--text-light);
+
+  font: inherit;
+  font-size: 0.85rem;
+  line-height: 1.4;
+
+  outline: none;
+}
+
+.sender-delivery-chat-input::placeholder {
+  color: var(--text-muted);
+}
+
+.sender-delivery-chat-input:focus {
+  border-color: var(--blue);
+
+  box-shadow: 0 0 0 2px
+    rgba(59, 130, 246, 0.15);
+}
+
+.sender-delivery-chat-input:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+/* ============================================================
+   SEND BUTTON
+============================================================ */
+
+.sender-delivery-chat-send {
+  min-height: 44px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 0.4rem;
+
+  flex-shrink: 0;
+
+  padding: 0.65rem 0.85rem;
+
+  background: linear-gradient(
+    135deg,
+    var(--blue),
+    var(--blue-dark)
+  );
+
+  border: none;
+  border-radius: 10px;
+
+  color: #ffffff;
+
+  font-size: 0.82rem;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.sender-delivery-chat-send:hover {
+  opacity: 0.9;
+}
+
+.sender-delivery-chat-send:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.sender-delivery-chat-send i,
+.sender-delivery-chat-send svg {
+  width: 17px;
+  height: 17px;
+}
+
+/* ============================================================
+   DELIVERY CHAT MOBILE
+============================================================ */
+
+@media (max-width: 600px) {
+  .sender-delivery-chat-panel {
+    align-items: flex-end;
+
+    padding: 0;
+  }
+
+  .sender-delivery-chat-dialog {
+    max-width: none;
+    max-height: 88vh;
+
+    border-radius: 16px 16px 0 0;
+  }
+
+  .sender-delivery-chat-messages {
+    min-height: 240px;
+  }
+
+  .sender-delivery-chat-composer {
+    gap: 0.5rem;
+
+    padding:
+      0.75rem
+      0.75rem
+      calc(0.75rem + env(safe-area-inset-bottom));
+  }
+
+  .sender-delivery-chat-send {
+    width: auto;
+  }
+}
 /* ============================================================
    16. SUPPORT PANEL
 ============================================================ */
@@ -685,7 +1099,7 @@ section[id$="View"]:not(.hidden) {
 .status.payout_completed {
   background: rgba(16, 185, 129, 0.15);
   color: #10b981;
-
+}
 /* ============================================================
   20. DELIVERY STATUS VIEW — DARK MODE (RESPONSIVE)
 ============================================================ */

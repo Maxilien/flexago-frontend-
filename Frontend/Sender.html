@@ -1158,7 +1158,83 @@
   </div>
 </section>
 
+<!-- ========================================================= -->
+<!-- DELIVERY CHAT PANEL - SENDER TO TRAVELER                  -->
+<!-- ========================================================= -->
 
+<div
+  id="senderDeliveryChatPanel"
+  class="sender-delivery-chat-panel"
+  aria-hidden="true"
+>
+  <div class="sender-delivery-chat-dialog">
+
+    <!-- HEADER -->
+    <div class="sender-delivery-chat-header">
+      <div class="sender-delivery-chat-title">
+        <i data-lucide="message-circle"></i>
+
+        <div>
+          <div>Chat with Traveler</div>
+
+          <div
+            id="senderDeliveryChatStatus"
+            class="sender-delivery-chat-status"
+          >
+            Delivery conversation
+          </div>
+        </div>
+      </div>
+
+      <button
+        id="senderDeliveryChatCloseBtn"
+        class="sender-delivery-chat-close"
+        type="button"
+        aria-label="Close delivery chat"
+        title="Close"
+      >
+        <i data-lucide="x"></i>
+      </button>
+    </div>
+
+    <!-- MESSAGE HISTORY -->
+    <div
+      id="senderDeliveryChatMessages"
+      class="sender-delivery-chat-messages"
+      aria-live="polite"
+    >
+      <div class="sender-delivery-chat-empty">
+        Open a delivery conversation to load messages.
+      </div>
+    </div>
+
+    <!-- MESSAGE COMPOSER -->
+    <div class="sender-delivery-chat-composer">
+
+      <textarea
+        id="senderDeliveryChatInput"
+        class="sender-delivery-chat-input"
+        rows="2"
+        maxlength="2000"
+        placeholder="Message your Traveler..."
+        aria-label="Message your Traveler"
+      ></textarea>
+
+      <button
+        id="senderDeliveryChatSendBtn"
+        class="sender-delivery-chat-send"
+        type="button"
+        aria-label="Send message"
+        title="Send message"
+      >
+        <i data-lucide="send"></i>
+        <span>Send</span>
+      </button>
+
+    </div>
+
+  </div>
+</div>
 <!-- ========================================================= -->
 <!-- SUPPORT CHAT WIDGET                                       -->
 <!-- ========================================================= -->

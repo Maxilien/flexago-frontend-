@@ -64,38 +64,153 @@ const DeliverySchema = new mongoose.Schema(
       default: null
     },
 
-    // ⭐ Traveler details (first + last name)
-    travelerDetails: {
-      firstName: String,
-      lastName: String
-    },
+travelerDetails: {
+  firstName: {
+    type: String,
+    default: ""
+  },
 
-    // ⭐ NEW — Pickup security fields
-    pickupCode: String,                     // 6-digit pickup verification code
-    pickupQR: String,                       // optional QR token
-    pickupVerified: { type: Boolean, default: false }, // traveler must verify pickup
+  lastName: {
+    type: String,
+    default: ""
+  },
 
-    status: {
-      type: String,
-      enum: [
-        "created",
-        "available",
-        "accepted",
-        "in_transit",
-        "delivered",
-        "payout_pending",
-        "payout_completed"
-      ],
-      default: "available"
-    },
+  rating: {
+    type: Number,
+    default: 5
+  },
 
+  totalDeliveries: {
+    type: Number,
+    default: 0
+  }
+},
+
+    pickupCode: String,
+    pickupQR: String,
+    pickupVerified: { type: Boolean, default: false },
+
+status: {
+  type: String,
+  enum: [
+    "created",
+    "payment_pending",
+    "payment_failed",
+    "available",
+    "accepted",
+    "in_transit",
+    "delivered",
+    "payout_pending",
+    "payout_completed"
+  ],
+  default: "payment_pending"
+},
     acceptedAt: Date,
-    pickedUpAt: Date,
-    deliveredAt: Date,
-    payoutCompletedAt: Date,
+pickedUpAt: Date,
+deliveredAt: Date,
+payoutCompletedAt: Date,
 
-    proofPhoto: String,
-    notes: String
+/* ============================================================
+   PAYMENT LIFECYCLE
+============================================================ */
+
+paymentStatus: {
+  type: String,
+  enum: [
+    "pending",
+    "requires_payment",
+    "paid",
+    "failed",
+    "refunded"
+  ],
+  default: "pending"
+},
+
+payoutStatus: {
+  type: String,
+  enum: [
+    "pending",
+    "processing",
+    "completed",
+    "failed"
+  ],
+  default: "pending"
+},
+
+amountCharged: {
+  type: Number,
+  default: 0
+},
+
+currency: {
+  type: String,
+  default: "usd"
+},
+
+fundedAt: {
+  type: Date,
+  default: null
+},
+
+paymentFailedAt: {
+  type: Date,
+  default: null
+},
+
+payoutFailedAt: {
+  type: Date,
+  default: null
+},
+
+/* ============================================================
+   STRIPE TRACKING
+============================================================ */
+
+stripePaymentIntentId: {
+  type: String,
+  default: null
+},
+
+stripeChargeId: {
+  type: String,
+  default: null
+},
+
+stripeTransferId: {
+  type: String,
+  default: null
+},
+
+transferGroup: {
+  type: String,
+  default: null
+},
+
+/* ============================================================
+   PROOF OF DELIVERY
+============================================================ */
+
+proofPhoto: {
+  type: String,
+  default: null
+},
+
+signedBy: {
+  type: String,
+  default: null
+},
+
+signatureUrl: {
+  type: String,
+  default: null
+},
+
+completedAt: {
+  type: Date,
+  default: null
+},
+
+notes: String
   },
   { timestamps: true }
 );

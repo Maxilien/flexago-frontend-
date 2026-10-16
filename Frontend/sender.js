@@ -47,10 +47,14 @@ let dropoffMarker = null;
 const BASE_URL = "https://flexago-backend.onrender.com";
 const WS_URL = "wss://flexago-backend.onrender.com";
 
+const DELIVERY_CHAT_WS_URL =
+  "wss://flexago-backend.onrender.com/ws";
+
 const socket = io(WS_URL, {
   path: "/socket.io",
   transports: ["websocket"]
 });
+
 /* ============================================================
    SAFE STRIPE.JS LOADER
 ============================================================ */
@@ -1847,28 +1851,1186 @@ html += `
     container.appendChild(div);
   });
 }
+// ============================================================
+// SENDER DELIVERY CHAT
+// Sender to Traveler
+// ============================================================
 
+let senderChatWs = null;
+let senderChatReconnectTimeout = null;
+let activeSenderChatDeliveryId = null;
+let senderChatShouldReconnect = true;
+let senderChatJoined = false;
+let senderChatSending = false;
+let pendingSenderChatBroadcast = null;
+
+// ============================================================
+// GET AUTHORIZED SENDER USER ID
+// ============================================================
+
+function getSenderChatUserId() {
+  return String(
+    user?._id ||
+    window.senderId ||
+    localStorage.getItem("userId") ||
+    ""
+  ).trim();
+}
+
+// ============================================================
+// SEND NATIVE WEBSOCKET PAYLOAD
+// ============================================================
+
+function sendSenderChatSocketPayload(payload) {
+  if (
+    !senderChatWs ||
+    senderChatWs.readyState !== WebSocket.OPEN
+  ) {
+    return false;
+  }
+
+  senderChatWs.send(
+    JSON.stringify(payload)
+  );
+
+  return true;
+}
+
+// ============================================================
+// JOIN AUTHORIZED DELIVERY CHAT ROOM
+// ============================================================
+
+function joinSenderDeliveryChatRoom(deliveryId) {
+  const senderUserId =
+    getSenderChatUserId();
+
+  if (
+    !deliveryId ||
+    !senderUserId
+  ) {
+    return false;
+  }
+
+  senderChatJoined = false;
+
+  return sendSenderChatSocketPayload({
+    type: "joinDeliveryChat",
+    deliveryId: String(deliveryId),
+    userId: senderUserId,
+    userRole: "sender"
+  });
+}
+
+// ============================================================
+// BROADCAST SAVED MESSAGE
+// ============================================================
+
+function broadcastSenderDeliveryMessage(
+  deliveryId,
+  messageId
+) {
+  if (
+    !deliveryId ||
+    !messageId
+  ) {
+    return false;
+  }
+
+  if (!senderChatJoined) {
+    pendingSenderChatBroadcast = {
+      deliveryId: String(deliveryId),
+      messageId: String(messageId)
+    };
+
+    return false;
+  }
+
+  return sendSenderChatSocketPayload({
+    type: "delivery_chat_message",
+    deliveryId: String(deliveryId),
+    messageId: String(messageId)
+  });
+}
+
+// ============================================================
+// BROADCAST READ STATUS
+// ============================================================
+
+function broadcastSenderChatRead(deliveryId) {
+  if (!deliveryId || !senderChatJoined) {
+    return false;
+  }
+
+  return sendSenderChatSocketPayload({
+    type: "delivery_chat_read",
+    deliveryId: String(deliveryId)
+  });
+}
+
+// ============================================================
+// HANDLE SENDER CHAT WEBSOCKET MESSAGE
+// ============================================================
+
+function handleSenderChatSocketMessage(event) {
+  try {
+    const message = JSON.parse(
+      event.data
+    );
+
+    if (
+      message.type ===
+      "delivery_chat_joined"
+    ) {
+      if (
+        String(message.deliveryId) !==
+        String(activeSenderChatDeliveryId)
+      ) {
+        return;
+      }
+
+      senderChatJoined =
+        Boolean(message.success);
+
+      window.dispatchEvent(
+        new CustomEvent(
+          "flexago:sender-chat-joined",
+          {
+            detail: message
+          }
+        )
+      );
+
+      if (
+        senderChatJoined &&
+        pendingSenderChatBroadcast &&
+        pendingSenderChatBroadcast.deliveryId ===
+          String(activeSenderChatDeliveryId)
+      ) {
+        const pending =
+          pendingSenderChatBroadcast;
+
+        pendingSenderChatBroadcast =
+          null;
+
+        broadcastSenderDeliveryMessage(
+          pending.deliveryId,
+          pending.messageId
+        );
+      }
+
+      return;
+    }
+
+    if (
+      message.type ===
+      "delivery_chat_message"
+    ) {
+      window.dispatchEvent(
+        new CustomEvent(
+          "flexago:sender-chat-message",
+          {
+            detail: message
+          }
+        )
+      );
+
+      return;
+    }
+
+    if (
+      message.type ===
+      "delivery_chat_read"
+    ) {
+      window.dispatchEvent(
+        new CustomEvent(
+          "flexago:sender-chat-read",
+          {
+            detail: message
+          }
+        )
+      );
+
+      return;
+    }
+
+    if (
+      message.type === "socket_error"
+    ) {
+      window.dispatchEvent(
+        new CustomEvent(
+          "flexago:sender-chat-error",
+          {
+            detail: message
+          }
+        )
+      );
+    }
+
+  } catch (error) {
+    console.error(
+      "Sender delivery-chat WebSocket message error:",
+      error
+    );
+  }
+}
+
+// ============================================================
+// CONNECT SENDER NATIVE WEBSOCKET
+// ============================================================
+
+function connectSenderChatSocket() {
+  if (
+    senderChatWs &&
+    (
+      senderChatWs.readyState === WebSocket.OPEN ||
+      senderChatWs.readyState === WebSocket.CONNECTING
+    )
+  ) {
+    return senderChatWs;
+  }
+
+  clearTimeout(
+    senderChatReconnectTimeout
+  );
+
+  try {
+    senderChatWs =
+      new WebSocket(WS_URL);
+
+    senderChatWs.addEventListener(
+      "open",
+      () => {
+        console.log(
+          "Sender delivery-chat WebSocket connected."
+        );
+
+        if (activeSenderChatDeliveryId) {
+          joinSenderDeliveryChatRoom(
+            activeSenderChatDeliveryId
+          );
+        }
+      }
+    );
+
+    senderChatWs.addEventListener(
+      "message",
+      handleSenderChatSocketMessage
+    );
+
+    senderChatWs.addEventListener(
+      "error",
+      (error) => {
+        console.error(
+          "Sender delivery-chat WebSocket error:",
+          error
+        );
+      }
+    );
+
+    senderChatWs.addEventListener(
+      "close",
+      () => {
+        console.warn(
+          "Sender delivery-chat WebSocket disconnected."
+        );
+
+        senderChatWs = null;
+        senderChatJoined = false;
+
+        if (
+          senderChatShouldReconnect &&
+          activeSenderChatDeliveryId
+        ) {
+          senderChatReconnectTimeout =
+            setTimeout(
+              connectSenderChatSocket,
+              3000
+            );
+        }
+      }
+    );
+
+  } catch (error) {
+    console.error(
+      "Unable to initialize Sender delivery-chat WebSocket:",
+      error
+    );
+  }
+
+  return senderChatWs;
+}
+
+// ============================================================
+// INITIALIZE SENDER DELIVERY CHAT PANEL
+// ============================================================
+
+function initSenderDeliveryChat() {
+  const panel = document.getElementById(
+    "senderDeliveryChatPanel"
+  );
+
+  const closeBtn = document.getElementById(
+    "senderDeliveryChatCloseBtn"
+  );
+
+  const messagesContainer =
+    document.getElementById(
+      "senderDeliveryChatMessages"
+    );
+
+  const statusElement =
+    document.getElementById(
+      "senderDeliveryChatStatus"
+    );
+
+  const input = document.getElementById(
+    "senderDeliveryChatInput"
+  );
+
+  const sendBtn = document.getElementById(
+    "senderDeliveryChatSendBtn"
+  );
+
+  if (
+    !panel ||
+    !closeBtn ||
+    !messagesContainer ||
+    !statusElement ||
+    !input ||
+    !sendBtn
+  ) {
+    console.warn(
+      "Sender delivery-chat elements were not found."
+    );
+
+    return;
+  }
+
+  // ==========================================================
+  // MESSAGE UI HELPERS
+  // ==========================================================
+
+  function clearMessages() {
+    messagesContainer.innerHTML = "";
+  }
+
+  function removeMessageState() {
+    messagesContainer
+      .querySelectorAll(
+        ".sender-delivery-chat-empty"
+      )
+      .forEach((element) => {
+        element.remove();
+      });
+  }
+
+  function showMessageState(text) {
+    clearMessages();
+
+    const state =
+      document.createElement("div");
+
+    state.className =
+      "sender-delivery-chat-empty";
+
+    state.textContent = text;
+
+    messagesContainer.appendChild(
+      state
+    );
+  }
+
+  function scrollMessagesToBottom() {
+    messagesContainer.scrollTop =
+      messagesContainer.scrollHeight;
+  }
+
+  function hasRenderedMessage(messageId) {
+    if (!messageId) {
+      return false;
+    }
+
+    return Boolean(
+      messagesContainer.querySelector(
+        `[data-message-id="${String(messageId)}"]`
+      )
+    );
+  }
+
+  function renderSenderChatMessage(message) {
+    if (!message) {
+      return false;
+    }
+
+    const text =
+      typeof message.message === "string"
+        ? message.message.trim()
+        : "";
+
+    if (!text) {
+      return false;
+    }
+
+    const messageId = String(
+      message._id ||
+      message.id ||
+      ""
+    ).trim();
+
+    if (
+      messageId &&
+      hasRenderedMessage(messageId)
+    ) {
+      return false;
+    }
+
+    removeMessageState();
+
+    const isSenderMessage =
+      message.senderRole === "sender";
+
+    const row =
+      document.createElement("div");
+
+    row.className =
+      `sender-delivery-chat-message ${
+        isSenderMessage
+          ? "sent"
+          : "received"
+      }`;
+
+    if (messageId) {
+      row.dataset.messageId =
+        messageId;
+    }
+
+    const bubble =
+      document.createElement("div");
+
+    bubble.className =
+      "sender-delivery-chat-message-bubble";
+
+    bubble.textContent = text;
+
+    row.appendChild(bubble);
+
+    messagesContainer.appendChild(row);
+
+    return true;
+  }
+
+  function renderSenderChatHistory(messages) {
+    clearMessages();
+
+    if (
+      !Array.isArray(messages) ||
+      messages.length === 0
+    ) {
+      showMessageState(
+        "No messages yet. Start the conversation with the Traveler."
+      );
+
+      return;
+    }
+
+    messages.forEach((message) => {
+      renderSenderChatMessage(message);
+    });
+
+    scrollMessagesToBottom();
+  }
+
+  // ==========================================================
+  // MARK MESSAGES AS READ
+  // ==========================================================
+
+  async function markSenderChatRead(
+    deliveryId
+  ) {
+    const senderUserId =
+      getSenderChatUserId();
+
+    if (
+      !deliveryId ||
+      !senderUserId
+    ) {
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `${BASE_URL}/api/delivery-chat/${deliveryId}/read`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type":
+              "application/json",
+            "x-user-id":
+              senderUserId,
+            "x-user-role":
+              "sender"
+          }
+        }
+      );
+
+      if (!response.ok) {
+        const result =
+          await response
+            .json()
+            .catch(() => null);
+
+        throw new Error(
+          result?.error ||
+          "Unable to update message read status."
+        );
+      }
+
+      broadcastSenderChatRead(
+        deliveryId
+      );
+
+    } catch (error) {
+      console.error(
+        "Unable to mark Sender chat messages as read:",
+        error
+      );
+    }
+  }
+
+  // ==========================================================
+  // LOAD CONVERSATION HISTORY
+  // ==========================================================
+
+  async function loadSenderChatHistory(
+    deliveryId
+  ) {
+    const senderUserId =
+      getSenderChatUserId();
+
+    if (!senderUserId) {
+      statusElement.textContent =
+        "Unable to identify the Sender.";
+
+      showMessageState(
+        "Unable to load the conversation."
+      );
+
+      return;
+    }
+
+    showMessageState(
+      "Loading conversation..."
+    );
+
+    statusElement.textContent =
+      "Loading conversation...";
+
+    try {
+      const response = await fetch(
+        `${BASE_URL}/api/delivery-chat/${deliveryId}`,
+        {
+          method: "GET",
+          headers: {
+            "x-user-id":
+              senderUserId,
+            "x-user-role":
+              "sender"
+          }
+        }
+      );
+
+      let result = null;
+
+      try {
+        result = await response.json();
+      } catch (parseError) {
+        console.error(
+          "Sender chat response parse error:",
+          parseError
+        );
+      }
+
+      if (!response.ok) {
+        throw new Error(
+          result?.error ||
+          result?.message ||
+          "Unable to load delivery chat."
+        );
+      }
+
+      if (!result?.success) {
+        throw new Error(
+          result?.error ||
+          "Unable to load delivery chat."
+        );
+      }
+
+      if (
+        String(activeSenderChatDeliveryId) !==
+        String(deliveryId)
+      ) {
+        return;
+      }
+
+      const messages =
+        Array.isArray(result.data)
+          ? result.data
+          : [];
+
+      renderSenderChatHistory(
+        messages
+      );
+
+      statusElement.textContent =
+        messages.length > 0
+          ? "Conversation connected."
+          : "Start a conversation with the Traveler.";
+
+      await markSenderChatRead(
+        deliveryId
+      );
+
+    } catch (error) {
+      console.error(
+        "Unable to load Sender delivery chat:",
+        error
+      );
+
+      if (
+        String(activeSenderChatDeliveryId) !==
+        String(deliveryId)
+      ) {
+        return;
+      }
+
+      showMessageState(
+        error.message ||
+        "Unable to load the conversation."
+      );
+
+      statusElement.textContent =
+        "Conversation unavailable.";
+    }
+  }
+
+  // ==========================================================
+  // OPEN CHAT PANEL
+  // ==========================================================
+
+  function openSenderDeliveryChat(
+    deliveryId
+  ) {
+    if (!deliveryId) {
+      return;
+    }
+
+    activeSenderChatDeliveryId =
+      String(deliveryId);
+
+    senderChatJoined = false;
+
+    panel.dataset.deliveryId =
+      activeSenderChatDeliveryId;
+
+    panel.classList.add("open");
+
+    panel.setAttribute(
+      "aria-hidden",
+      "false"
+    );
+
+    input.value = "";
+    input.disabled = false;
+    sendBtn.disabled = false;
+
+    statusElement.textContent =
+      "Connecting to Traveler...";
+
+    connectSenderChatSocket();
+
+    joinSenderDeliveryChatRoom(
+      activeSenderChatDeliveryId
+    );
+
+    loadSenderChatHistory(
+      activeSenderChatDeliveryId
+    );
+
+    if (
+      window.lucide &&
+      typeof window.lucide.createIcons ===
+        "function"
+    ) {
+      window.lucide.createIcons();
+    }
+
+    window.setTimeout(() => {
+      input.focus();
+    }, 0);
+  }
+
+  // ==========================================================
+  // CLOSE CHAT PANEL
+  // ==========================================================
+
+  function closeSenderDeliveryChat() {
+    panel.classList.remove("open");
+
+    panel.setAttribute(
+      "aria-hidden",
+      "true"
+    );
+
+    delete panel.dataset.deliveryId;
+
+    input.value = "";
+    input.disabled = false;
+    sendBtn.disabled = false;
+
+    clearMessages();
+
+    statusElement.textContent =
+      "Delivery conversation";
+
+    activeSenderChatDeliveryId = null;
+    senderChatJoined = false;
+    pendingSenderChatBroadcast = null;
+  }
+
+  // ==========================================================
+  // SEND MESSAGE
+  // ==========================================================
+
+  async function sendSenderChatMessage() {
+    if (senderChatSending) {
+      return;
+    }
+
+    const deliveryId =
+      activeSenderChatDeliveryId;
+
+    const senderUserId =
+      getSenderChatUserId();
+
+    const text =
+      input.value.trim();
+
+    if (!deliveryId) {
+      statusElement.textContent =
+        "No active delivery conversation.";
+
+      return;
+    }
+
+    if (!senderUserId) {
+      statusElement.textContent =
+        "Unable to identify the Sender.";
+
+      return;
+    }
+
+    if (!text) {
+      statusElement.textContent =
+        "Type a message before sending.";
+
+      input.focus();
+      return;
+    }
+
+    if (text.length > 2000) {
+      statusElement.textContent =
+        "Message cannot exceed 2000 characters.";
+
+      input.focus();
+      return;
+    }
+
+    senderChatSending = true;
+    sendBtn.disabled = true;
+    input.disabled = true;
+
+    statusElement.textContent =
+      "Sending message...";
+
+    try {
+      const response = await fetch(
+        `${BASE_URL}/api/delivery-chat/${deliveryId}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type":
+              "application/json",
+            "x-user-id":
+              senderUserId,
+            "x-user-role":
+              "sender"
+          },
+          body: JSON.stringify({
+            message: text
+          })
+        }
+      );
+
+      let result = null;
+
+      try {
+        result = await response.json();
+      } catch (parseError) {
+        console.error(
+          "Sender message response parse error:",
+          parseError
+        );
+      }
+
+      if (!response.ok) {
+        throw new Error(
+          result?.error ||
+          result?.message ||
+          "Unable to send message."
+        );
+      }
+
+      if (
+        !result?.success ||
+        !result?.data
+      ) {
+        throw new Error(
+          result?.error ||
+          "The message was not saved."
+        );
+      }
+
+      if (
+        String(activeSenderChatDeliveryId) !==
+        String(deliveryId)
+      ) {
+        return;
+      }
+
+      renderSenderChatMessage(
+        result.data
+      );
+
+      scrollMessagesToBottom();
+
+      input.value = "";
+
+      statusElement.textContent =
+        "Message sent.";
+
+      const messageId =
+        result.data._id ||
+        result.data.id;
+
+      if (messageId) {
+        const broadcasted =
+          broadcastSenderDeliveryMessage(
+            deliveryId,
+            messageId
+          );
+
+        if (!broadcasted) {
+          connectSenderChatSocket();
+
+          joinSenderDeliveryChatRoom(
+            deliveryId
+          );
+
+          statusElement.textContent =
+            "Message saved. Real-time connection is reconnecting.";
+        }
+      }
+
+    } catch (error) {
+      console.error(
+        "Unable to send Sender delivery message:",
+        error
+      );
+
+      if (
+        String(activeSenderChatDeliveryId) ===
+        String(deliveryId)
+      ) {
+        statusElement.textContent =
+          error.message ||
+          "Unable to send message.";
+      }
+
+    } finally {
+      senderChatSending = false;
+      sendBtn.disabled = false;
+      input.disabled = false;
+
+      if (
+        String(activeSenderChatDeliveryId) ===
+        String(deliveryId)
+      ) {
+        input.focus();
+      }
+    }
+  }
+
+  // ==========================================================
+  // OPEN EVENT FROM DELIVERY STATUS VIEW
+  // ==========================================================
+
+  window.addEventListener(
+    "flexago:open-sender-delivery-chat",
+    (event) => {
+      const deliveryId =
+        event.detail?.deliveryId;
+
+      openSenderDeliveryChat(
+        deliveryId
+      );
+    }
+  );
+
+  // ==========================================================
+  // CLOSE EVENTS
+  // ==========================================================
+
+  closeBtn.addEventListener(
+    "click",
+    closeSenderDeliveryChat
+  );
+
+  panel.addEventListener(
+    "click",
+    (event) => {
+      if (event.target === panel) {
+        closeSenderDeliveryChat();
+      }
+    }
+  );
+
+  document.addEventListener(
+    "keydown",
+    (event) => {
+      if (
+        event.key === "Escape" &&
+        panel.classList.contains("open")
+      ) {
+        closeSenderDeliveryChat();
+      }
+    }
+  );
+
+  // ==========================================================
+  // SEND EVENTS
+  // ==========================================================
+
+  input.addEventListener(
+    "keydown",
+    (event) => {
+      if (
+        event.key === "Enter" &&
+        !event.shiftKey
+      ) {
+        event.preventDefault();
+
+        sendSenderChatMessage();
+      }
+    }
+  );
+
+  sendBtn.addEventListener(
+    "click",
+    sendSenderChatMessage
+  );
+
+  // ==========================================================
+  // WEBSOCKET JOIN RESULT
+  // ==========================================================
+
+  window.addEventListener(
+    "flexago:sender-chat-joined",
+    (event) => {
+      const message =
+        event.detail;
+
+      if (
+        !message ||
+        String(message.deliveryId) !==
+        String(activeSenderChatDeliveryId)
+      ) {
+        return;
+      }
+
+      if (message.success) {
+        statusElement.textContent =
+          "Real-time chat connected.";
+
+        markSenderChatRead(
+          activeSenderChatDeliveryId
+        );
+
+      } else {
+        statusElement.textContent =
+          message.error ||
+          "Unable to join real-time chat.";
+      }
+    }
+  );
+
+  // ==========================================================
+  // REAL-TIME MESSAGE
+  // ==========================================================
+
+  window.addEventListener(
+    "flexago:sender-chat-message",
+    (event) => {
+      const socketMessage =
+        event.detail;
+
+      if (
+        !socketMessage ||
+        !socketMessage.data
+      ) {
+        return;
+      }
+
+      const deliveryId = String(
+        socketMessage.deliveryId ||
+        socketMessage.data.deliveryId ||
+        ""
+      );
+
+      if (
+        deliveryId !==
+        String(activeSenderChatDeliveryId)
+      ) {
+        return;
+      }
+
+      const rendered =
+        renderSenderChatMessage(
+          socketMessage.data
+        );
+
+      if (!rendered) {
+        return;
+      }
+
+      scrollMessagesToBottom();
+
+      if (
+        socketMessage.data.senderRole ===
+        "traveler"
+      ) {
+        statusElement.textContent =
+          "New message from the Traveler.";
+
+        markSenderChatRead(
+          activeSenderChatDeliveryId
+        );
+
+      } else {
+        statusElement.textContent =
+          "Message delivered.";
+      }
+    }
+  );
+
+  // ==========================================================
+  // READ STATUS
+  // ==========================================================
+
+  window.addEventListener(
+    "flexago:sender-chat-read",
+    (event) => {
+      const readMessage =
+        event.detail;
+
+      if (
+        !readMessage ||
+        String(readMessage.deliveryId) !==
+        String(activeSenderChatDeliveryId)
+      ) {
+        return;
+      }
+
+      if (
+        readMessage.readBy?.role ===
+        "traveler"
+      ) {
+        statusElement.textContent =
+          "Read by Traveler.";
+      }
+    }
+  );
+
+  // ==========================================================
+  // SOCKET ERROR
+  // ==========================================================
+
+  window.addEventListener(
+    "flexago:sender-chat-error",
+    (event) => {
+      if (!activeSenderChatDeliveryId) {
+        return;
+      }
+
+      statusElement.textContent =
+        event.detail?.error ||
+        "Real-time chat connection error.";
+    }
+  );
+}
+
+// ============================================================
+// CLOSE SENDER CHAT SOCKET WHEN LEAVING PAGE
+// ============================================================
+
+window.addEventListener(
+  "beforeunload",
+  () => {
+    senderChatShouldReconnect = false;
+
+    clearTimeout(
+      senderChatReconnectTimeout
+    );
+
+    if (
+      senderChatWs &&
+      (
+        senderChatWs.readyState ===
+          WebSocket.OPEN ||
+        senderChatWs.readyState ===
+          WebSocket.CONNECTING
+      )
+    ) {
+      senderChatWs.close();
+    }
+  }
+);
 /* ============================================================
    OPEN DELIVERY STATUS VIEW
 ============================================================ */
-/* ============================================================
-   OPEN DELIVERY STATUS VIEW
-============================================================ */
+
 async function openDeliveryStatus(delivery) {
   const container =
-    document.getElementById("deliveryStatusContent");
+    document.getElementById(
+      "deliveryStatusContent"
+    );
 
   if (!container) {
     console.error(
       "deliveryStatusContent was not found."
     );
+
     return;
   }
 
   container.innerHTML = "";
 
+  /* ==========================================================
+     TEXT ROW HELPER
+  ========================================================== */
+
   const addTextRow = (label, value) => {
-    const row = document.createElement("p");
+    const row =
+      document.createElement("p");
 
     const labelElement =
       document.createElement("strong");
@@ -1876,7 +3038,9 @@ async function openDeliveryStatus(delivery) {
     labelElement.textContent =
       label + ": ";
 
-    row.appendChild(labelElement);
+    row.appendChild(
+      labelElement
+    );
 
     row.appendChild(
       document.createTextNode(
@@ -1888,8 +3052,14 @@ async function openDeliveryStatus(delivery) {
       )
     );
 
-    container.appendChild(row);
+    container.appendChild(
+      row
+    );
   };
+
+  /* ==========================================================
+     DELIVERY TITLE
+  ========================================================== */
 
   const title =
     document.createElement("h3");
@@ -1900,7 +3070,13 @@ async function openDeliveryStatus(delivery) {
   title.textContent =
     "Delivery #" + delivery._id;
 
-  container.appendChild(title);
+  container.appendChild(
+    title
+  );
+
+  /* ==========================================================
+     DELIVERY INFORMATION
+  ========================================================== */
 
   addTextRow(
     "Status",
@@ -1934,6 +3110,10 @@ async function openDeliveryStatus(delivery) {
       : "No"
   );
 
+  /* ==========================================================
+     TRAVELER INFORMATION
+  ========================================================== */
+
   const travelerFirstName =
     delivery.travelerDetails?.firstName ||
     "";
@@ -1942,29 +3122,33 @@ async function openDeliveryStatus(delivery) {
     delivery.travelerDetails?.lastName ||
     "";
 
-const travelerName =
-  (
-    travelerFirstName +
-    " " +
-    travelerLastName
-  ).trim() ||
-  "Not assigned yet";
+  const travelerName =
+    (
+      travelerFirstName +
+      " " +
+      travelerLastName
+    ).trim() ||
+    "Not assigned yet";
 
-const travelerRating =
-  delivery.travelerDetails?.rating;
+  const travelerRating =
+    delivery.travelerDetails?.rating;
 
-addTextRow(
-  "Traveler",
-  travelerName
-);
-
-// Only show rating when a traveler is assigned
-if (delivery.travelerId && travelerRating !== null && travelerRating !== undefined) {
   addTextRow(
-    "Rating",
-    `⭐ ${travelerRating}`
+    "Traveler",
+    travelerName
   );
-}
+
+  if (
+    delivery.travelerId &&
+    travelerRating !== null &&
+    travelerRating !== undefined
+  ) {
+    addTextRow(
+      "Rating",
+      `⭐ ${travelerRating}`
+    );
+  }
+
   addTextRow(
     "Price",
     "$" +
@@ -1972,6 +3156,112 @@ if (delivery.travelerId && travelerRating !== null && travelerRating !== undefin
       delivery.price || 0
     ).toFixed(2)
   );
+
+  /* ==========================================================
+     CHAT WITH TRAVELER
+
+     Chat is available after acceptance and remains available
+     until the delivery reaches its final delivered state.
+  ========================================================== */
+
+  const activeChatStatuses = [
+    "accepted",
+    "picked_up",
+    "in_transit"
+  ];
+
+  const deliveryStatus =
+    String(
+      delivery.status || ""
+    )
+      .trim()
+      .toLowerCase();
+
+  const canChatWithTraveler =
+    Boolean(delivery.travelerId) &&
+    activeChatStatuses.includes(
+      deliveryStatus
+    );
+
+  if (canChatWithTraveler) {
+    const chatButton =
+      document.createElement("button");
+
+    chatButton.type =
+      "button";
+
+    chatButton.className =
+      "sender-delivery-chat-btn";
+
+    chatButton.dataset.id =
+      String(delivery._id);
+
+    chatButton.title =
+      "Chat with Traveler";
+
+    chatButton.setAttribute(
+      "aria-label",
+      "Chat with Traveler"
+    );
+
+    const chatIcon =
+      document.createElement("i");
+
+    chatIcon.setAttribute(
+      "data-lucide",
+      "message-circle"
+    );
+
+    const chatLabel =
+      document.createElement("span");
+
+    chatLabel.textContent =
+      "Chat with Traveler";
+
+    chatButton.appendChild(
+      chatIcon
+    );
+
+    chatButton.appendChild(
+      chatLabel
+    );
+
+    chatButton.addEventListener(
+      "click",
+      (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        window.dispatchEvent(
+          new CustomEvent(
+            "flexago:open-sender-delivery-chat",
+            {
+              detail: {
+                deliveryId:
+                  String(delivery._id)
+              }
+            }
+          )
+        );
+      }
+    );
+
+    container.appendChild(
+      chatButton
+    );
+
+    if (
+      window.lucide &&
+      typeof window.lucide.createIcons ===
+        "function"
+    ) {
+      window.lucide.createIcons();
+    }
+  }
+
+  /* ==========================================================
+     PROOF OF DELIVERY
+  ========================================================== */
 
   const divider =
     document.createElement("hr");
@@ -1982,7 +3272,9 @@ if (delivery.travelerId && travelerRating !== null && travelerRating !== undefin
   divider.style.opacity =
     "0.3";
 
-  container.appendChild(divider);
+  container.appendChild(
+    divider
+  );
 
   const proofTitle =
     document.createElement("h4");
@@ -2015,6 +3307,10 @@ if (delivery.travelerId && travelerRating !== null && travelerRating !== undefin
         ).toLocaleString()
       : "N/A"
   );
+
+  /* ==========================================================
+     DELIVERY PHOTO
+  ========================================================== */
 
   if (delivery.proofPhoto) {
     const photoContainer =
@@ -2065,12 +3361,17 @@ if (delivery.travelerId && travelerRating !== null && travelerRating !== undefin
     container.appendChild(
       photoContainer
     );
+
   } else {
     addTextRow(
       "Delivery Photo",
       "Not available"
     );
   }
+
+  /* ==========================================================
+     RECIPIENT SIGNATURE
+  ========================================================== */
 
   if (delivery.signatureUrl) {
     const signatureContainer =
@@ -2098,9 +3399,9 @@ if (delivery.travelerId && travelerRating !== null && travelerRating !== undefin
       "Recipient signature";
 
     signature.style.maxWidth =
-     "220px";
+      "220px";
 
-   signature.style.background =
+    signature.style.background =
       "#ffffff";
 
     signature.style.padding =
@@ -2127,12 +3428,17 @@ if (delivery.travelerId && travelerRating !== null && travelerRating !== undefin
     container.appendChild(
       signatureContainer
     );
+
   } else {
     addTextRow(
       "Signature",
       "Not available"
     );
   }
+
+  /* ==========================================================
+     BACK BUTTON
+  ========================================================== */
 
   const finalDivider =
     document.createElement("hr");
@@ -2173,7 +3479,7 @@ if (delivery.travelerId && travelerRating !== null && travelerRating !== undefin
   );
 
   showSenderView(
-    "deliveryStatusView"
+    "deliveryStatusView" 
   );
 }
 /* ============================================================
@@ -2508,6 +3814,7 @@ function initSenderPayoutView() {
 ============================================================ */
 document.addEventListener("DOMContentLoaded", () => {
   safe(initSenderIcons);
+  safe(initSenderDeliveryChat);
   safe(loadSenderIdentity);
   safe(initSenderSidebar);
   safe(initSenderCreateForm);

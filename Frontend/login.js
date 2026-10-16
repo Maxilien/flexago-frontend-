@@ -1,19 +1,25 @@
 async function login(email, password) {
   try {
-    const res = await fetch("https://flexago-backend.onrender.com/api/users/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password })
-    });
+    const res = await fetch(
+      "https://flexago-backend.onrender.com/api/users/login",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ email, password })
+      }
+    );
 
     const result = await res.json();
 
-    // Backend may not return "success", so check HTTP status instead
+    // Check HTTP response
     if (!res.ok) {
-      alert(result.error || "Login failed");
+      alert(result.error || result.message || "Login failed");
       return;
     }
 
+    // Backend may return either data or user
     const user = result.data || result.user;
 
     if (!user) {
@@ -21,13 +27,14 @@ async function login(email, password) {
       return;
     }
 
-    // Save user object
+    // Save logged-in user
     localStorage.setItem("user", JSON.stringify(user));
     localStorage.setItem("userId", user._id);
 
     // Traveler-specific ID
     if (user.role === "traveler") {
       window.travelerId = user._id;
+      localStorage.setItem("travelerId", user._id);
     }
 
     // Redirect based on role
@@ -36,7 +43,7 @@ async function login(email, password) {
     } else if (user.role === "traveler") {
       window.location.href = "Traveler.html";
     } else {
-      alert("Unknown role");
+      alert("Unknown user role");
     }
 
   } catch (err) {
@@ -45,9 +52,13 @@ async function login(email, password) {
   }
 }
 
-// ⭐ ADD THIS — without it, clicking Login does NOTHING
+/* ============================================================
+   LOGIN BUTTON
+============================================================ */
+
 document.getElementById("login-btn").addEventListener("click", () => {
-  const email = document.getElementById("email").value;
+  const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value;
+
   login(email, password);
 });

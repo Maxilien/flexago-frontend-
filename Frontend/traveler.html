@@ -1053,6 +1053,84 @@
   </div>
 </div>
 
+<!-- ============================================================
+     DELIVERY CHAT — TRAVELER <-> SENDER
+============================================================ -->
+
+<div
+  id="deliveryChatPanel"
+  class="delivery-chat-panel"
+  aria-hidden="true"
+>
+  <div class="delivery-chat-window">
+
+    <!-- HEADER -->
+    <div class="delivery-chat-header">
+      <div class="delivery-chat-title">
+        <i data-lucide="message-circle"></i>
+
+        <div>
+          <strong>Chat with Sender</strong>
+          <span>Delivery conversation</span>
+        </div>
+      </div>
+
+      <button
+        type="button"
+        id="deliveryChatCloseBtn"
+        class="delivery-chat-close-btn"
+        aria-label="Close delivery chat"
+        title="Close"
+      >
+        <i data-lucide="x"></i>
+      </button>
+    </div>
+
+    <!-- MESSAGES -->
+    <div
+      id="deliveryChatMessages"
+      class="delivery-chat-messages"
+      aria-live="polite"
+    >
+      <div class="delivery-chat-empty">
+        Messages between you and the Sender will appear here.
+      </div>
+    </div>
+
+    <!-- STATUS -->
+    <div
+      id="deliveryChatStatus"
+      class="delivery-chat-status"
+    ></div>
+
+    <!-- MESSAGE COMPOSER -->
+    <div class="delivery-chat-footer">
+
+      <textarea
+        id="deliveryChatInput"
+        class="delivery-chat-input"
+        rows="1"
+        maxlength="1000"
+        placeholder="Type a message..."
+        aria-label="Message to Sender"
+      ></textarea>
+
+      <button
+        type="button"
+        id="deliveryChatSendBtn"
+        class="delivery-chat-send-btn"
+        aria-label="Send message"
+        title="Send message"
+      >
+        <i data-lucide="send"></i>
+        <span>Send</span>
+      </button>
+
+    </div>
+
+  </div>
+</div>
+
 <!-- ================= FINAL SCRIPT INCLUDES ================= -->
 
 <!-- ⭐ Logout -->

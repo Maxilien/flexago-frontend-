@@ -35,6 +35,9 @@ const http = require("http");
 // ✅ STEP 2 — Now app.js and all routes can safely read process.env
 const app = require("./app");
 const { Server } = require("socket.io");
+const {
+  initExplorerSocket
+} = require("./ws/explorerSocket");
 
 // ============================================================
 // ⭐ GOOGLE TRANSLATION CLIENT (for /translate + /detect-language)
@@ -53,8 +56,6 @@ const location = "global";
 // ============================================================
 //
 // This detects the language of ANY text sent by the client.
-// Useful for chat, job descriptions, traveler instructions,
-// or auto-detecting user language like Uber.
 //
 app.post("/detect-language", async (req, res) => {
   try {
@@ -86,10 +87,6 @@ app.post("/detect-language", async (req, res) => {
 // ============================================================
 // ⭐ TRANSLATION ENDPOINT (Dynamic Translation)
 // ============================================================
-//
-// This translates ANY text dynamically — job descriptions,
-// traveler instructions, payout messages, notifications, etc.
-//
 app.post("/translate", async (req, res) => {
   try {
     const { text, targetLanguage, sourceLanguage } = req.body;
@@ -145,7 +142,8 @@ const io = new Server(server, {
   path: "/socket.io",
   transports: ["websocket"],
 });
-
+// Native WebSocket server for delivery chat
+initExplorerSocket(server);
 // WebSocket logic (delivery rooms + updates)
 io.on("connection", (socket) => {
   console.log("🔌 WS connected:", socket.id);
@@ -184,3 +182,4 @@ server.listen(PORT, () => {
 });
 
 module.exports = server;
+

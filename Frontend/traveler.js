@@ -84,10 +84,14 @@ loadTravelerIdentity();
 /* ============================================================
    GLOBAL CONFIG
    ============================================================ */
-const BASE_URL = "https://flexago-backend.onrender.com";
-const WS_URL = "wss://flexago-backend.onrender.com";
 
-// Socket.IO removed — using native WebSocket instead
+const BASE_URL = "https://flexago-backend.onrender.com";
+
+const WS_URL =
+  "wss://flexago-backend.onr*nder.com/ws";
+
+// Socket.IO remove* - using native WebSocket instead
+
 
 
 /* ============================================================
@@ -1001,106 +1005,181 @@ function renderJobCard(job, status, listElement) {
     job.realMiles < 50 ? "orange" :
     "red";
 
-  /* ============================================================
-     CARD HTML
-  ============================================================ */
-  card.innerHTML = `
-    <div class="job-header">
-      <span class="badge badge-${badgeColor}">
-        ${milesDisplay} mi
-      </span>
-      <button class="details-btn" data-id="${deliveryId}">View Details</button>
-    </div>
+/* ============================================================
+   CARD HTML
+============================================================ */
 
-    <div class="job-row">
-      <div class="job-label"><span class="icon-pin pickup"></span> Pickup:</div>
-      <div class="job-value">${job.pickupAddress || job.pickup?.address || "—"}</div>
-    </div>
+card.innerHTML = `
+  <div class="job-header">
+    <span class="badge badge-${badgeColor}">
+      ${milesDisplay} mi
+    </span>
 
-    <div class="job-row">
-      <div class="job-label"><span class="icon-pin dropoff"></span> Dropoff:</div>
-      <div class="job-value">${job.dropoffAddress || job.dropoff?.address || "—"}</div>
-    </div>
-
-    <div class="job-row">
-      <div class="job-label"><span class="icon-money"></span> Payout:</div>
-      <div class="job-value">$${payoutDisplay}</div>
-    </div>
-
-    <div class="job-actions">
-      ${status === "available" ? `
-        <button class="primary-btn accept-btn" data-id="${deliveryId}">Accept</button>
-        <button class="secondary-btn decline-btn" data-id="${deliveryId}">Decline</button>
-      ` : ""}
-
-      ${status === "accepted" ? `
-  <div class="action-row">
-
-    <!-- Chat stays the same -->
-    <button class="chat-bubble-btn" data-id="${deliveryId}" title="Chat with Sender">
-      <i data-lucide="message-square"></i>
+    <button
+      class="details-btn"
+      data-id="${deliveryId}"
+    >
+      View Details
     </button>
+  </div>
 
-    <!-- ⭐ NEW: Verify Pickup Code -->
-    <button class="primary-btn verify-pickup-btn" data-id="${deliveryId}">
-      Verify Pickup Code
-    </button>
+  <div class="job-row">
+    <div class="job-label">
+      <span class="icon-pin pickup"></span>
+      Pickup:
+    </div>
 
-    <!-- ⭐ Pick Up (hidden until verified) -->
-    <button class="primary-btn pickup-btn hidden" data-id="${deliveryId}">
-      Pick Up
-    </button>
+    <div class="job-value">
+      ${job.pickupAddress || job.pickup?.address || "—"}
+    </div>
+  </div>
+
+  <div class="job-row">
+    <div class="job-label">
+      <span class="icon-pin dropoff"></span>
+      Dropoff:
+    </div>
+
+    <div class="job-value">
+      ${job.dropoffAddress || job.dropoff?.address || "—"}
+    </div>
+  </div>
+
+  <div class="job-row">
+    <div class="job-label">
+      <span class="icon-money"></span>
+      Payout:
+    </div>
+
+    <div class="job-value">
+      $${payoutDisplay}
+    </div>
+  </div>
+
+  <div class="job-actions">
+
+    ${status === "available" ? `
+      <button
+        class="primary-btn accept-btn"
+        data-id="${deliveryId}"
+      >
+        Accept
+      </button>
+
+      <button
+        class="secondary-btn decline-btn"
+        data-id="${deliveryId}"
+      >
+        Decline
+      </button>
+    ` : ""}
+
+    ${status === "accepted" ? `
+      <div class="action-row">
+
+        <!-- DELIVERY CHAT -->
+        <button
+          type="button"
+          class="delivery-chat-btn"
+          data-id="${deliveryId}"
+          title="Chat with Sender"
+          aria-label="Chat with Sender"
+        >
+          <i data-lucide="message-circle"></i>
+          <span>Chat</span>
+        </button>
+
+        <!-- VERIFY PICKUP CODE -->
+        <button
+          class="primary-btn verify-pickup-btn"
+          data-id="${deliveryId}"
+        >
+          Verify Pickup Code
+        </button>
+
+        <!-- PICK UP: HIDDEN UNTIL VERIFIED -->
+        <button
+          class="primary-btn pickup-btn hidden"
+          data-id="${deliveryId}"
+        >
+          Pick Up
+        </button>
+
+      </div>
+    ` : ""}
+
+    ${status === "picked_up" ? `
+      <div class="action-row">
+
+        <!-- DELIVERY CHAT -->
+        <button
+          type="button"
+          class="delivery-chat-btn"
+          data-id="${deliveryId}"
+          title="Chat with Sender"
+          aria-label="Chat with Sender"
+        >
+          <i data-lucide="message-circle"></i>
+          <span>Chat</span>
+        </button>
+
+        <!-- PROOF OF DELIVERY -->
+        <button
+          class="primary-btn proof-btn"
+          data-id="${deliveryId}"
+        >
+          Proof of Delivery
+        </button>
+
+        <!-- COMPLETE DELIVERY -->
+        <button
+          class="primary-btn complete-delivery-btn"
+          data-id="${deliveryId}"
+        >
+          Complete Delivery
+        </button>
+
+        <!-- DELIVERED: HIDDEN UNTIL PROOF + SIGNATURE -->
+        <button
+          class="primary-btn delivered-btn hidden"
+          data-id="${deliveryId}"
+        >
+          Delivered
+        </button>
+
+      </div>
+    ` : ""}
+
+    ${status === "completed" ? `
+      <div class="completed-tag">
+        Completed
+      </div>
+    ` : ""}
 
   </div>
-` : ""}
-${status === "picked_up" ? `
-  <div class="action-row">
 
-    <!-- Chat stays the same -->
-    <button class="chat-bubble-btn" data-id="${deliveryId}" title="Chat with Sender">
-      <i data-lucide="message-square"></i>
-    </button>
+  <div class="delivery-photo-section hidden">
+    <label class="form-label">
+      Signed By
+    </label>
 
-    <!-- ⭐ Proof of Delivery -->
-    <button class="primary-btn proof-btn" data-id="${deliveryId}">
-      Proof of Delivery
-    </button>
+    <input
+      type="text"
+      id="receiverNameInput"
+      class="input-shell"
+      placeholder="Who signed for the delivery?"
+    />
 
-    <!-- ⭐ Complete Delivery -->
-    <button class="primary-btn complete-delivery-btn" data-id="${deliveryId}">
-      Complete Delivery
-    </button>
-
-    <!-- ⭐ Delivered (hidden until proof + signature done) -->
-    <button class="primary-btn delivered-btn hidden" data-id="${deliveryId}">
+    <button
+      class="primary-btn delivered-btn"
+      style="margin-top:0.8rem;"
+    >
       Delivered
     </button>
-
   </div>
-` : ""}
+`;
 
-      ${status === "completed" ? `
-        <div class="completed-tag">Completed</div>
-      ` : ""}
-    </div>
-
-    <div class="delivery-photo-section hidden">
-      <label class="form-label">Signed By</label>
-      <input 
-        type="text" 
-        id="receiverNameInput"
-        class="input-shell"
-        placeholder="Who signed for the delivery?"
-      />
-
-      <button class="primary-btn delivered-btn" style="margin-top:0.8rem;">
-        Delivered
-      </button>
-    </div>
-  `;
-
-  listElement.appendChild(card);
-
+listElement.appendChild(card);
   /* ============================================================
      STATUS HANDLERS
 ============================================================ */
@@ -1514,112 +1593,1448 @@ async function completeJob(deliveryId) {
   }
 }
 
-/* ============================================================
-   REAL-TIME JOB UPDATES (DELIVERY-SPECIFIC WEBSOCKET)
-   ============================================================ */
-let wsUpdateTimeout = null;
+// ============================================================
+// REAL-TIME DELIVERY AND CHAT WEBSOCKET
+// ============================================================
 
+let wsUpdateTimeout = null;
+let wsReconnectTimeout = null;
+let activeSocketDeliveryId = null;
+let activeSocketChatDeliveryId = null;
+let shouldReconnectTravelerSocket = true;
+
+// ============================================================
+// SEND WEBSOCKET PAYLOAD
+// ============================================================
+
+function sendTravelerSocketPayload(payload) {
+  if (
+    !ws ||
+    ws.readyState !== WebSocket.OPEN
+  ) {
+    return false;
+  }
+
+  ws.send(
+    JSON.stringify(payload)
+  );
+
+  return true;
+}
+
+// ============================================================
+// JOIN STANDARD DELIVERY ROOM
+// ============================================================
+
+function joinTravelerDeliveryRoom(deliveryId) {
+  if (!deliveryId) {
+    return false;
+  }
+
+  activeSocketDeliveryId =
+    String(deliveryId);
+
+  return sendTravelerSocketPayload({
+    type: "joinDelivery",
+    deliveryId: activeSocketDeliveryId
+  });
+}
+
+// ============================================================
+// JOIN AUTHORIZED DELIVERY CHAT ROOM
+// ============================================================
+
+function joinTravelerDeliveryChat(deliveryId) {
+  if (!deliveryId) {
+    return false;
+  }
+
+  const travelerUserId = String(
+    window.userId ||
+    localStorage.getItem("userId") ||
+    ""
+  ).trim();
+
+  if (!travelerUserId) {
+    console.warn(
+      "Unable to join delivery chat without a Traveler user ID."
+    );
+
+    return false;
+  }
+
+  activeSocketChatDeliveryId =
+    String(deliveryId);
+
+  return sendTravelerSocketPayload({
+    type: "joinDeliveryChat",
+    deliveryId: activeSocketChatDeliveryId,
+    userId: travelerUserId,
+    userRole: "traveler"
+  });
+}
+
+// ============================================================
+// BROADCAST SAVED DELIVERY MESSAGE
+// ============================================================
+
+function broadcastTravelerDeliveryMessage(
+  deliveryId,
+  messageId
+) {
+  if (!deliveryId || !messageId) {
+    return false;
+  }
+
+  return sendTravelerSocketPayload({
+    type: "delivery_chat_message",
+    deliveryId: String(deliveryId),
+    messageId: String(messageId)
+  });
+}
+
+// ============================================================
+// BROADCAST DELIVERY CHAT READ STATUS
+// ============================================================
+
+function broadcastTravelerChatRead(deliveryId) {
+  if (!deliveryId) {
+    return false;
+  }
+
+  return sendTravelerSocketPayload({
+    type: "delivery_chat_read",
+    deliveryId: String(deliveryId)
+  });
+}
+
+// ============================================================
+// HANDLE WEBSOCKET MESSAGE
+// ============================================================
+
+function handleTravelerSocketMessage(event) {
+  try {
+    const message = JSON.parse(
+      event.data
+    );
+
+    console.log(
+      "Traveler WebSocket message:",
+      message
+    );
+
+    // Existing delivery/job updates
+    if (
+      message.type === "job_update" ||
+      message.type === "job_completed" ||
+      message.type === "new_job" ||
+      message.type === "status_update" ||
+      message.type === "traveler_assigned"
+    ) {
+      clearTimeout(
+        wsUpdateTimeout
+      );
+
+      wsUpdateTimeout = setTimeout(
+        () => {
+          if (!isSearching) {
+            loadAvailableJobs();
+          }
+        },
+        300
+      );
+    }
+
+    // Delivery chat room authorization result
+    if (
+      message.type ===
+      "delivery_chat_joined"
+    ) {
+      window.dispatchEvent(
+        new CustomEvent(
+          "flexago:delivery-chat-joined",
+          {
+            detail: message
+          }
+        )
+      );
+
+      return;
+    }
+
+    // New real-time delivery message
+    if (
+      message.type ===
+      "delivery_chat_message"
+    ) {
+      window.dispatchEvent(
+        new CustomEvent(
+          "flexago:delivery-chat-message",
+          {
+            detail: message
+          }
+        )
+      );
+
+      return;
+    }
+
+    // Read receipt
+    if (
+      message.type ===
+      "delivery_chat_read"
+    ) {
+      window.dispatchEvent(
+        new CustomEvent(
+          "flexago:delivery-chat-read",
+          {
+            detail: message
+          }
+        )
+      );
+
+      return;
+    }
+
+    // Socket-level error
+    if (
+      message.type === "socket_error"
+    ) {
+      console.error(
+        "Delivery chat socket error:",
+        message.error
+      );
+
+      window.dispatchEvent(
+        new CustomEvent(
+          "flexago:delivery-chat-error",
+          {
+            detail: message
+          }
+        )
+      );
+    }
+
+  } catch (error) {
+    console.error(
+      "Traveler WebSocket message error:",
+      error
+    );
+  }
+}
+
+// ============================================================
+// CONNECT TRAVELER WEBSOCKET
+// ============================================================
+
+function connectTravelerSocket() {
+  if (
+    ws &&
+    (
+      ws.readyState === WebSocket.OPEN ||
+      ws.readyState === WebSocket.CONNECTING
+    )
+  ) {
+    return ws;
+  }
+
+  clearTimeout(
+    wsReconnectTimeout
+  );
+
+  try {
+    ws = new WebSocket(
+      WS_URL
+    );
+
+    ws.addEventListener(
+      "open",
+      () => {
+        console.log(
+          "Traveler WebSocket connected."
+        );
+
+        if (
+          activeSocketDeliveryId
+        ) {
+          joinTravelerDeliveryRoom(
+            activeSocketDeliveryId
+          );
+        }
+
+        if (
+          activeSocketChatDeliveryId
+        ) {
+          joinTravelerDeliveryChat(
+            activeSocketChatDeliveryId
+          );
+        }
+      }
+    );
+
+    ws.addEventListener(
+      "message",
+      handleTravelerSocketMessage
+    );
+
+    ws.addEventListener(
+      "error",
+      (error) => {
+        console.error(
+          "Traveler WebSocket error:",
+          error
+        );
+      }
+    );
+
+    ws.addEventListener(
+      "close",
+      () => {
+        console.warn(
+          "Traveler WebSocket disconnected."
+        );
+
+        ws = null;
+
+        if (
+          shouldReconnectTravelerSocket
+        ) {
+          wsReconnectTimeout =
+            setTimeout(
+              connectTravelerSocket,
+              3000
+            );
+        }
+      }
+    );
+
+  } catch (error) {
+    console.error(
+      "Unable to initialize Traveler WebSocket:",
+      error
+    );
+  }
+
+  return ws;
+}
+
+// ============================================================
+// INITIALIZE OR REJOIN DELIVERY SOCKET
+// ============================================================
 
 function initJobSocket(deliveryId) {
-  if (!deliveryId) {
-    console.warn("❗ initJobSocket called without deliveryId");
+  if (deliveryId) {
+    activeSocketDeliveryId =
+      String(deliveryId);
+  }
+
+  connectTravelerSocket();
+
+  if (
+    ws &&
+    ws.readyState === WebSocket.OPEN &&
+    activeSocketDeliveryId
+  ) {
+    joinTravelerDeliveryRoom(
+      activeSocketDeliveryId
+    );
+  }
+}
+
+// ============================================================
+// CLOSE SOCKET WHEN LEAVING PAGE
+// ============================================================
+
+window.addEventListener(
+  "beforeunload",
+  () => {
+    shouldReconnectTravelerSocket =
+      false;
+
+    clearTimeout(
+      wsReconnectTimeout
+    );
+
+    if (
+      ws &&
+      (
+        ws.readyState === WebSocket.OPEN ||
+        ws.readyState === WebSocket.CONNECTING
+      )
+    ) {
+      ws.close();
+    }
+  }
+);
+// ============================================================
+// DELIVERY CHAT PANEL
+// Traveler to Sender
+//
+// Includes:
+// - Open and close behavior
+// - Persisted message history
+// - Message sending
+// - WebSocket room authorization
+// - Real-time incoming messages
+// - Duplicate-message prevention
+// - Read-status updates
+// ============================================================
+
+let activeDeliveryChatId = null;
+
+function initDeliveryChatPanel() {
+  const panel = document.getElementById(
+    "deliveryChatPanel"
+  );
+
+  const closeBtn = document.getElementById(
+    "deliveryChatCloseBtn"
+  );
+
+  const messagesContainer = document.getElementById(
+    "deliveryChatMessages"
+  );
+
+  const statusElement = document.getElementById(
+    "deliveryChatStatus"
+  );
+
+  const input = document.getElementById(
+    "deliveryChatInput"
+  );
+
+  const sendBtn = document.getElementById(
+    "deliveryChatSendBtn"
+  );
+
+  if (
+    !panel ||
+    !closeBtn ||
+    !messagesContainer ||
+    !statusElement ||
+    !input ||
+    !sendBtn
+  ) {
+    console.warn(
+      "Delivery chat panel elements were not found."
+    );
+
     return;
   }
 
-  try {
-    // CONNECT TO ROOT WEBSOCKET SERVER (NOT /ws/delivery/:id)
-    ws = new WebSocket("wss://flexago-backend.onrender.com");
+  let deliveryChatSending = false;
 
-    ws.addEventListener("open", () => {
-      console.log("🟢 WebSocket connected for delivery:", deliveryId);
+  // ==========================================================
+  // GET LOGGED-IN TRAVELER USER ID
+  // ==========================================================
 
-      // JOIN DELIVERY ROOM (backend expects this message)
-      ws.send(JSON.stringify({
-        type: "joinDelivery",
-        deliveryId
-      }));
-    });
-
-    ws.addEventListener("message", (event) => {
-      try {
-        const msg = JSON.parse(event.data);
-        console.log("WS MESSAGE:", msg);
-
-        if (
-          msg.type === "job_update" ||
-          msg.type === "job_completed" ||
-          msg.type === "new_job"
-        ) {
-          clearTimeout(wsUpdateTimeout);
-
-          wsUpdateTimeout = setTimeout(() => {
-            if (!isSearching) {
-              loadAvailableJobs();   // Debounced refresh
-            }
-          }, 300);
-        }
-
-      } catch (err) {
-        console.error("WebSocket message error:", err);
-      }
-    });
-
-    ws.addEventListener("close", () => {
-      console.warn("🔴 Job WebSocket closed — reconnecting in 3s");
-      setTimeout(() => initJobSocket(deliveryId), 3000);
-    });
-
-  } catch (err) {
-    console.error("initJobSocket failed:", err);
+  function getTravelerChatUserId() {
+    return String(
+      window.userId ||
+      localStorage.getItem("userId") ||
+      ""
+    ).trim();
   }
-}
 
-/* ============================================================
-   CHAT WIDGET
-   ============================================================ */
-function initChatWidget() {
-  const toggleBtn = document.getElementById("chatToggleBtn");
-  const bubble = document.getElementById("chatBubble");
-  const closeBtn = document.getElementById("chatCloseBtn");
-  const sendBtn = document.getElementById("chatSendBtn");
-  const input = document.getElementById("chatInput");
-  const body = document.getElementById("chatBody");
+  // ==========================================================
+  // CLEAR MESSAGE CONTAINER
+  // ==========================================================
 
-  if (!toggleBtn || !bubble || !closeBtn || !sendBtn || !input || !body) return;
+  function clearMessages() {
+    messagesContainer.innerHTML = "";
+  }
 
-  toggleBtn.addEventListener("click", () => {
-    bubble.classList.toggle("open");
-  });
+  // ==========================================================
+  // REMOVE EMPTY OR LOADING STATE
+  // ==========================================================
 
-  closeBtn.addEventListener("click", () => {
-    bubble.classList.remove("open");
-  });
+  function removeConversationState() {
+    const stateElements =
+      messagesContainer.querySelectorAll(
+        ".delivery-chat-empty"
+      );
 
-  sendBtn.addEventListener("click", () => {
-    const text = input.value.trim();
-    if (!text) return;
+    stateElements.forEach((element) => {
+      element.remove();
+    });
+  }
 
-    appendChatMessage(body, text, "user");
-    input.value = "";
+  // ==========================================================
+  // SHOW EMPTY CONVERSATION
+  // ==========================================================
 
-    appendChatMessage(
-      body,
-      "Thanks! A support agent will review your delivery details shortly.",
-      "system"
+  function showEmptyConversation() {
+    clearMessages();
+
+    const emptyState =
+      document.createElement("div");
+
+    emptyState.className =
+      "delivery-chat-empty";
+
+    emptyState.textContent =
+      "No messages yet. Start the conversation with the Sender.";
+
+    messagesContainer.appendChild(
+      emptyState
     );
-  });
+  }
+
+  // ==========================================================
+  // SHOW LOADING CONVERSATION
+  // ==========================================================
+
+  function showLoadingConversation() {
+    clearMessages();
+
+    const loadingState =
+      document.createElement("div");
+
+    loadingState.className =
+      "delivery-chat-empty";
+
+    loadingState.textContent =
+      "Loading conversation...";
+
+    messagesContainer.appendChild(
+      loadingState
+    );
+  }
+
+  // ==========================================================
+  // SHOW CONVERSATION ERROR
+  // ==========================================================
+
+  function showConversationError(message) {
+    clearMessages();
+
+    const errorState =
+      document.createElement("div");
+
+    errorState.className =
+      "delivery-chat-empty";
+
+    errorState.textContent =
+      message ||
+      "Unable to load the conversation.";
+
+    messagesContainer.appendChild(
+      errorState
+    );
+  }
+
+  // ==========================================================
+  // SCROLL TO NEWEST MESSAGE
+  // ==========================================================
+
+  function scrollMessagesToBottom() {
+    messagesContainer.scrollTop =
+      messagesContainer.scrollHeight;
+  }
+
+  // ==========================================================
+  // CHECK FOR AN EXISTING MESSAGE
+  // ==========================================================
+
+  function hasRenderedMessage(messageId) {
+    if (!messageId) {
+      return false;
+    }
+
+    return Boolean(
+      messagesContainer.querySelector(
+        `[data-message-id="${String(messageId)}"]`
+      )
+    );
+  }
+
+  // ==========================================================
+  // RENDER ONE MESSAGE
+  // ==========================================================
+
+  function renderDeliveryChatMessage(message) {
+    if (!message) {
+      return false;
+    }
+
+    const messageText =
+      typeof message.message === "string"
+        ? message.message.trim()
+        : "";
+
+    if (!messageText) {
+      return false;
+    }
+
+    const messageId = String(
+      message._id ||
+      message.id ||
+      ""
+    ).trim();
+
+    if (
+      messageId &&
+      hasRenderedMessage(messageId)
+    ) {
+      return false;
+    }
+
+    removeConversationState();
+
+    const isTravelerMessage =
+      message.senderRole === "traveler";
+
+    const messageRow =
+      document.createElement("div");
+
+    messageRow.className =
+      `delivery-chat-message ${
+        isTravelerMessage
+          ? "sent"
+          : "received"
+      }`;
+
+    if (messageId) {
+      messageRow.dataset.messageId =
+        messageId;
+    }
+
+    const messageBubble =
+      document.createElement("div");
+
+    messageBubble.className =
+      "delivery-chat-message-bubble";
+
+    messageBubble.textContent =
+      messageText;
+
+    messageRow.appendChild(
+      messageBubble
+    );
+
+    messagesContainer.appendChild(
+      messageRow
+    );
+
+    return true;
+  }
+
+  // ==========================================================
+  // RENDER MESSAGE HISTORY
+  // ==========================================================
+
+  function renderDeliveryChatHistory(messages) {
+    clearMessages();
+
+    if (
+      !Array.isArray(messages) ||
+      messages.length === 0
+    ) {
+      showEmptyConversation();
+      return;
+    }
+
+    messages.forEach((message) => {
+      renderDeliveryChatMessage(message);
+    });
+
+    scrollMessagesToBottom();
+  }
+
+  // ==========================================================
+  // MARK RECEIVED MESSAGES AS READ
+  // ==========================================================
+
+  async function markDeliveryChatRead(
+    deliveryId
+  ) {
+    const travelerUserId =
+      getTravelerChatUserId();
+
+    if (
+      !deliveryId ||
+      !travelerUserId
+    ) {
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `${BASE_URL}/api/delivery-chat/${deliveryId}/read`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type":
+              "application/json",
+            "x-user-id":
+              travelerUserId,
+            "x-user-role":
+              "traveler"
+          }
+        }
+      );
+
+      if (!response.ok) {
+        const result =
+          await response.json().catch(
+            () => null
+          );
+
+        throw new Error(
+          result?.error ||
+          "Unable to update read status."
+        );
+      }
+
+      broadcastTravelerChatRead(
+        deliveryId
+      );
+
+    } catch (error) {
+      console.error(
+        "Unable to mark delivery chat as read:",
+        error
+      );
+    }
+  }
+
+  // ==========================================================
+  // LOAD EXISTING MESSAGES
+  // ==========================================================
+
+  async function loadDeliveryChatHistory(
+    deliveryId
+  ) {
+    const travelerUserId =
+      getTravelerChatUserId();
+
+    if (!travelerUserId) {
+      statusElement.textContent =
+        "Unable to identify the logged-in Traveler.";
+
+      showEmptyConversation();
+      return;
+    }
+
+    showLoadingConversation();
+
+    statusElement.textContent =
+      "Loading conversation...";
+
+    try {
+      const response = await fetch(
+        `${BASE_URL}/api/delivery-chat/${deliveryId}`,
+        {
+          method: "GET",
+          headers: {
+            "x-user-id":
+              travelerUserId,
+            "x-user-role":
+              "traveler"
+          }
+        }
+      );
+
+      let result = null;
+
+      try {
+        result = await response.json();
+      } catch (parseError) {
+        console.error(
+          "Delivery chat response parse error:",
+          parseError
+        );
+      }
+
+      if (!response.ok) {
+        throw new Error(
+          result?.error ||
+          result?.message ||
+          "Unable to load delivery chat."
+        );
+      }
+
+      if (!result?.success) {
+        throw new Error(
+          result?.error ||
+          "Unable to load delivery chat."
+        );
+      }
+
+      if (
+        activeDeliveryChatId !==
+        String(deliveryId)
+      ) {
+        return;
+      }
+
+      const messages = Array.isArray(
+        result.data
+      )
+        ? result.data
+        : [];
+
+      renderDeliveryChatHistory(
+        messages
+      );
+
+      statusElement.textContent =
+        messages.length > 0
+          ? "Conversation connected."
+          : "Start a conversation with the Sender.";
+
+      await markDeliveryChatRead(
+        deliveryId
+      );
+
+    } catch (error) {
+      console.error(
+        "Unable to load delivery chat:",
+        error
+      );
+
+      if (
+        activeDeliveryChatId !==
+        String(deliveryId)
+      ) {
+        return;
+      }
+
+      showConversationError(
+        error.message
+      );
+
+      statusElement.textContent =
+        "Conversation unavailable.";
+    }
+  }
+
+  // ==========================================================
+  // CONNECT AND JOIN WEBSOCKET CHAT ROOM
+  // ==========================================================
+
+  function connectDeliveryChatSocket(
+    deliveryId
+  ) {
+    if (!deliveryId) {
+      return;
+    }
+
+    connectTravelerSocket();
+
+    joinTravelerDeliveryChat(
+      deliveryId
+    );
+
+    if (
+      ws &&
+      ws.readyState === WebSocket.OPEN
+    ) {
+      statusElement.textContent =
+        "Connecting to real-time chat...";
+    }
+  }
+
+  // ==========================================================
+  // OPEN DELIVERY CHAT
+  // ==========================================================
+
+  function openDeliveryChat(deliveryId) {
+    if (!deliveryId) {
+      console.warn(
+        "Cannot open delivery chat without a delivery ID."
+      );
+
+      return;
+    }
+
+    activeDeliveryChatId =
+      String(deliveryId);
+
+    panel.dataset.deliveryId =
+      activeDeliveryChatId;
+
+    panel.classList.add("open");
+
+    panel.setAttribute(
+      "aria-hidden",
+      "false"
+    );
+
+    input.value = "";
+    input.disabled = false;
+    sendBtn.disabled = false;
+
+    if (
+      window.lucide &&
+      typeof window.lucide.createIcons ===
+        "function"
+    ) {
+      window.lucide.createIcons();
+    }
+
+    connectDeliveryChatSocket(
+      activeDeliveryChatId
+    );
+
+    loadDeliveryChatHistory(
+      activeDeliveryChatId
+    );
+
+    window.setTimeout(() => {
+      input.focus();
+    }, 0);
+  }
+
+  // ==========================================================
+  // CLOSE DELIVERY CHAT
+  // ==========================================================
+
+  function closeDeliveryChat() {
+    panel.classList.remove("open");
+
+    panel.setAttribute(
+      "aria-hidden",
+      "true"
+    );
+
+    delete panel.dataset.deliveryId;
+
+    statusElement.textContent = "";
+
+    input.value = "";
+    input.disabled = false;
+    sendBtn.disabled = false;
+
+    clearMessages();
+
+    activeDeliveryChatId = null;
+    activeSocketChatDeliveryId = null;
+  }
+
+  // ==========================================================
+  // SEND DELIVERY MESSAGE
+  // ==========================================================
+
+  async function sendDeliveryChatMessage() {
+    if (deliveryChatSending) {
+      return;
+    }
+
+    const deliveryId =
+      activeDeliveryChatId;
+
+    const travelerUserId =
+      getTravelerChatUserId();
+
+    const messageText =
+      input.value.trim();
+
+    if (!deliveryId) {
+      statusElement.textContent =
+        "No active delivery conversation.";
+
+      return;
+    }
+
+    if (!travelerUserId) {
+      statusElement.textContent =
+        "Unable to identify the logged-in Traveler.";
+
+      return;
+    }
+
+    if (!messageText) {
+      statusElement.textContent =
+        "Type a message before sending.";
+
+      input.focus();
+      return;
+    }
+
+    if (messageText.length > 2000) {
+      statusElement.textContent =
+        "Message cannot exceed 2000 characters.";
+
+      input.focus();
+      return;
+    }
+
+    deliveryChatSending = true;
+    sendBtn.disabled = true;
+    input.disabled = true;
+
+    statusElement.textContent =
+      "Sending message...";
+
+    try {
+      const response = await fetch(
+        `${BASE_URL}/api/delivery-chat/${deliveryId}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type":
+              "application/json",
+            "x-user-id":
+              travelerUserId,
+            "x-user-role":
+              "traveler"
+          },
+          body: JSON.stringify({
+            message: messageText
+          })
+        }
+      );
+
+      let result = null;
+
+      try {
+        result = await response.json();
+      } catch (parseError) {
+        console.error(
+          "Delivery message response parse error:",
+          parseError
+        );
+      }
+
+      if (!response.ok) {
+        throw new Error(
+          result?.error ||
+          result?.message ||
+          "Unable to send message."
+        );
+      }
+
+      if (
+        !result?.success ||
+        !result?.data
+      ) {
+        throw new Error(
+          result?.error ||
+          "The message was not saved."
+        );
+      }
+
+      if (
+        activeDeliveryChatId !==
+        String(deliveryId)
+      ) {
+        return;
+      }
+
+      renderDeliveryChatMessage(
+        result.data
+      );
+
+      scrollMessagesToBottom();
+
+      input.value = "";
+
+      statusElement.textContent =
+        "Message sent.";
+
+      const savedMessageId =
+        result.data._id ||
+        result.data.id;
+
+      if (savedMessageId) {
+        const broadcastSuccessful =
+          broadcastTravelerDeliveryMessage(
+            deliveryId,
+            savedMessageId
+          );
+
+        if (!broadcastSuccessful) {
+          connectTravelerSocket();
+
+          joinTravelerDeliveryChat(
+            deliveryId
+          );
+
+          statusElement.textContent =
+            "Message saved. Real-time connection is reconnecting.";
+        }
+      }
+
+    } catch (error) {
+      console.error(
+        "Unable to send delivery message:",
+        error
+      );
+
+      if (
+        activeDeliveryChatId ===
+        String(deliveryId)
+      ) {
+        statusElement.textContent =
+          error.message ||
+          "Unable to send message.";
+      }
+
+    } finally {
+      deliveryChatSending = false;
+      sendBtn.disabled = false;
+      input.disabled = false;
+
+      if (
+        activeDeliveryChatId ===
+        String(deliveryId)
+      ) {
+        input.focus();
+      }
+    }
+  }
+
+  // ==========================================================
+  // DYNAMIC CHAT BUTTON HANDLER
+  // ==========================================================
+
+  document.addEventListener(
+    "click",
+    (event) => {
+      const target = event.target;
+
+      if (!(target instanceof Element)) {
+        return;
+      }
+
+      const chatButton = target.closest(
+        ".delivery-chat-btn"
+      );
+
+      if (!chatButton) {
+        return;
+      }
+
+      event.preventDefault();
+
+      const deliveryId =
+        chatButton.dataset.id;
+
+      openDeliveryChat(
+        deliveryId
+      );
+    }
+  );
+
+  // ==========================================================
+  // CLOSE BUTTON
+  // ==========================================================
+
+  closeBtn.addEventListener(
+    "click",
+    closeDeliveryChat
+  );
+
+  // ==========================================================
+  // CLOSE WHEN BACKDROP IS CLICKED
+  // ==========================================================
+
+  panel.addEventListener(
+    "click",
+    (event) => {
+      if (event.target === panel) {
+        closeDeliveryChat();
+      }
+    }
+  );
+
+  // ==========================================================
+  // CLOSE WITH ESCAPE
+  // ==========================================================
+
+  document.addEventListener(
+    "keydown",
+    (event) => {
+      if (
+        event.key === "Escape" &&
+        panel.classList.contains(
+          "open"
+        )
+      ) {
+        closeDeliveryChat();
+      }
+    }
+  );
+
+  // ==========================================================
+  // SEND WITH ENTER
+  // Shift + Enter creates a new line.
+  // ==========================================================
+
+  input.addEventListener(
+    "keydown",
+    (event) => {
+      if (
+        event.key === "Enter" &&
+        !event.shiftKey
+      ) {
+        event.preventDefault();
+
+        sendDeliveryChatMessage();
+      }
+    }
+  );
+
+  // ==========================================================
+  // SEND BUTTON
+  // ==========================================================
+
+  sendBtn.addEventListener(
+    "click",
+    sendDeliveryChatMessage
+  );
+
+  // ==========================================================
+  // WEBSOCKET CHAT JOIN RESULT
+  // ==========================================================
+
+  window.addEventListener(
+    "flexago:delivery-chat-joined",
+    (event) => {
+      const message =
+        event.detail;
+
+      if (
+        !message ||
+        String(message.deliveryId) !==
+          String(activeDeliveryChatId)
+      ) {
+        return;
+      }
+
+      if (message.success) {
+        statusElement.textContent =
+          "Real-time chat connected.";
+
+        markDeliveryChatRead(
+          activeDeliveryChatId
+        );
+
+      } else {
+        statusElement.textContent =
+          message.error ||
+          "Unable to join real-time chat.";
+      }
+    }
+  );
+
+  // ==========================================================
+  // REAL-TIME INCOMING MESSAGE
+  // ==========================================================
+
+  window.addEventListener(
+    "flexago:delivery-chat-message",
+    (event) => {
+      const socketMessage =
+        event.detail;
+
+      if (
+        !socketMessage ||
+        !socketMessage.data
+      ) {
+        return;
+      }
+
+      const deliveryId =
+        String(
+          socketMessage.deliveryId ||
+          socketMessage.data.deliveryId ||
+          ""
+        );
+
+      if (
+        deliveryId !==
+        String(activeDeliveryChatId)
+      ) {
+        return;
+      }
+
+      const rendered =
+        renderDeliveryChatMessage(
+          socketMessage.data
+        );
+
+      if (!rendered) {
+        return;
+      }
+
+      scrollMessagesToBottom();
+
+      const isSenderMessage =
+        socketMessage.data.senderRole ===
+        "sender";
+
+      if (isSenderMessage) {
+        statusElement.textContent =
+          "New message from the Sender.";
+
+        markDeliveryChatRead(
+          activeDeliveryChatId
+        );
+
+      } else {
+        statusElement.textContent =
+          "Message delivered.";
+      }
+    }
+  );
+
+  // ==========================================================
+  // REAL-TIME READ STATUS
+  // ==========================================================
+
+  window.addEventListener(
+    "flexago:delivery-chat-read",
+    (event) => {
+      const readMessage =
+        event.detail;
+
+      if (
+        !readMessage ||
+        String(readMessage.deliveryId) !==
+          String(activeDeliveryChatId)
+      ) {
+        return;
+      }
+
+      if (
+        readMessage.readBy?.role ===
+        "sender"
+      ) {
+        statusElement.textContent =
+          "Read by Sender.";
+      }
+    }
+  );
+
+  // ==========================================================
+  // REAL-TIME SOCKET ERROR
+  // ==========================================================
+
+  window.addEventListener(
+    "flexago:delivery-chat-error",
+    (event) => {
+      const socketError =
+        event.detail;
+
+      if (!activeDeliveryChatId) {
+        return;
+      }
+
+      statusElement.textContent =
+        socketError?.error ||
+        "Real-time chat connection error.";
+    }
+  );
+}
+// ============================================================
+// SUPPORT CHAT WIDGET
+// ============================================================
+
+function initChatWidget() {
+  const toggleBtn = document.getElementById(
+    "chatToggleBtn"
+  );
+
+  const bubble = document.getElementById(
+    "chatBubble"
+  );
+
+  const closeBtn = document.getElementById(
+    "chatCloseBtn"
+  );
+
+  const sendBtn = document.getElementById(
+    "chatSendBtn"
+  );
+
+  const input = document.getElementById(
+    "chatInput"
+  );
+
+  const body = document.getElementById(
+    "chatBody"
+  );
+
+  if (
+    !toggleBtn ||
+    !bubble ||
+    !closeBtn ||
+    !sendBtn ||
+    !input ||
+    !body
+  ) {
+    return;
+  }
+
+  toggleBtn.addEventListener(
+    "click",
+    () => {
+      bubble.classList.toggle("open");
+    }
+  );
+
+  closeBtn.addEventListener(
+    "click",
+    () => {
+      bubble.classList.remove("open");
+    }
+  );
+
+  sendBtn.addEventListener(
+    "click",
+    () => {
+      const text = input.value.trim();
+
+      if (!text) {
+        return;
+      }
+
+      appendChatMessage(
+        body,
+        text,
+        "user"
+      );
+
+      input.value = "";
+
+      appendChatMessage(
+        body,
+        "Thanks! A support agent will review your delivery details shortly.",
+        "system"
+      );
+    }
+  );
 }
 
-function appendChatMessage(container, text, type) {
-  const div = document.createElement("div");
-  div.style.marginBottom = "0.35rem";
-  div.style.fontSize = "0.75rem";
-  div.style.color = type === "user" ? "#e5e7eb" : "#9ca3af";
+function appendChatMessage(
+  container,
+  text,
+  type
+) {
+  const div = document.createElement(
+    "div"
+  );
+
+  div.style.marginBottom =
+    "0.35rem";
+
+  div.style.fontSize =
+    "0.75rem";
+
+  div.style.color =
+    type === "user"
+      ? "#e5e7eb"
+      : "#9ca3af";
+
   div.textContent = text;
-  container.appendChild(div);
-  container.scrollTop = container.scrollHeight;
-}
 
+  container.appendChild(div);
+
+  container.scrollTop =
+    container.scrollHeight;
+}
 /* ============================================================
    JOB TABS
    ============================================================ */
@@ -3296,6 +4711,7 @@ document.addEventListener("DOMContentLoaded", () => {
   safe(initTravelerSidebar);
   //safe(initTravelerJobs);
   safe(initTravelerMap);
+  safe(initDeliveryChatPanel);
   safe(initChatWidget);
   safe(initJobDetailsModal);
   safe(initRoutePlanner);

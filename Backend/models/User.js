@@ -1,4 +1,3 @@
-// models/User.js
 // ------------------------------------------------------
 // Flexagoo User Schema (CommonJS)
 // Secure, scalable, compliance‑ready + JWT + Hashing
@@ -47,6 +46,77 @@ const UserSchema = new mongoose.Schema(
       required: false,
     },
 
+    // ============================================================
+    // ACCOUNT IDENTITY
+    // ============================================================
+
+    dob: { type: String },
+    address: { type: String },
+    city: { type: String },
+    state: { type: String },
+    zipcode: { type: String },
+    country: { type: String },
+
+    // ============================================================
+    // DISPLAY PAYOUT METHOD (NON-SENSITIVE)
+    // ============================================================
+
+    payoutMethod: {
+      type: {
+        type: String,
+        enum: ["bank", "card"],
+        default: null,
+      },
+
+      accountName: {
+        type: String,
+        default: null,
+      },
+
+      last4: {
+        type: String,
+        default: null,
+      },
+
+      updatedAt: {
+        type: Date,
+        default: null,
+      },
+    },
+
+    // ============================================================
+    // STRIPE CUSTOMER + PAYMENT METHOD
+    // ============================================================
+
+    stripeCustomerId: {
+      type: String,
+      default: null,
+    },
+
+    defaultPaymentMethodId: {
+      type: String,
+      default: null,
+    },
+
+    paymentMethodBrand: {
+      type: String,
+      default: null,
+    },
+
+    paymentMethodLast4: {
+      type: String,
+      default: null,
+    },
+
+    // ============================================================
+    // KYC
+    // ============================================================
+
+    kycVerified: {
+      type: Boolean,
+      default: false,
+    },
+
     kyc: {
       ssnLast4: { type: String },
       dob: { type: Date },
@@ -58,13 +128,6 @@ const UserSchema = new mongoose.Schema(
 
     resetToken: String,
     resetTokenExpire: Date,
-
-    travelerProfile: {
-      vehicleType: { type: String },
-      licensePlate: { type: String },
-      yearJoined: { type: Number },
-      totalTrips: { type: Number, default: 0 },
-    },
   },
   { timestamps: true }
 );
@@ -72,6 +135,7 @@ const UserSchema = new mongoose.Schema(
 // ------------------------------------------------------
 // Password Hashing Middleware
 // ------------------------------------------------------
+
 UserSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
 
@@ -84,9 +148,9 @@ UserSchema.pre("save", async function (next) {
 // ------------------------------------------------------
 // Password Match Method
 // ------------------------------------------------------
+
 UserSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
 module.exports = mongoose.model("User", UserSchema);
-

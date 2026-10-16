@@ -1262,6 +1262,335 @@ select {
 }
 
 /* ============================================================
+   28. DELIVERY CHAT — TRAVELER <-> SENDER
+============================================================ */
+
+.delivery-chat-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+
+  min-height: 42px;
+  padding: 0 16px;
+
+  background: transparent;
+  color: #60a5fa;
+
+  border: 1px solid #3b82f6;
+  border-radius: 10px;
+
+  font-size: 0.9rem;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.delivery-chat-btn:hover {
+  background: rgba(59, 130, 246, 0.12);
+  border-color: #60a5fa;
+  color: #93c5fd;
+}
+
+.delivery-chat-btn:active {
+  transform: scale(0.98);
+}
+
+.delivery-chat-btn i,
+.delivery-chat-btn svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.delivery-chat-btn span {
+  line-height: 1;
+}
+/* ============================================================
+   28A. DELIVERY CHAT PANEL - TRAVELER TO SENDER
+============================================================ */
+
+.delivery-chat-panel {
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(2, 6, 23, 0.72);
+  backdrop-filter: blur(4px);
+}
+
+.delivery-chat-panel.open {
+  display: flex;
+}
+
+.delivery-chat-window {
+  width: 100%;
+  max-width: 420px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 16px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+}
+
+/* ============================================================
+   DELIVERY CHAT HEADER
+============================================================ */
+
+.delivery-chat-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  background: #111827;
+  border-bottom: 1px solid #334155;
+}
+
+.delivery-chat-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #f8fafc;
+}
+
+.delivery-chat-title svg {
+  width: 22px;
+  height: 22px;
+  stroke: #60a5fa;
+}
+
+.delivery-chat-title div {
+  display: flex;
+  flex-direction: column;
+}
+
+.delivery-chat-title strong {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.delivery-chat-title span {
+  margin-top: 2px;
+  font-size: 0.72rem;
+  color: #94a3b8;
+}
+
+.delivery-chat-close-btn {
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: transparent;
+  color: #94a3b8;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
+}
+
+.delivery-chat-close-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+}
+
+.delivery-chat-close-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* ============================================================
+   DELIVERY CHAT MESSAGES
+============================================================ */
+
+.delivery-chat-messages {
+  flex: 1;
+  min-height: 260px;
+  max-height: 420px;
+  padding: 16px;
+  overflow-y: auto;
+  background: #020617;
+}
+
+.delivery-chat-empty {
+  padding: 24px 12px;
+  text-align: center;
+  color: #64748b;
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.delivery-chat-message {
+  display: flex;
+  margin-bottom: 12px;
+}
+
+.delivery-chat-message.sent {
+  justify-content: flex-end;
+}
+
+.delivery-chat-message.received {
+  justify-content: flex-start;
+}
+
+.delivery-chat-message-bubble {
+  max-width: 78%;
+  padding: 9px 12px;
+  border-radius: 14px;
+  font-size: 0.86rem;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.delivery-chat-message.sent .delivery-chat-message-bubble {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: #ffffff;
+  border-bottom-right-radius: 4px;
+}
+
+.delivery-chat-message.received .delivery-chat-message-bubble {
+  background: #1e293b;
+  color: #e2e8f0;
+  border: 1px solid #334155;
+  border-bottom-left-radius: 4px;
+}
+
+/* ============================================================
+   DELIVERY CHAT STATUS
+============================================================ */
+
+.delivery-chat-status {
+  min-height: 20px;
+  padding: 4px 16px;
+  background: #0f172a;
+  color: #94a3b8;
+  font-size: 0.72rem;
+}
+
+/* ============================================================
+   DELIVERY CHAT COMPOSER
+============================================================ */
+
+.delivery-chat-footer {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  padding: 12px;
+  background: #0f172a;
+  border-top: 1px solid #334155;
+}
+
+.delivery-chat-input {
+  flex: 1;
+  min-height: 42px;
+  max-height: 110px;
+  padding: 10px 12px;
+  resize: none;
+  background: #020617;
+  color: #f8fafc;
+  border: 1px solid #334155;
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 0.88rem;
+  line-height: 1.4;
+  outline: none;
+}
+
+.delivery-chat-input::placeholder {
+  color: #64748b;
+}
+
+.delivery-chat-input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.14);
+}
+
+.delivery-chat-send-btn {
+  min-height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 0 14px;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.delivery-chat-send-btn:hover {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+}
+
+.delivery-chat-send-btn:active {
+  transform: scale(0.98);
+}
+
+.delivery-chat-send-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.delivery-chat-send-btn svg {
+  width: 17px;
+  height: 17px;
+}
+
+/* ============================================================
+   DELIVERY CHAT MOBILE
+============================================================ */
+
+@media (max-width: 600px) {
+  .delivery-chat-panel {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .delivery-chat-window {
+    max-width: none;
+    max-height: 88vh;
+    border-radius: 16px 16px 0 0;
+  }
+
+  .delivery-chat-messages {
+    min-height: 260px;
+  }
+
+  .delivery-chat-footer {
+    padding-bottom: calc(12px + env(safe-area-inset-bottom));
+  }
+
+  .delivery-chat-send-btn span {
+    display: none;
+  }
+
+  .delivery-chat-send-btn {
+    width: 44px;
+    padding: 0;
+  }
+}
+/* ============================================================
    28. SUPPORT PANEL
    ============================================================ */
 #supportPanel {
