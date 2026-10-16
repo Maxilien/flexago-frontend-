@@ -88,12 +88,9 @@ loadTravelerIdentity();
 const BASE_URL = "https://flexago-backend.onrender.com";
 
 const WS_URL =
-  "wss://flexago-backend.onr*nder.com/ws";
+  "wss://flexago-backend.onrender.com/ws";
 
-// Socket.IO remove* - using native WebSocket instead
-
-
-
+// Socket.IO removed - using native WebSocket instead
 /* ============================================================
    GLOBAL STATE (TRAVELER)
    ============================================================ */
