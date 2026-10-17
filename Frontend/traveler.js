@@ -1647,11 +1647,9 @@ function joinTravelerDeliveryChat(deliveryId) {
   }
 
   const travelerUserId = String(
-    window.userId ||
-    localStorage.getItem("userId") ||
+    window.travelerId ||
     ""
   ).trim();
-
   if (!travelerUserId) {
     console.warn(
       "Unable to join delivery chat without a Traveler user ID."
@@ -2025,14 +2023,12 @@ function initDeliveryChatPanel() {
   // GET LOGGED-IN TRAVELER USER ID
   // ==========================================================
 
-  function getTravelerChatUserId() {
-    return String(
-      window.userId ||
-      localStorage.getItem("userId") ||
-      ""
-    ).trim();
-  }
-
+function getTravelerChatUserId() {
+  return String(
+    window.travelerId ||
+    ""
+  ).trim();
+}
   // ==========================================================
   // CLEAR MESSAGE CONTAINER
   // ==========================================================
