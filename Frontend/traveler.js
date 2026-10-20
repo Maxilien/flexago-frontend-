@@ -3515,7 +3515,52 @@ categoryButtons.forEach(
     );
   }
 );
+// ==========================================================
+// DYNAMIC SUPPORT VIEW CONTROLS
+//
+// loadPage("support") copies the Support panel into
+// #dynamicView. Event delegation keeps those copied controls
+// functional without duplicating the modal.
+// ==========================================================
 
+document.addEventListener(
+  "click",
+  (event) => {
+    const dynamicCategoryButton =
+      event.target.closest(
+        "#dynamicView .traveler-support-category"
+      );
+
+    if (dynamicCategoryButton) {
+      event.preventDefault();
+
+      const category =
+        String(
+          dynamicCategoryButton.dataset.category ||
+          ""
+        )
+          .trim()
+          .toLowerCase();
+
+      openSupportTicketModal(
+        category
+      );
+
+      return;
+    }
+
+    const dynamicOpenButton =
+      event.target.closest(
+        "#dynamicView #openSupportTicket"
+      );
+
+    if (dynamicOpenButton) {
+      event.preventDefault();
+
+      openSupportTicketModal();
+    }
+  }
+);
   // ==========================================================
   // OPEN BUTTON
   // ==========================================================
