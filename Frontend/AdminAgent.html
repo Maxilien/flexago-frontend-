@@ -2,42 +2,2811 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1"
+  />
+
   <title>FlexaGo Support Dashboard</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
   <style>
-    body { font-family: Inter, sans-serif; margin: 0; background: #f3f4f6; }
-    header { background: #000; color: white; padding: 16px 32px; font-weight: 700; }
-    .dashboard { display: flex; padding: 20px; gap: 20px; }
-    .sidebar { width: 220px; background: #1e293b; color: white; padding: 20px; border-radius: 8px; }
-    .content { flex: 1; background: white; border-radius: 8px; padding: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
-    .ticket { border-bottom: 1px solid #e5e7eb; padding: 10px 0; }
+    /* ========================================================
+       ROOT
+    ======================================================== */
+
+    :root {
+      --background: #020617;
+      --panel: #0f172a;
+      --panel-light: #111c31;
+      --panel-hover: #172033;
+
+      --border: rgba(148, 163, 184, 0.18);
+
+      --text: #f8fafc;
+      --muted: #94a3b8;
+
+      --blue: #3b82f6;
+      --blue-dark: #2563eb;
+
+      --green: #22c55e;
+      --yellow: #f59e0b;
+      --red: #ef4444;
+      --purple: #8b5cf6;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+
+      margin: 0;
+
+      background: var(--background);
+
+      color: var(--text);
+
+      font-family:
+        Inter,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* ========================================================
+       HEADER
+    ======================================================== */
+
+    .admin-header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      gap: 1rem;
+
+      min-height: 70px;
+
+      padding: 14px 24px;
+
+      background:
+        rgba(2, 6, 23, 0.96);
+
+      border-bottom:
+        1px solid var(--border);
+
+      backdrop-filter: blur(12px);
+    }
+
+    .admin-brand {
+      display: flex;
+      align-items: center;
+
+      gap: 0.75rem;
+    }
+
+    .admin-brand-mark {
+      width: 40px;
+      height: 40px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      flex-shrink: 0;
+
+      background:
+        linear-gradient(
+          135deg,
+          var(--blue),
+          var(--blue-dark)
+        );
+
+      border-radius: 11px;
+
+      color: #ffffff;
+
+      font-weight: 800;
+    }
+
+    .admin-brand-title {
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    .admin-brand-subtitle {
+      margin-top: 2px;
+
+      color: var(--muted);
+
+      font-size: 0.75rem;
+    }
+
+    .admin-header-actions {
+      display: flex;
+      align-items: center;
+
+      gap: 0.75rem;
+    }
+
+    /* ========================================================
+       BUTTONS
+    ======================================================== */
+
+    .primary-btn,
+    .secondary-btn,
+    .danger-btn {
+      min-height: 42px;
+
+      padding: 0.65rem 0.9rem;
+
+      border-radius: 9px;
+
+      color: #ffffff;
+
+      font-size: 0.82rem;
+      font-weight: 600;
+    }
+
+    .primary-btn {
+      background:
+        linear-gradient(
+          135deg,
+          var(--blue),
+          var(--blue-dark)
+        );
+
+      border: none;
+    }
+
+    .secondary-btn {
+      background:
+        rgba(148, 163, 184, 0.08);
+
+      border:
+        1px solid var(--border);
+    }
+
+    .danger-btn {
+      background:
+        rgba(239, 68, 68, 0.14);
+
+      border:
+        1px solid
+        rgba(239, 68, 68, 0.3);
+    }
+
+    .primary-btn:hover,
+    .secondary-btn:hover,
+    .danger-btn:hover {
+      opacity: 0.9;
+    }
+
+    .primary-btn:disabled,
+    .secondary-btn:disabled,
+    .danger-btn:disabled {
+      opacity: 0.55;
+
+      cursor: not-allowed;
+    }
+
+    button:focus-visible,
+    input:focus-visible,
+    select:focus-visible,
+    textarea:focus-visible {
+      outline: 2px solid var(--blue);
+      outline-offset: 2px;
+    }
+
+    /* ========================================================
+       ADMIN LAYOUT
+    ======================================================== */
+
+    .admin-layout {
+      display: grid;
+
+      grid-template-columns:
+        minmax(220px, 270px)
+        minmax(300px, 430px)
+        minmax(380px, 1fr);
+
+      gap: 1rem;
+
+      max-width: 1700px;
+
+      margin: 0 auto;
+
+      padding: 1rem;
+    }
+
+    .admin-panel {
+      min-width: 0;
+
+      background: var(--panel);
+
+      border:
+        1px solid var(--border);
+
+      border-radius: 14px;
+
+      box-shadow:
+        0 18px 45px
+        rgba(0, 0, 0, 0.2);
+    }
+
+    .admin-panel-header {
+      padding: 1rem;
+
+      border-bottom:
+        1px solid var(--border);
+    }
+
+    .admin-panel-title {
+      color: var(--text);
+
+      font-size: 0.95rem;
+      font-weight: 700;
+    }
+
+    .admin-panel-subtitle {
+      margin-top: 4px;
+
+      color: var(--muted);
+
+      font-size: 0.75rem;
+      line-height: 1.4;
+    }
+
+    .admin-panel-body {
+      padding: 1rem;
+    }
+
+    /* ========================================================
+       SUMMARY
+    ======================================================== */
+
+    .summary-grid {
+      display: grid;
+
+      grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+      gap: 0.65rem;
+
+      margin-bottom: 1rem;
+    }
+
+    .summary-card {
+      padding: 0.8rem;
+
+      background:
+        rgba(148, 163, 184, 0.06);
+
+      border:
+        1px solid var(--border);
+
+      border-radius: 10px;
+    }
+
+    .summary-label {
+      color: var(--muted);
+
+      font-size: 0.7rem;
+    }
+
+    .summary-value {
+      margin-top: 5px;
+
+      color: var(--text);
+
+      font-size: 1.15rem;
+      font-weight: 700;
+    }
+
+    /* ========================================================
+       FILTERS
+    ======================================================== */
+
+    .filter-group {
+      margin-bottom: 0.9rem;
+    }
+
+    .filter-label {
+      display: block;
+
+      margin-bottom: 6px;
+
+      color: var(--text);
+
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .input-field {
+      width: 100%;
+      min-height: 42px;
+
+      padding: 0.65rem 0.75rem;
+
+      background:
+        rgba(2, 6, 23, 0.55);
+
+      border:
+        1px solid var(--border);
+
+      border-radius: 9px;
+
+      color: var(--text);
+
+      outline: none;
+    }
+
+    textarea.input-field {
+      min-height: 105px;
+
+      resize: vertical;
+
+      line-height: 1.45;
+    }
+
+    .input-field::placeholder {
+      color: var(--muted);
+    }
+
+    .filter-actions {
+      display: grid;
+
+      grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+      gap: 0.6rem;
+    }
+
+    /* ========================================================
+       TICKET LIST
+    ======================================================== */
+
+    .ticket-queue {
+      max-height:
+        calc(100vh - 170px);
+
+      overflow-y: auto;
+    }
+
+    .ticket-list {
+      display: flex;
+      flex-direction: column;
+
+      gap: 0.65rem;
+    }
+
+    .ticket-card {
+      width: 100%;
+
+      padding: 0.85rem;
+
+      background:
+        rgba(148, 163, 184, 0.05);
+
+      border:
+        1px solid var(--border);
+
+      border-radius: 11px;
+
+      color: var(--text);
+
+      text-align: left;
+    }
+
+    .ticket-card:hover {
+      background: var(--panel-hover);
+
+      border-color:
+        rgba(59, 130, 246, 0.45);
+    }
+
+    .ticket-card.active {
+      background:
+        rgba(59, 130, 246, 0.11);
+
+      border-color: var(--blue);
+    }
+
+    .ticket-card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      gap: 0.65rem;
+    }
+
+    .ticket-number {
+      color: #93c5fd;
+
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    .ticket-subject {
+      margin-top: 8px;
+
+      color: var(--text);
+
+      font-size: 0.85rem;
+      font-weight: 600;
+
+      overflow-wrap: anywhere;
+    }
+
+    .ticket-meta {
+      display: flex;
+      flex-wrap: wrap;
+
+      gap: 0.4rem;
+
+      margin-top: 8px;
+    }
+
+    .ticket-date {
+      margin-top: 8px;
+
+      color: var(--muted);
+
+      font-size: 0.68rem;
+    }
+
+    /* ========================================================
+       BADGES
+    ======================================================== */
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+
+      min-height: 23px;
+
+      padding: 0.2rem 0.45rem;
+
+      border-radius: 999px;
+
+      font-size: 0.65rem;
+      font-weight: 700;
+
+      text-transform: capitalize;
+    }
+
+    .status-open {
+      color: #93c5fd;
+
+      background:
+        rgba(59, 130, 246, 0.15);
+    }
+
+    .status-in_progress {
+      color: #fde68a;
+
+      background:
+        rgba(245, 158, 11, 0.14);
+    }
+
+    .status-waiting_user {
+      color: #d8b4fe;
+
+      background:
+        rgba(139, 92, 246, 0.14);
+    }
+
+    .status-resolved {
+      color: #86efac;
+
+      background:
+        rgba(34, 197, 94, 0.14);
+    }
+
+    .status-closed {
+      color: #cbd5e1;
+
+      background:
+        rgba(148, 163, 184, 0.12);
+    }
+
+    .priority-low {
+      color: #cbd5e1;
+
+      background:
+        rgba(148, 163, 184, 0.12);
+    }
+
+    .priority-normal {
+      color: #93c5fd;
+
+      background:
+        rgba(59, 130, 246, 0.14);
+    }
+
+    .priority-high {
+      color: #fdba74;
+
+      background:
+        rgba(249, 115, 22, 0.14);
+    }
+
+    .priority-urgent {
+      color: #fca5a5;
+
+      background:
+        rgba(239, 68, 68, 0.14);
+    }
+
+    /* ========================================================
+       TICKET DETAILS
+    ======================================================== */
+
+    .ticket-detail-panel {
+      min-height: 520px;
+    }
+
+    .ticket-detail-empty,
+    .ticket-list-empty,
+    .loading-state {
+      padding: 2rem 1rem;
+
+      color: var(--muted);
+
+      font-size: 0.82rem;
+      line-height: 1.5;
+      text-align: center;
+    }
+
+    .detail-section {
+      margin-bottom: 1rem;
+
+      padding-bottom: 1rem;
+
+      border-bottom:
+        1px solid var(--border);
+    }
+
+    .detail-section:last-child {
+      margin-bottom: 0;
+      padding-bottom: 0;
+
+      border-bottom: none;
+    }
+
+    .detail-heading {
+      margin: 0 0 0.75rem;
+
+      color: var(--text);
+
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+
+    .detail-grid {
+      display: grid;
+
+      grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+      gap: 0.75rem;
+    }
+
+    .detail-item {
+      min-width: 0;
+    }
+
+    .detail-label {
+      color: var(--muted);
+
+      font-size: 0.68rem;
+      font-weight: 600;
+
+      text-transform: uppercase;
+    }
+
+    .detail-value {
+      margin-top: 4px;
+
+      color: var(--text);
+
+      font-size: 0.8rem;
+      line-height: 1.45;
+
+      overflow-wrap: anywhere;
+    }
+
+    .detail-description {
+      padding: 0.85rem;
+
+      background:
+        rgba(2, 6, 23, 0.45);
+
+      border:
+        1px solid var(--border);
+
+      border-radius: 9px;
+
+      color: var(--text);
+
+      font-size: 0.82rem;
+      line-height: 1.55;
+
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .admin-form-grid {
+      display: grid;
+
+      grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+      gap: 0.75rem;
+    }
+
+    .admin-form-field {
+      margin-bottom: 0.85rem;
+    }
+
+    .admin-form-field .filter-label {
+      margin-bottom: 6px;
+    }
+
+    /* ========================================================
+       NOTES
+    ======================================================== */
+
+    .support-note-list {
+      display: flex;
+      flex-direction: column;
+
+      gap: 0.6rem;
+
+      margin-bottom: 0.85rem;
+    }
+
+    .support-note {
+      padding: 0.75rem;
+
+      background:
+        rgba(148, 163, 184, 0.06);
+
+      border:
+        1px solid var(--border);
+
+      border-radius: 9px;
+    }
+
+    .support-note-message {
+      color: var(--text);
+
+      font-size: 0.8rem;
+      line-height: 1.45;
+
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .support-note-meta {
+      margin-top: 7px;
+
+      color: var(--muted);
+
+      font-size: 0.66rem;
+    }
+
+    /* ========================================================
+       RESULT STATUS
+    ======================================================== */
+
+    .admin-status {
+      margin-bottom: 0.85rem;
+
+      padding: 0.75rem;
+
+      border-radius: 9px;
+
+      font-size: 0.78rem;
+      line-height: 1.4;
+    }
+
+    .admin-status.success {
+      color: #86efac;
+
+      background:
+        rgba(34, 197, 94, 0.1);
+
+      border:
+        1px solid
+        rgba(34, 197, 94, 0.25);
+    }
+
+    .admin-status.error {
+      color: #fca5a5;
+
+      background:
+        rgba(239, 68, 68, 0.1);
+
+      border:
+        1px solid
+        rgba(239, 68, 68, 0.25);
+    }
+
+    .admin-status.info {
+      color: #93c5fd;
+
+      background:
+        rgba(59, 130, 246, 0.1);
+
+      border:
+        1px solid
+        rgba(59, 130, 246, 0.25);
+    }
+
+    /* ========================================================
+       PAGINATION
+    ======================================================== */
+
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      gap: 0.6rem;
+
+      margin-top: 0.85rem;
+
+      color: var(--muted);
+
+      font-size: 0.72rem;
+    }
+
+    /* ========================================================
+       RESPONSIVE
+    ======================================================== */
+
+    @media (max-width: 1150px) {
+      .admin-layout {
+        grid-template-columns:
+          minmax(220px, 280px)
+          minmax(0, 1fr);
+      }
+
+      .ticket-detail-panel {
+        grid-column: 1 / -1;
+      }
+
+      .ticket-queue {
+        max-height: 600px;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .admin-header {
+        align-items: flex-start;
+
+        padding: 12px 14px;
+      }
+
+      .admin-header-actions {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .admin-layout {
+        grid-template-columns: 1fr;
+
+        padding: 0.75rem;
+      }
+
+      .ticket-detail-panel {
+        grid-column: auto;
+      }
+
+      .ticket-queue {
+        max-height: none;
+      }
+
+      .detail-grid,
+      .admin-form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .summary-grid {
+        grid-template-columns:
+          repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 480px) {
+      .admin-header {
+        flex-direction: column;
+      }
+
+      .admin-header-actions {
+        width: 100%;
+
+        flex-direction: row;
+      }
+
+      .admin-header-actions button {
+        flex: 1;
+      }
+
+      .summary-grid,
+      .filter-actions {
+        grid-template-columns: 1fr;
+      }
+    }
   </style>
 </head>
+
 <body>
-  <header>FlexaGo Support Dashboard</header>
-  <div class="dashboard">
-    <div class="sidebar">
-      <h3>Filters</h3>
-      <p>Role: Sender / Traveler</p>
-      <p>Status: Open / Escalated / Closed</p>
+
+  <!-- =======================================================
+       HEADER
+  ======================================================== -->
+
+  <header class="admin-header">
+
+    <div class="admin-brand">
+
+      <div class="admin-brand-mark">
+        F
+      </div>
+
+      <div>
+        <div class="admin-brand-title">
+          FlexaGo Support Dashboard
+        </div>
+
+        <div class="admin-brand-subtitle">
+          Sender and Traveler support-ticket management
+        </div>
+      </div>
+
     </div>
-    <div class="content">
-      <h2>Recent Tickets</h2>
-      <div id="ticketList"></div>
+
+    <div class="admin-header-actions">
+
+      <button
+        id="refreshTicketsBtn"
+        class="secondary-btn"
+        type="button"
+      >
+        Refresh
+      </button>
+
+      <button
+        id="adminLogoutBtn"
+        class="danger-btn"
+        type="button"
+      >
+        Logout
+      </button>
+
     </div>
-  </div>
+
+  </header>
+
+  <!-- =======================================================
+       MAIN LAYOUT
+  ======================================================== -->
+
+  <main class="admin-layout">
+
+    <!-- =====================================================
+         FILTERS
+    ====================================================== -->
+
+    <aside class="admin-panel">
+
+      <div class="admin-panel-header">
+
+        <div class="admin-panel-title">
+          Filters
+        </div>
+
+        <div class="admin-panel-subtitle">
+          Find tickets by status, role, category, priority, or keyword.
+        </div>
+
+      </div>
+
+      <div class="admin-panel-body">
+
+        <div class="summary-grid">
+
+          <div class="summary-card">
+            <div class="summary-label">
+              Total Results
+            </div>
+
+            <div
+              id="totalTicketCount"
+              class="summary-value"
+            >
+              0
+            </div>
+          </div>
+
+          <div class="summary-card">
+            <div class="summary-label">
+              Current Page
+            </div>
+
+            <div
+              id="currentPageSummary"
+              class="summary-value"
+            >
+              1
+            </div>
+          </div>
+
+        </div>
+
+        <div class="filter-group">
+
+          <label
+            class="filter-label"
+            for="ticketSearchInput"
+          >
+            Search
+          </label>
+
+          <input
+            id="ticketSearchInput"
+            class="input-field"
+            type="search"
+            placeholder="Ticket, subject, name, or email"
+            autocomplete="off"
+          />
+
+        </div>
+
+        <div class="filter-group">
+
+          <label
+            class="filter-label"
+            for="ticketStatusFilter"
+          >
+            Status
+          </label>
+
+          <select
+            id="ticketStatusFilter"
+            class="input-field"
+          >
+            <option value="">
+              All statuses
+            </option>
+
+            <option value="open">
+              Open
+            </option>
+
+            <option value="in_progress">
+              In Progress
+            </option>
+
+            <option value="waiting_user">
+              Waiting for User
+            </option>
+
+            <option value="resolved">
+              Resolved
+            </option>
+
+            <option value="closed">
+              Closed
+            </option>
+          </select>
+
+        </div>
+
+        <div class="filter-group">
+
+          <label
+            class="filter-label"
+            for="ticketRoleFilter"
+          >
+            User Role
+          </label>
+
+          <select
+            id="ticketRoleFilter"
+            class="input-field"
+          >
+            <option value="">
+              Sender and Traveler
+            </option>
+
+            <option value="sender">
+              Sender
+            </option>
+
+            <option value="traveler">
+              Traveler
+            </option>
+          </select>
+
+        </div>
+
+        <div class="filter-group">
+
+          <label
+            class="filter-label"
+            for="ticketCategoryFilter"
+          >
+            Category
+          </label>
+
+          <select
+            id="ticketCategoryFilter"
+            class="input-field"
+          >
+            <option value="">
+              All categories
+            </option>
+
+            <option value="account">
+              Account
+            </option>
+
+            <option value="verification">
+              Verification
+            </option>
+
+            <option value="payment">
+              Payment
+            </option>
+
+            <option value="payout">
+              Payout
+            </option>
+
+            <option value="delivery">
+              Delivery
+            </option>
+
+            <option value="chat">
+              Chat
+            </option>
+
+            <option value="safety">
+              Safety
+            </option>
+
+            <option value="technical">
+              Technical
+            </option>
+
+            <option value="other">
+              Other
+            </option>
+          </select>
+
+        </div>
+
+        <div class="filter-group">
+
+          <label
+            class="filter-label"
+            for="ticketPriorityFilter"
+          >
+            Priority
+          </label>
+
+          <select
+            id="ticketPriorityFilter"
+            class="input-field"
+          >
+            <option value="">
+              All priorities
+            </option>
+
+            <option value="low">
+              Low
+            </option>
+
+            <option value="normal">
+              Normal
+            </option>
+
+            <option value="high">
+              High
+            </option>
+
+            <option value="urgent">
+              Urgent
+            </option>
+          </select>
+
+        </div>
+
+        <div class="filter-actions">
+
+          <button
+            id="applyTicketFiltersBtn"
+            class="primary-btn"
+            type="button"
+          >
+            Apply
+          </button>
+
+          <button
+            id="clearTicketFiltersBtn"
+            class="secondary-btn"
+            type="button"
+          >
+            Clear
+          </button>
+
+        </div>
+
+      </div>
+
+    </aside>
+
+    <!-- =====================================================
+         TICKET QUEUE
+    ====================================================== -->
+
+    <section class="admin-panel ticket-queue">
+
+      <div class="admin-panel-header">
+
+        <div class="admin-panel-title">
+          Support Tickets
+        </div>
+
+        <div
+          id="ticketQueueSubtitle"
+          class="admin-panel-subtitle"
+        >
+          Loading support tickets...
+        </div>
+
+      </div>
+
+      <div class="admin-panel-body">
+
+        <div
+          id="ticketListStatus"
+          class="admin-status hidden"
+          role="status"
+          aria-live="polite"
+        ></div>
+
+        <div
+          id="ticketList"
+          class="ticket-list"
+        >
+          <div class="loading-state">
+            Loading support tickets...
+          </div>
+        </div>
+
+        <div class="pagination">
+
+          <button
+            id="previousTicketsBtn"
+            class="secondary-btn"
+            type="button"
+            disabled
+          >
+            Previous
+          </button>
+
+          <span id="ticketPageText">
+            Page 1
+          </span>
+
+          <button
+            id="nextTicketsBtn"
+            class="secondary-btn"
+            type="button"
+            disabled
+          >
+            Next
+          </button>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- =====================================================
+         TICKET DETAIL
+    ====================================================== -->
+
+    <section class="admin-panel ticket-detail-panel">
+
+      <div class="admin-panel-header">
+
+        <div class="admin-panel-title">
+          Ticket Details
+        </div>
+
+        <div
+          id="ticketDetailSubtitle"
+          class="admin-panel-subtitle"
+        >
+          Select a ticket from the queue.
+        </div>
+
+      </div>
+
+      <div
+        id="ticketDetailContent"
+        class="admin-panel-body"
+      >
+        <div class="ticket-detail-empty">
+          Select a support ticket to review its details, update its status, add notes, or record a resolution.
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
   <script>
-    async function loadTickets() {
-      const res = await fetch("/api/support/tickets");
-      const tickets = await res.json();
-      const list = document.getElementById("ticketList");
-      list.innerHTML = tickets.map(t => `
-        <div class="ticket">
-          <h3>#${t.id} – ${t.subject}</h3>
-          <p>${t.role} | ${t.status}</p>
-        </div>`).join("");
+    /* ========================================================
+       CONFIGURATION
+    ======================================================== */
+
+    const BASE_URL =
+      "https://flexago-backend.onrender.com";
+
+    const SUPPORT_TICKETS_API =
+      `${BASE_URL}/api/support-tickets`;
+
+    /* ========================================================
+       STATE
+    ======================================================== */
+
+    const ticketState = {
+      tickets: [],
+      selectedTicketId: null,
+
+      page: 1,
+      limit: 25,
+
+      total: 0,
+      totalPages: 1,
+
+      loading: false,
+      saving: false
+    };
+
+    /* ========================================================
+       ELEMENTS
+    ======================================================== */
+
+    const ticketList =
+      document.getElementById(
+        "ticketList"
+      );
+
+    const ticketListStatus =
+      document.getElementById(
+        "ticketListStatus"
+      );
+
+    const ticketDetailContent =
+      document.getElementById(
+        "ticketDetailContent"
+      );
+
+    const ticketDetailSubtitle =
+      document.getElementById(
+        "ticketDetailSubtitle"
+      );
+
+    const ticketQueueSubtitle =
+      document.getElementById(
+        "ticketQueueSubtitle"
+      );
+
+    const totalTicketCount =
+      document.getElementById(
+        "totalTicketCount"
+      );
+
+    const currentPageSummary =
+      document.getElementById(
+        "currentPageSummary"
+      );
+
+    const ticketPageText =
+      document.getElementById(
+        "ticketPageText"
+      );
+
+    const previousTicketsBtn =
+      document.getElementById(
+        "previousTicketsBtn"
+      );
+
+    const nextTicketsBtn =
+      document.getElementById(
+        "nextTicketsBtn"
+      );
+
+    const searchInput =
+      document.getElementById(
+        "ticketSearchInput"
+      );
+
+    const statusFilter =
+      document.getElementById(
+        "ticketStatusFilter"
+      );
+
+    const roleFilter =
+      document.getElementById(
+        "ticketRoleFilter"
+      );
+
+    const categoryFilter =
+      document.getElementById(
+        "ticketCategoryFilter"
+      );
+
+    const priorityFilter =
+      document.getElementById(
+        "ticketPriorityFilter"
+      );
+
+    /* ========================================================
+       AUTHENTICATION TOKEN
+    ======================================================== */
+
+    function getAdminToken() {
+      const possibleKeys = [
+        "adminToken",
+        "admin_token",
+        "token",
+        "authToken"
+      ];
+
+      for (const key of possibleKeys) {
+        const value =
+          localStorage.getItem(key);
+
+        if (
+          value &&
+          value.trim()
+        ) {
+          return value.trim();
+        }
+      }
+
+      try {
+        const storedAdmin =
+          JSON.parse(
+            localStorage.getItem("admin") ||
+            "null"
+          );
+
+        if (
+          storedAdmin &&
+          typeof storedAdmin === "object"
+        ) {
+          return String(
+            storedAdmin.token ||
+            storedAdmin.jwt ||
+            storedAdmin.accessToken ||
+            ""
+          ).trim();
+        }
+
+      } catch (error) {
+        console.error(
+          "Unable to read Admin authentication:",
+          error
+        );
+      }
+
+      return "";
     }
-    loadTickets();
+
+    function getAdminHeaders({
+      includeContentType = false
+    } = {}) {
+      const token =
+        getAdminToken();
+
+      const headers = {};
+
+      if (token) {
+        headers.Authorization =
+          `Bearer ${token}`;
+      }
+
+      if (includeContentType) {
+        headers["Content-Type"] =
+          "application/json";
+      }
+
+      return headers;
+    }
+
+    function handleUnauthorized() {
+      showListStatus(
+        "Admin authentication is required. Please log in again.",
+        "error"
+      );
+
+      ticketQueueSubtitle.textContent =
+        "Admin authentication required.";
+    }
+
+    /* ========================================================
+       SAFE HTML
+    ======================================================== */
+
+    function escapeHtml(value) {
+      return String(
+        value === null ||
+        value === undefined
+          ? ""
+          : value
+      )
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    /* ========================================================
+       FORMAT HELPERS
+    ======================================================== */
+
+    function formatDate(value) {
+      if (!value) {
+        return "N/A";
+      }
+
+      const date =
+        new Date(value);
+
+      if (
+        Number.isNaN(
+          date.getTime()
+        )
+      ) {
+        return "N/A";
+      }
+
+      return date.toLocaleString();
+    }
+
+    function formatLabel(value) {
+      return String(
+        value || "N/A"
+      )
+        .replace(/_/g, " ")
+        .replace(/\b\w/g, (character) => {
+          return character.toUpperCase();
+        });
+    }
+
+    function createBadge(
+      value,
+      classPrefix
+    ) {
+      const safeValue =
+        escapeHtml(value || "unknown");
+
+      const classValue =
+        String(value || "unknown")
+          .toLowerCase()
+          .replace(/[^a-z0-9_]/g, "");
+
+      return `
+        <span
+          class="badge ${classPrefix}-${classValue}"
+        >
+          ${formatLabel(safeValue)}
+        </span>
+      `;
+    }
+
+    /* ========================================================
+       STATUS MESSAGES
+    ======================================================== */
+
+    function showListStatus(
+      message,
+      type = "info"
+    ) {
+      ticketListStatus.textContent =
+        message || "";
+
+      ticketListStatus.className =
+        "admin-status";
+
+      if (!message) {
+        ticketListStatus.classList.add(
+          "hidden"
+        );
+
+        return;
+      }
+
+      ticketListStatus.classList.add(
+        type
+      );
+    }
+
+    /* ========================================================
+       QUERY PARAMETERS
+    ======================================================== */
+
+    function buildTicketQuery() {
+      const parameters =
+        new URLSearchParams();
+
+      parameters.set(
+        "page",
+        String(ticketState.page)
+      );
+
+      parameters.set(
+        "limit",
+        String(ticketState.limit)
+      );
+
+      const search =
+        searchInput.value.trim();
+
+      const status =
+        statusFilter.value.trim();
+
+      const role =
+        roleFilter.value.trim();
+
+      const category =
+        categoryFilter.value.trim();
+
+      const priority =
+        priorityFilter.value.trim();
+
+      if (search) {
+        parameters.set(
+          "search",
+          search
+        );
+      }
+
+      if (status) {
+        parameters.set(
+          "status",
+          status
+        );
+      }
+
+      if (role) {
+        parameters.set(
+          "userRole",
+          role
+        );
+      }
+
+      if (category) {
+        parameters.set(
+          "category",
+          category
+        );
+      }
+
+      if (priority) {
+        parameters.set(
+          "priority",
+          priority
+        );
+      }
+
+      return parameters.toString();
+    }
+
+    /* ========================================================
+       RENDER TICKET LIST
+    ======================================================== */
+
+    function renderTicketList() {
+      ticketList.innerHTML = "";
+
+      if (
+        !Array.isArray(
+          ticketState.tickets
+        ) ||
+        ticketState.tickets.length === 0
+      ) {
+        ticketList.innerHTML = `
+          <div class="ticket-list-empty">
+            No support tickets matched the current filters.
+          </div>
+        `;
+
+        return;
+      }
+
+      ticketState.tickets.forEach(
+        (ticket) => {
+          const button =
+            document.createElement(
+              "button"
+            );
+
+          button.type = "button";
+
+          button.className =
+            "ticket-card";
+
+          if (
+            String(ticket._id) ===
+            String(
+              ticketState.selectedTicketId
+            )
+          ) {
+            button.classList.add(
+              "active"
+            );
+          }
+
+          button.dataset.ticketId =
+            String(ticket._id);
+
+          button.innerHTML = `
+            <div class="ticket-card-top">
+              <span class="ticket-number">
+                ${escapeHtml(
+                  ticket.ticketNumber
+                )}
+              </span>
+
+              ${createBadge(
+                ticket.status,
+                "status"
+              )}
+            </div>
+
+            <div class="ticket-subject">
+              ${escapeHtml(
+                ticket.subject
+              )}
+            </div>
+
+            <div class="ticket-meta">
+              ${createBadge(
+                ticket.priority,
+                "priority"
+              )}
+
+              <span class="badge priority-low">
+                ${escapeHtml(
+                  formatLabel(
+                    ticket.userRole
+                  )
+                )}
+              </span>
+
+              <span class="badge priority-low">
+                ${escapeHtml(
+                  formatLabel(
+                    ticket.category
+                  )
+                )}
+              </span>
+            </div>
+
+            <div class="ticket-date">
+              ${escapeHtml(
+                formatDate(
+                  ticket.createdAt
+                )
+              )}
+            </div>
+          `;
+
+          button.addEventListener(
+            "click",
+            () => {
+              loadTicketDetails(
+                ticket._id
+              );
+            }
+          );
+
+          ticketList.appendChild(
+            button
+          );
+        }
+      );
+    }
+
+    /* ========================================================
+       UPDATE SUMMARY
+    ======================================================== */
+
+    function updatePagination() {
+      totalTicketCount.textContent =
+        String(ticketState.total);
+
+      currentPageSummary.textContent =
+        String(ticketState.page);
+
+      ticketPageText.textContent =
+        `Page ${ticketState.page} of ${ticketState.totalPages}`;
+
+      previousTicketsBtn.disabled =
+        ticketState.page <= 1;
+
+      nextTicketsBtn.disabled =
+        ticketState.page >=
+        ticketState.totalPages;
+
+      ticketQueueSubtitle.textContent =
+        `${ticketState.total} support ticket${
+          ticketState.total === 1
+            ? ""
+            : "s"
+        } found.`;
+    }
+
+    /* ========================================================
+       LOAD TICKET LIST
+    ======================================================== */
+
+    async function loadTickets() {
+      if (ticketState.loading) {
+        return;
+      }
+
+      const token =
+        getAdminToken();
+
+      if (!token) {
+        handleUnauthorized();
+
+        ticketList.innerHTML = `
+          <div class="ticket-list-empty">
+            Admin token was not found in this browser session.
+          </div>
+        `;
+
+        return;
+      }
+
+      ticketState.loading = true;
+
+      showListStatus(
+        "Loading support tickets...",
+        "info"
+      );
+
+      ticketList.innerHTML = `
+        <div class="loading-state">
+          Loading support tickets...
+        </div>
+      `;
+
+      try {
+        const query =
+          buildTicketQuery();
+
+        const response = await fetch(
+          `${SUPPORT_TICKETS_API}/admin?${query}`,
+          {
+            method: "GET",
+            headers:
+              getAdminHeaders()
+          }
+        );
+
+        let result = null;
+
+        try {
+          result =
+            await response.json();
+
+        } catch (parseError) {
+          console.error(
+            "Admin ticket response parse error:",
+            parseError
+          );
+        }
+
+        if (
+          response.status === 401
+        ) {
+          handleUnauthorized();
+
+          throw new Error(
+            result?.error ||
+            "Admin authentication failed."
+          );
+        }
+
+        if (!response.ok) {
+          throw new Error(
+            result?.error ||
+            result?.message ||
+            "Unable to load support tickets."
+          );
+        }
+
+        ticketState.tickets =
+          Array.isArray(result?.data)
+            ? result.data
+            : [];
+
+        ticketState.total =
+          Number(result?.total || 0);
+
+        ticketState.totalPages =
+          Math.max(
+            1,
+            Number(
+              result?.totalPages || 1
+            )
+          );
+
+        renderTicketList();
+        updatePagination();
+        showListStatus("");
+
+      } catch (error) {
+        console.error(
+          "Unable to load Admin support tickets:",
+          error
+        );
+
+        ticketList.innerHTML = `
+          <div class="ticket-list-empty">
+            ${escapeHtml(
+              error.message ||
+              "Unable to load support tickets."
+            )}
+          </div>
+        `;
+
+        showListStatus(
+          error.message ||
+          "Unable to load support tickets.",
+          "error"
+        );
+
+      } finally {
+        ticketState.loading = false;
+      }
+    }
+
+    /* ========================================================
+       RENDER SUPPORT NOTES
+    ======================================================== */
+
+    function renderSupportNotes(notes) {
+      if (
+        !Array.isArray(notes) ||
+        notes.length === 0
+      ) {
+        return `
+          <div class="ticket-detail-empty">
+            No internal notes have been added.
+          </div>
+        `;
+      }
+
+      return `
+        <div class="support-note-list">
+          ${notes.map((note) => {
+            return `
+              <div class="support-note">
+                <div class="support-note-message">
+                  ${escapeHtml(
+                    note.message
+                  )}
+                </div>
+
+                <div class="support-note-meta">
+                  Added by
+                  ${escapeHtml(
+                    note.addedBy ||
+                    "admin"
+                  )}
+                  on
+                  ${escapeHtml(
+                    formatDate(
+                      note.createdAt
+                    )
+                  )}
+                </div>
+              </div>
+            `;
+          }).join("")}
+        </div>
+      `;
+    }
+
+    /* ========================================================
+       RENDER TICKET DETAILS
+    ======================================================== */
+
+    function renderTicketDetails(ticket) {
+      ticketDetailSubtitle.textContent =
+        ticket.ticketNumber ||
+        "Support ticket";
+
+      ticketDetailContent.innerHTML = `
+        <div
+          id="ticketDetailStatus"
+          class="admin-status hidden"
+          role="status"
+          aria-live="polite"
+        ></div>
+
+        <section class="detail-section">
+
+          <h3 class="detail-heading">
+            Ticket Information
+          </h3>
+
+          <div class="detail-grid">
+
+            <div class="detail-item">
+              <div class="detail-label">
+                Ticket Number
+              </div>
+
+              <div class="detail-value">
+                ${escapeHtml(
+                  ticket.ticketNumber
+                )}
+              </div>
+            </div>
+
+            <div class="detail-item">
+              <div class="detail-label">
+                Created
+              </div>
+
+              <div class="detail-value">
+                ${escapeHtml(
+                  formatDate(
+                    ticket.createdAt
+                  )
+                )}
+              </div>
+            </div>
+
+            <div class="detail-item">
+              <div class="detail-label">
+                Role
+              </div>
+
+              <div class="detail-value">
+                ${escapeHtml(
+                  formatLabel(
+                    ticket.userRole
+                  )
+                )}
+              </div>
+            </div>
+
+            <div class="detail-item">
+              <div class="detail-label">
+                Category
+              </div>
+
+              <div class="detail-value">
+                ${escapeHtml(
+                  formatLabel(
+                    ticket.category
+                  )
+                )}
+              </div>
+            </div>
+
+            <div class="detail-item">
+              <div class="detail-label">
+                Delivery ID
+              </div>
+
+              <div class="detail-value">
+                ${escapeHtml(
+                  ticket.deliveryId ||
+                  "Not provided"
+                )}
+              </div>
+            </div>
+
+            <div class="detail-item">
+              <div class="detail-label">
+                Last Updated
+              </div>
+
+              <div class="detail-value">
+                ${escapeHtml(
+                  formatDate(
+                    ticket.updatedAt
+                  )
+                )}
+              </div>
+            </div>
+
+          </div>
+
+        </section>
+
+        <section class="detail-section">
+
+          <h3 class="detail-heading">
+            Requester
+          </h3>
+
+          <div class="detail-grid">
+
+            <div class="detail-item">
+              <div class="detail-label">
+                Name
+              </div>
+
+              <div class="detail-value">
+                ${escapeHtml(
+                  ticket.requesterName ||
+                  "Not provided"
+                )}
+              </div>
+            </div>
+
+            <div class="detail-item">
+              <div class="detail-label">
+                Email
+              </div>
+
+              <div class="detail-value">
+                ${escapeHtml(
+                  ticket.requesterEmail ||
+                  "Not provided"
+                )}
+              </div>
+            </div>
+
+            <div class="detail-item">
+              <div class="detail-label">
+                Phone
+              </div>
+
+              <div class="detail-value">
+                ${escapeHtml(
+                  ticket.requesterPhone ||
+                  "Not provided"
+                )}
+              </div>
+            </div>
+
+            <div class="detail-item">
+              <div class="detail-label">
+                User ID
+              </div>
+
+              <div class="detail-value">
+                ${escapeHtml(
+                  ticket.userId ||
+                  "Not provided"
+                )}
+              </div>
+            </div>
+
+          </div>
+
+        </section>
+
+        <section class="detail-section">
+
+          <h3 class="detail-heading">
+            ${escapeHtml(
+              ticket.subject
+            )}
+          </h3>
+
+          <div class="detail-description">
+            ${escapeHtml(
+              ticket.description
+            )}
+          </div>
+
+        </section>
+
+        <section class="detail-section">
+
+          <h3 class="detail-heading">
+            Ticket Management
+          </h3>
+
+          <div class="admin-form-grid">
+
+            <div class="admin-form-field">
+
+              <label
+                class="filter-label"
+                for="detailStatusSelect"
+              >
+                Status
+              </label>
+
+              <select
+                id="detailStatusSelect"
+                class="input-field"
+              >
+                <option value="open">
+                  Open
+                </option>
+
+                <option value="in_progress">
+                  In Progress
+                </option>
+
+                <option value="waiting_user">
+                  Waiting for User
+                </option>
+
+                <option value="resolved">
+                  Resolved
+                </option>
+
+                <option value="closed">
+                  Closed
+                </option>
+              </select>
+
+            </div>
+
+            <div class="admin-form-field">
+
+              <label
+                class="filter-label"
+                for="detailPrioritySelect"
+              >
+                Priority
+              </label>
+
+              <select
+                id="detailPrioritySelect"
+                class="input-field"
+              >
+                <option value="low">
+                  Low
+                </option>
+
+                <option value="normal">
+                  Normal
+                </option>
+
+                <option value="high">
+                  High
+                </option>
+
+                <option value="urgent">
+                  Urgent
+                </option>
+              </select>
+
+            </div>
+
+          </div>
+
+          <div class="admin-form-field">
+
+            <label
+              class="filter-label"
+              for="detailResolutionInput"
+            >
+              Resolution
+            </label>
+
+            <textarea
+              id="detailResolutionInput"
+              class="input-field"
+              maxlength="5000"
+              placeholder="Record the ticket resolution..."
+            >${escapeHtml(
+              ticket.resolution || ""
+            )}</textarea>
+
+          </div>
+
+          <button
+            id="saveTicketChangesBtn"
+            class="primary-btn"
+            type="button"
+          >
+            Save Ticket Changes
+          </button>
+
+        </section>
+
+        <section class="detail-section">
+
+          <h3 class="detail-heading">
+            Internal Support Notes
+          </h3>
+
+          ${renderSupportNotes(
+            ticket.supportNotes
+          )}
+
+          <div class="admin-form-field">
+
+            <label
+              class="filter-label"
+              for="supportNoteInput"
+            >
+              Add Internal Note
+            </label>
+
+            <textarea
+              id="supportNoteInput"
+              class="input-field"
+              maxlength="3000"
+              placeholder="Add an internal support note..."
+            ></textarea>
+
+          </div>
+
+          <button
+            id="addSupportNoteBtn"
+            class="secondary-btn"
+            type="button"
+          >
+            Add Note
+          </button>
+
+        </section>
+      `;
+
+      const statusSelect =
+        document.getElementById(
+          "detailStatusSelect"
+        );
+
+      const prioritySelect =
+        document.getElementById(
+          "detailPrioritySelect"
+        );
+
+      statusSelect.value =
+        ticket.status || "open";
+
+      prioritySelect.value =
+        ticket.priority || "normal";
+
+      document
+        .getElementById(
+          "saveTicketChangesBtn"
+        )
+        .addEventListener(
+          "click",
+          saveTicketChanges
+        );
+
+      document
+        .getElementById(
+          "addSupportNoteBtn"
+        )
+        .addEventListener(
+          "click",
+          addSupportNote
+        );
+    }
+
+    /* ========================================================
+       DETAIL STATUS
+    ======================================================== */
+
+    function showDetailStatus(
+      message,
+      type = "info"
+    ) {
+      const statusElement =
+        document.getElementById(
+          "ticketDetailStatus"
+        );
+
+      if (!statusElement) {
+        return;
+      }
+
+      statusElement.textContent =
+        message || "";
+
+      statusElement.className =
+        "admin-status";
+
+      if (!message) {
+        statusElement.classList.add(
+          "hidden"
+        );
+
+        return;
+      }
+
+      statusElement.classList.add(
+        type
+      );
+    }
+
+    /* ========================================================
+       LOAD ONE TICKET
+    ======================================================== */
+
+    async function loadTicketDetails(
+      ticketId
+    ) {
+      if (!ticketId) {
+        return;
+      }
+
+      ticketState.selectedTicketId =
+        String(ticketId);
+
+      renderTicketList();
+
+      ticketDetailContent.innerHTML = `
+        <div class="loading-state">
+          Loading ticket details...
+        </div>
+      `;
+
+      try {
+        const response = await fetch(
+          `${SUPPORT_TICKETS_API}/admin/${ticketId}`,
+          {
+            method: "GET",
+            headers:
+              getAdminHeaders()
+          }
+        );
+
+        let result = null;
+
+        try {
+          result =
+            await response.json();
+
+        } catch (parseError) {
+          console.error(
+            "Ticket detail response parse error:",
+            parseError
+          );
+        }
+
+        if (!response.ok) {
+          throw new Error(
+            result?.error ||
+            result?.message ||
+            "Unable to load support ticket."
+          );
+        }
+
+        if (!result?.data) {
+          throw new Error(
+            "Support ticket details were not returned."
+          );
+        }
+
+        renderTicketDetails(
+          result.data
+        );
+
+      } catch (error) {
+        console.error(
+          "Unable to load ticket details:",
+          error
+        );
+
+        ticketDetailContent.innerHTML = `
+          <div class="ticket-detail-empty">
+            ${escapeHtml(
+              error.message ||
+              "Unable to load support ticket."
+            )}
+          </div>
+        `;
+      }
+    }
+
+    /* ========================================================
+       SAVE TICKET CHANGES
+    ======================================================== */
+
+    async function saveTicketChanges() {
+      if (
+        ticketState.saving ||
+        !ticketState.selectedTicketId
+      ) {
+        return;
+      }
+
+      const statusSelect =
+        document.getElementById(
+          "detailStatusSelect"
+        );
+
+      const prioritySelect =
+        document.getElementById(
+          "detailPrioritySelect"
+        );
+
+      const resolutionInput =
+        document.getElementById(
+          "detailResolutionInput"
+        );
+
+      const saveBtn =
+        document.getElementById(
+          "saveTicketChangesBtn"
+        );
+
+      ticketState.saving = true;
+      saveBtn.disabled = true;
+
+      showDetailStatus(
+        "Saving ticket changes...",
+        "info"
+      );
+
+      try {
+        const response = await fetch(
+          `${SUPPORT_TICKETS_API}/admin/${ticketState.selectedTicketId}`,
+          {
+            method: "PATCH",
+
+            headers:
+              getAdminHeaders({
+                includeContentType: true
+              }),
+
+            body: JSON.stringify({
+              status:
+                statusSelect.value,
+
+              priority:
+                prioritySelect.value,
+
+              resolution:
+                resolutionInput.value.trim()
+            })
+          }
+        );
+
+        let result = null;
+
+        try {
+          result =
+            await response.json();
+
+        } catch (parseError) {
+          console.error(
+            "Ticket update response parse error:",
+            parseError
+          );
+        }
+
+        if (!response.ok) {
+          throw new Error(
+            result?.error ||
+            result?.message ||
+            "Unable to update support ticket."
+          );
+        }
+
+        showDetailStatus(
+          "Support ticket updated successfully.",
+          "success"
+        );
+
+        await loadTickets();
+
+        await loadTicketDetails(
+          ticketState.selectedTicketId
+        );
+
+      } catch (error) {
+        console.error(
+          "Unable to update support ticket:",
+          error
+        );
+
+        showDetailStatus(
+          error.message ||
+          "Unable to update support ticket.",
+          "error"
+        );
+
+      } finally {
+        ticketState.saving = false;
+
+        if (saveBtn) {
+          saveBtn.disabled = false;
+        }
+      }
+    }
+
+    /* ========================================================
+       ADD SUPPORT NOTE
+    ======================================================== */
+
+    async function addSupportNote() {
+      if (
+        ticketState.saving ||
+        !ticketState.selectedTicketId
+      ) {
+        return;
+      }
+
+      const noteInput =
+        document.getElementById(
+          "supportNoteInput"
+        );
+
+      const addNoteBtn =
+        document.getElementById(
+          "addSupportNoteBtn"
+        );
+
+      const message =
+        noteInput.value.trim();
+
+      if (!message) {
+        showDetailStatus(
+          "Enter a support note before submitting.",
+          "error"
+        );
+
+        noteInput.focus();
+        return;
+      }
+
+      ticketState.saving = true;
+      addNoteBtn.disabled = true;
+
+      showDetailStatus(
+        "Adding support note...",
+        "info"
+      );
+
+      try {
+        const response = await fetch(
+          `${SUPPORT_TICKETS_API}/admin/${ticketState.selectedTicketId}/notes`,
+          {
+            method: "POST",
+
+            headers:
+              getAdminHeaders({
+                includeContentType: true
+              }),
+
+            body: JSON.stringify({
+              message
+            })
+          }
+        );
+
+        let result = null;
+
+        try {
+          result =
+            await response.json();
+
+        } catch (parseError) {
+          console.error(
+            "Support note response parse error:",
+            parseError
+          );
+        }
+
+        if (!response.ok) {
+          throw new Error(
+            result?.error ||
+            result?.message ||
+            "Unable to add support note."
+          );
+        }
+
+        await loadTicketDetails(
+          ticketState.selectedTicketId
+        );
+
+      } catch (error) {
+        console.error(
+          "Unable to add support note:",
+          error
+        );
+
+        showDetailStatus(
+          error.message ||
+          "Unable to add support note.",
+          "error"
+        );
+
+      } finally {
+        ticketState.saving = false;
+
+        if (addNoteBtn) {
+          addNoteBtn.disabled = false;
+        }
+      }
+    }
+
+    /* ========================================================
+       FILTER EVENTS
+    ======================================================== */
+
+    document
+      .getElementById(
+        "applyTicketFiltersBtn"
+      )
+      .addEventListener(
+        "click",
+        () => {
+          ticketState.page = 1;
+
+          loadTickets();
+        }
+      );
+
+    document
+      .getElementById(
+        "clearTicketFiltersBtn"
+      )
+      .addEventListener(
+        "click",
+        () => {
+          searchInput.value = "";
+          statusFilter.value = "";
+          roleFilter.value = "";
+          categoryFilter.value = "";
+          priorityFilter.value = "";
+
+          ticketState.page = 1;
+
+          loadTickets();
+        }
+      );
+
+    searchInput.addEventListener(
+      "keydown",
+      (event) => {
+        if (event.key === "Enter") {
+          ticketState.page = 1;
+
+          loadTickets();
+        }
+      }
+    );
+
+    /* ========================================================
+       PAGINATION EVENTS
+    ======================================================== */
+
+    previousTicketsBtn.addEventListener(
+      "click",
+      () => {
+        if (ticketState.page <= 1) {
+          return;
+        }
+
+        ticketState.page -= 1;
+
+        loadTickets();
+      }
+    );
+
+    nextTicketsBtn.addEventListener(
+      "click",
+      () => {
+        if (
+          ticketState.page >=
+          ticketState.totalPages
+        ) {
+          return;
+        }
+
+        ticketState.page += 1;
+
+        loadTickets();
+      }
+    );
+
+    /* ========================================================
+       REFRESH
+    ======================================================== */
+
+    document
+      .getElementById(
+        "refreshTicketsBtn"
+      )
+      .addEventListener(
+        "click",
+        async () => {
+          await loadTickets();
+
+          if (
+            ticketState.selectedTicketId
+          ) {
+            await loadTicketDetails(
+              ticketState.selectedTicketId
+            );
+          }
+        }
+      );
+
+    /* ========================================================
+       LOGOUT
+    ======================================================== */
+
+    document
+      .getElementById(
+        "adminLogoutBtn"
+      )
+      .addEventListener(
+        "click",
+        () => {
+          [
+            "adminToken",
+            "admin_token",
+            "token",
+            "authToken",
+            "admin"
+          ].forEach((key) => {
+            localStorage.removeItem(key);
+          });
+
+          window.location.href =
+            "login.html";
+        }
+      );
+
+    /* ========================================================
+       INITIAL LOAD
+    ======================================================== */
+
+    document.addEventListener(
+      "DOMContentLoaded",
+      () => {
+        loadTickets();
+      }
+    );
   </script>
+
 </body>
 </html>

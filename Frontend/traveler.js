@@ -2922,6 +2922,614 @@ function getTravelerChatUserId() {
   );
 }
 // ============================================================
+// TRAVELER SUPPORT TICKETS
+// ============================================================
+
+function initTravelerSupportTickets() {
+  const openBtn = document.getElementById(
+    "openSupportTicket"
+  );
+
+  const modal = document.getElementById(
+    "supportModal"
+  );
+
+  const closeBtn = document.getElementById(
+    "closeSupportModal"
+  );
+
+  const categorySelect =
+    document.getElementById(
+      "supportCategory"
+    );
+
+  const deliverySelect =
+    document.getElementById(
+      "supportDeliveryId"
+    );
+
+  const subjectInput =
+    document.getElementById(
+      "supportSubject"
+    );
+
+  const messageInput =
+    document.getElementById(
+      "supportMessage"
+    );
+
+  const statusElement =
+    document.getElementById(
+      "supportTicketStatus"
+    );
+
+  const submitBtn =
+    document.getElementById(
+      "submitSupportTicket"
+    );
+
+  if (
+    !openBtn ||
+    !modal ||
+    !closeBtn ||
+    !categorySelect ||
+    !deliverySelect ||
+    !subjectInput ||
+    !messageInput ||
+    !statusElement ||
+    !submitBtn
+  ) {
+    console.warn(
+      "Traveler support-ticket elements were not found."
+    );
+
+    return;
+  }
+
+  let supportTicketSubmitting = false;
+
+  // ==========================================================
+  // GET TRAVELER PROFILE ID
+  // ==========================================================
+
+  function getSupportTravelerId() {
+    return String(
+      window.travelerId ||
+      ""
+    ).trim();
+  }
+
+  // ==========================================================
+  // GET LOGGED-IN ACCOUNT INFORMATION
+  // ==========================================================
+
+  function getSupportUser() {
+    try {
+      const storedUser =
+        JSON.parse(
+          localStorage.getItem("user") ||
+          "null"
+        );
+
+      return (
+        storedUser &&
+        typeof storedUser === "object"
+          ? storedUser
+          : {}
+      );
+
+    } catch (error) {
+      console.error(
+        "Unable to read support user information:",
+        error
+      );
+
+      return {};
+    }
+  }
+
+  // ==========================================================
+  // STATUS MESSAGE
+  // ==========================================================
+
+  function showSupportTicketStatus(
+    message,
+    type = "info"
+  ) {
+    statusElement.textContent =
+      message || "";
+
+    statusElement.classList.remove(
+      "hidden",
+      "success",
+      "error",
+      "info"
+    );
+
+    if (!message) {
+      statusElement.classList.add(
+        "hidden"
+      );
+
+      return;
+    }
+
+    statusElement.classList.add(
+      type
+    );
+  }
+
+  // ==========================================================
+  // FORMAT DELIVERY LABEL
+  // ==========================================================
+
+  function buildSupportDeliveryLabel(
+    delivery
+  ) {
+    const deliveryId = String(
+      delivery?._id ||
+      delivery?.id ||
+      ""
+    ).trim();
+
+    const status = String(
+      delivery?.status ||
+      "delivery"
+    )
+      .trim()
+      .replace(/_/g, " ");
+
+    const description =
+      String(
+        delivery?.package?.description ||
+        delivery?.itemDescription ||
+        delivery?.description ||
+        "Package"
+      ).trim();
+
+    const shortId =
+      deliveryId.length > 8
+        ? deliveryId.slice(-8)
+        : deliveryId;
+
+    return (
+      `${description} - ${status} - #${shortId}`
+    );
+  }
+
+  // ==========================================================
+  // POPULATE RELATED DELIVERIES
+  // ==========================================================
+
+  function populateSupportDeliveries() {
+    deliverySelect.innerHTML = "";
+
+    const defaultOption =
+      document.createElement("option");
+
+    defaultOption.value = "";
+
+    defaultOption.textContent =
+      "Not related to a specific delivery";
+
+    deliverySelect.appendChild(
+      defaultOption
+    );
+
+    const deliveryMap = new Map();
+
+    const deliveryCollections = [
+      Array.isArray(acceptedJobs)
+        ? acceptedJobs
+        : [],
+
+      Array.isArray(pickedUpJobs)
+        ? pickedUpJobs
+        : [],
+
+      Array.isArray(completedJobs)
+        ? completedJobs
+        : []
+    ];
+
+    deliveryCollections
+      .flat()
+      .forEach((delivery) => {
+        const deliveryId = String(
+          delivery?._id ||
+          delivery?.id ||
+          ""
+        ).trim();
+
+        if (!deliveryId) {
+          return;
+        }
+
+        deliveryMap.set(
+          deliveryId,
+          delivery
+        );
+      });
+
+    deliveryMap.forEach(
+      (delivery, deliveryId) => {
+        const option =
+          document.createElement("option");
+
+        option.value =
+          deliveryId;
+
+        option.textContent =
+          buildSupportDeliveryLabel(
+            delivery
+          );
+
+        deliverySelect.appendChild(
+          option
+        );
+      }
+    );
+  }
+
+  // ==========================================================
+  // RESET FORM
+  // ==========================================================
+
+  function resetSupportTicketForm() {
+    categorySelect.value = "";
+    deliverySelect.value = "";
+    subjectInput.value = "";
+    messageInput.value = "";
+
+    submitBtn.disabled = false;
+
+    showSupportTicketStatus("");
+  }
+
+  // ==========================================================
+  // OPEN MODAL
+  // ==========================================================
+
+  function openSupportTicketModal() {
+    resetSupportTicketForm();
+
+    populateSupportDeliveries();
+
+    modal.classList.remove(
+      "hidden"
+    );
+
+    modal.setAttribute(
+      "aria-hidden",
+      "false"
+    );
+
+    document.body.classList.add(
+      "modal-open"
+    );
+
+    window.setTimeout(() => {
+      categorySelect.focus();
+    }, 0);
+  }
+
+  // ==========================================================
+  // CLOSE MODAL
+  // ==========================================================
+
+  function closeSupportTicketModal() {
+    if (supportTicketSubmitting) {
+      return;
+    }
+
+    modal.classList.add(
+      "hidden"
+    );
+
+    modal.setAttribute(
+      "aria-hidden",
+      "true"
+    );
+
+    document.body.classList.remove(
+      "modal-open"
+    );
+
+    resetSupportTicketForm();
+
+    openBtn.focus();
+  }
+
+  // ==========================================================
+  // VALIDATE FORM
+  // ==========================================================
+
+  function validateSupportTicketForm() {
+    const category =
+      categorySelect.value.trim();
+
+    const subject =
+      subjectInput.value.trim();
+
+    const description =
+      messageInput.value.trim();
+
+    if (!category) {
+      showSupportTicketStatus(
+        "Select an issue category.",
+        "error"
+      );
+
+      categorySelect.focus();
+      return false;
+    }
+
+    if (!subject) {
+      showSupportTicketStatus(
+        "Enter a subject for the support ticket.",
+        "error"
+      );
+
+      subjectInput.focus();
+      return false;
+    }
+
+    if (subject.length > 200) {
+      showSupportTicketStatus(
+        "Subject cannot exceed 200 characters.",
+        "error"
+      );
+
+      subjectInput.focus();
+      return false;
+    }
+
+    if (!description) {
+      showSupportTicketStatus(
+        "Describe the issue before submitting.",
+        "error"
+      );
+
+      messageInput.focus();
+      return false;
+    }
+
+    if (description.length > 5000) {
+      showSupportTicketStatus(
+        "Description cannot exceed 5000 characters.",
+        "error"
+      );
+
+      messageInput.focus();
+      return false;
+    }
+
+    return true;
+  }
+
+  // ==========================================================
+  // SUBMIT SUPPORT TICKET
+  // ==========================================================
+
+  async function submitTravelerSupportTicket() {
+    if (supportTicketSubmitting) {
+      return;
+    }
+
+    if (!validateSupportTicketForm()) {
+      return;
+    }
+
+    const travelerId =
+      getSupportTravelerId();
+
+    if (!travelerId) {
+      showSupportTicketStatus(
+        "Unable to identify the logged-in Traveler.",
+        "error"
+      );
+
+      return;
+    }
+
+    const accountUser =
+      getSupportUser();
+
+    const firstName = String(
+      accountUser.firstName ||
+      ""
+    ).trim();
+
+    const lastName = String(
+      accountUser.lastName ||
+      ""
+    ).trim();
+
+    const requesterName =
+      `${firstName} ${lastName}`.trim();
+
+    const requesterEmail = String(
+      accountUser.email ||
+      window.travelerEmail ||
+      ""
+    ).trim();
+
+    const requesterPhone = String(
+      accountUser.phone ||
+      accountUser.phoneNumber ||
+      ""
+    ).trim();
+
+    const payload = {
+      category:
+        categorySelect.value.trim(),
+
+      subject:
+        subjectInput.value.trim(),
+
+      description:
+        messageInput.value.trim(),
+
+      deliveryId:
+        deliverySelect.value.trim(),
+
+      requesterName,
+      requesterEmail,
+      requesterPhone
+    };
+
+    supportTicketSubmitting = true;
+    submitBtn.disabled = true;
+
+    showSupportTicketStatus(
+      "Submitting support ticket...",
+      "info"
+    );
+
+    try {
+      const response = await fetch(
+        `${BASE_URL}/api/support-tickets`,
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json",
+
+            "x-user-id":
+              travelerId,
+
+            "x-user-role":
+              "traveler"
+          },
+
+          body: JSON.stringify(
+            payload
+          )
+        }
+      );
+
+      let result = null;
+
+      try {
+        result = await response.json();
+
+      } catch (parseError) {
+        console.error(
+          "Support ticket response parse error:",
+          parseError
+        );
+      }
+
+      if (!response.ok) {
+        throw new Error(
+          result?.error ||
+          result?.message ||
+          "Unable to submit support ticket."
+        );
+      }
+
+      if (
+        !result?.success ||
+        !result?.data
+      ) {
+        throw new Error(
+          result?.error ||
+          "The support ticket was not created."
+        );
+      }
+
+      const ticketNumber =
+        result.data.ticketNumber ||
+        "Unavailable";
+
+      categorySelect.value = "";
+      deliverySelect.value = "";
+      subjectInput.value = "";
+      messageInput.value = "";
+
+      showSupportTicketStatus(
+        `Support ticket submitted successfully. Ticket number: ${ticketNumber}`,
+        "success"
+      );
+
+    } catch (error) {
+      console.error(
+        "Unable to submit Traveler support ticket:",
+        error
+      );
+
+      showSupportTicketStatus(
+        error.message ||
+        "Unable to submit support ticket.",
+        "error"
+      );
+
+    } finally {
+      supportTicketSubmitting = false;
+      submitBtn.disabled = false;
+    }
+  }
+
+  // ==========================================================
+  // OPEN BUTTON
+  // ==========================================================
+
+  openBtn.addEventListener(
+    "click",
+    openSupportTicketModal
+  );
+
+  // ==========================================================
+  // CLOSE BUTTON
+  // ==========================================================
+
+  closeBtn.addEventListener(
+    "click",
+    closeSupportTicketModal
+  );
+
+  // ==========================================================
+  // CLOSE WHEN BACKDROP IS CLICKED
+  // ==========================================================
+
+  modal.addEventListener(
+    "click",
+    (event) => {
+      if (event.target === modal) {
+        closeSupportTicketModal();
+      }
+    }
+  );
+
+  // ==========================================================
+  // ESCAPE KEY
+  // ==========================================================
+
+  document.addEventListener(
+    "keydown",
+    (event) => {
+      if (
+        event.key === "Escape" &&
+        !modal.classList.contains(
+          "hidden"
+        )
+      ) {
+        closeSupportTicketModal();
+      }
+    }
+  );
+
+  // ==========================================================
+  // SUBMIT BUTTON
+  // ==========================================================
+
+  submitBtn.addEventListener(
+    "click",
+    submitTravelerSupportTicket
+  );
+}
+// ============================================================
 // SUPPORT CHAT WIDGET
 // ============================================================
 
@@ -4705,6 +5313,7 @@ document.addEventListener("DOMContentLoaded", () => {
   //safe(initTravelerJobs);
   safe(initTravelerMap);
   safe(initDeliveryChatPanel);
+  safe(initTravelerSupportTickets);
   safe(initChatWidget);
   safe(initJobDetailsModal);
   safe(initRoutePlanner);

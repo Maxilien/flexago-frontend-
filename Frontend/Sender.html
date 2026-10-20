@@ -682,35 +682,195 @@
 <!-- ========================================================= -->
 <!-- SUPPORT TICKET MODAL                                      -->
 <!-- ========================================================= -->
-<div id="senderSupportTicketModal" class="modal hidden">
-  <div class="modal-content">
 
+<div
+  id="senderSupportTicketModal"
+  class="modal hidden"
+  aria-hidden="true"
+>
+  <div class="modal-content sender-support-ticket-modal">
+
+    <!-- HEADER -->
     <div class="modal-header">
-      <h2 data-i18n="sender.support.ticket_title">New Support Ticket</h2>
-      <button class="modal-close-btn" id="closeSenderSupportTicketModal">
+
+      <div>
+        <h2
+          class="modal-title"
+          data-i18n="sender.support.ticket_title"
+        >
+          Submit a Support Ticket
+        </h2>
+
+        <p class="sender-support-ticket-subtitle">
+          Tell us what you need help with. Our support team will review your request.
+        </p>
+      </div>
+
+      <button
+        id="closeSenderSupportTicketModal"
+        class="modal-close-btn"
+        type="button"
+        aria-label="Close support ticket"
+        title="Close"
+      >
         <i data-lucide="x"></i>
       </button>
+
     </div>
 
+    <!-- BODY -->
     <div class="modal-body">
-      <input class="input-field"
-             id="senderSupportSubjectInput"
-             placeholder="Subject"
-             data-i18n-placeholder="sender.support.subject_placeholder" />
 
-      <textarea class="input-field"
-                id="senderSupportMessageInput"
-                placeholder="Describe your issue..."
-                data-i18n-placeholder="sender.support.message_placeholder"></textarea>
+      <!-- ISSUE CATEGORY -->
+      <div class="sender-support-ticket-field">
+
+        <label
+          class="form-label"
+          for="senderSupportCategory"
+        >
+          Issue Category
+        </label>
+
+        <select
+          id="senderSupportCategory"
+          class="input-field"
+          required
+        >
+          <option value="">
+            Select an issue
+          </option>
+
+          <option value="account">
+            Account Issue
+          </option>
+
+          <option value="verification">
+            Verification Problem
+          </option>
+
+          <option value="payment">
+            Payment Issue
+          </option>
+
+          <option value="payout">
+            Payout Question
+          </option>
+
+          <option value="delivery">
+            Delivery Issue
+          </option>
+
+          <option value="chat">
+            Chat / Communication Problem
+          </option>
+
+          <option value="safety">
+            Safety Concern
+          </option>
+
+          <option value="technical">
+            Technical Problem
+          </option>
+
+          <option value="other">
+            Other
+          </option>
+
+        </select>
+
+      </div>
+
+      <!-- RELATED DELIVERY -->
+      <div class="sender-support-ticket-field">
+
+        <label
+          class="form-label"
+          for="senderSupportDeliveryId"
+        >
+          Related Delivery
+          <span class="sender-support-optional">
+            (optional)
+          </span>
+        </label>
+
+        <select
+          id="senderSupportDeliveryId"
+          class="input-field"
+        >
+          <option value="">
+            Not related to a specific delivery
+          </option>
+        </select>
+
+      </div>
+
+      <!-- SUBJECT -->
+      <div class="sender-support-ticket-field">
+
+        <label
+          class="form-label"
+          for="senderSupportSubjectInput"
+        >
+          Subject
+        </label>
+
+        <input
+          id="senderSupportSubjectInput"
+          class="input-field"
+          type="text"
+          maxlength="200"
+          placeholder="Briefly describe the issue"
+          data-i18n-placeholder="sender.support.subject_placeholder"
+          autocomplete="off"
+          required
+        />
+
+      </div>
+
+      <!-- DESCRIPTION -->
+      <div class="sender-support-ticket-field">
+
+        <label
+          class="form-label"
+          for="senderSupportMessageInput"
+        >
+          Description
+        </label>
+
+        <textarea
+          id="senderSupportMessageInput"
+          class="input-field sender-support-ticket-message"
+          rows="5"
+          maxlength="5000"
+          placeholder="Describe your issue..."
+          data-i18n-placeholder="sender.support.message_placeholder"
+          required
+        ></textarea>
+
+      </div>
+
+      <!-- STATUS / RESULT -->
+      <div
+        id="senderSupportTicketStatus"
+        class="sender-support-ticket-status hidden"
+        role="status"
+        aria-live="polite"
+      ></div>
+
     </div>
 
+    <!-- FOOTER -->
     <div class="modal-footer">
-      <button id="submitSenderSupportTicketBtn"
-              class="primary-btn disabled"
-              disabled
-              data-i18n="sender.support.submit_ticket">
+
+      <button
+        id="submitSenderSupportTicketBtn"
+        class="primary-btn"
+        type="button"
+        data-i18n="sender.support.submit_ticket"
+      >
         Submit Ticket
       </button>
+
     </div>
 
   </div>

@@ -2033,3 +2033,172 @@ select {
 .primary-btn:hover {
   background: #1669c1;
 }
+/* ============================================================
+   SUPPORT TICKET MODAL
+============================================================ */
+
+.support-ticket-modal {
+  width: min(92vw, 520px);
+  max-width: 520px;
+  max-height: 88vh;
+  overflow-y: auto;
+  padding: 24px;
+}
+
+/* ============================================================
+   SUPPORT TICKET SUBTITLE
+============================================================ */
+
+.support-ticket-subtitle {
+  margin: 0 0 20px;
+
+  color: var(--text-muted);
+
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+/* ============================================================
+   SUPPORT TICKET FIELDS
+============================================================ */
+
+.support-ticket-field {
+  margin-bottom: 16px;
+}
+
+.support-ticket-field .form-label {
+  display: block;
+
+  margin-bottom: 7px;
+
+  color: var(--text-light);
+
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.support-ticket-field .input-field {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.support-ticket-field select.input-field {
+  min-height: 44px;
+
+  cursor: pointer;
+}
+
+.support-ticket-field textarea.input-field {
+  resize: vertical;
+}
+
+/* ============================================================
+   OPTIONAL LABEL
+============================================================ */
+
+.support-optional {
+  color: var(--text-muted);
+
+  font-size: 0.72rem;
+  font-weight: 400;
+}
+
+/* ============================================================
+   DESCRIPTION
+============================================================ */
+
+.support-ticket-message {
+  min-height: 120px;
+  max-height: 240px;
+
+  resize: vertical;
+
+  line-height: 1.5;
+}
+
+/* ============================================================
+   SUPPORT TICKET STATUS
+============================================================ */
+
+.support-ticket-status {
+  margin: 4px 0 14px;
+
+  padding: 10px 12px;
+
+  border-radius: 9px;
+
+  font-size: 0.8rem;
+  line-height: 1.45;
+}
+
+.support-ticket-status.success {
+  color: #86efac;
+
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.25);
+}
+
+.support-ticket-status.error {
+  color: #fca5a5;
+
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+}
+
+.support-ticket-status.info {
+  color: #93c5fd;
+
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.25);
+}
+
+/* ============================================================
+   SUPPORT SUBMIT BUTTON
+============================================================ */
+
+#submitSupportTicket {
+  width: 100%;
+  margin-top: 4px;
+}
+
+#submitSupportTicket:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ============================================================
+   SUPPORT FORM FOCUS
+============================================================ */
+
+.support-ticket-field
+.input-field:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* ============================================================
+   MOBILE SUPPORT TICKET MODAL
+============================================================ */
+
+@media (max-width: 600px) {
+
+  .support-ticket-modal {
+    width: 94vw;
+    max-width: none;
+    max-height: 86vh;
+
+    padding: 18px;
+  }
+
+  .support-ticket-field {
+    margin-bottom: 14px;
+  }
+
+  .support-ticket-message {
+    min-height: 110px;
+  }
+
+  #submitSupportTicket {
+    min-height: 46px;
+  }
+}

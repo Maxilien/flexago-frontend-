@@ -944,18 +944,167 @@
 
 <!-- ================= SUPPORT TICKET MODAL ================= -->
 <div id="supportModal" class="modal hidden">
-  <div class="modal-content">
-    <button id="closeSupportModal" class="modal-close">&times;</button>
+  <div class="modal-content support-ticket-modal">
 
-    <h2 class="modal-title" data-i18n="traveler.support.submit_title">Submit a Support Ticket</h2>
+    <button
+      id="closeSupportModal"
+      class="modal-close"
+      type="button"
+      aria-label="Close support ticket"
+    >
+      &times;
+    </button>
 
-    <textarea id="supportMessage" class="input-field" placeholder="Describe your issue..." data-i18n-placeholder="traveler.support.placeholder" rows="5"></textarea>
+    <h2
+      class="modal-title"
+      data-i18n="traveler.support.submit_title"
+    >
+      Submit a Support Ticket
+    </h2>
 
-    <button id="submitSupportTicket" class="primary-btn" style="margin-top:15px;" data-i18n="traveler.support.submit">
+    <p class="support-ticket-subtitle">
+      Tell us what you need help with. Our support team will review your request.
+    </p>
+
+    <!-- ISSUE CATEGORY -->
+    <div class="support-ticket-field">
+      <label
+        class="form-label"
+        for="supportCategory"
+      >
+        Issue Category
+      </label>
+
+      <select
+        id="supportCategory"
+        class="input-field"
+        required
+      >
+        <option value="">
+          Select an issue
+        </option>
+
+        <option value="account">
+          Account Issue
+        </option>
+
+        <option value="verification">
+          Verification Problem
+        </option>
+
+        <option value="payment">
+          Payment Issue
+        </option>
+
+        <option value="payout">
+          Payout Question
+        </option>
+
+        <option value="delivery">
+          Delivery Issue
+        </option>
+
+        <option value="chat">
+          Chat / Communication Problem
+        </option>
+
+        <option value="safety">
+          Safety Concern
+        </option>
+
+        <option value="technical">
+          Technical Problem
+        </option>
+
+        <option value="other">
+          Other
+        </option>
+      </select>
+    </div>
+
+    <!-- RELATED DELIVERY -->
+    <div class="support-ticket-field">
+      <label
+        class="form-label"
+        for="supportDeliveryId"
+      >
+        Related Delivery
+        <span class="support-optional">
+          (optional)
+        </span>
+      </label>
+
+      <select
+        id="supportDeliveryId"
+        class="input-field"
+      >
+        <option value="">
+          Not related to a specific delivery
+        </option>
+      </select>
+    </div>
+
+    <!-- SUBJECT -->
+    <div class="support-ticket-field">
+      <label
+        class="form-label"
+        for="supportSubject"
+      >
+        Subject
+      </label>
+
+      <input
+        id="supportSubject"
+        class="input-field"
+        type="text"
+        maxlength="200"
+        placeholder="Briefly describe the issue"
+        autocomplete="off"
+        required
+      />
+    </div>
+
+    <!-- DESCRIPTION -->
+    <div class="support-ticket-field">
+      <label
+        class="form-label"
+        for="supportMessage"
+      >
+        Description
+      </label>
+
+      <textarea
+        id="supportMessage"
+        class="input-field support-ticket-message"
+        placeholder="Describe your issue..."
+        data-i18n-placeholder="traveler.support.placeholder"
+        rows="5"
+        maxlength="5000"
+        required
+      ></textarea>
+    </div>
+
+    <!-- STATUS / RESULT -->
+    <div
+      id="supportTicketStatus"
+      class="support-ticket-status hidden"
+      role="status"
+      aria-live="polite"
+    ></div>
+
+    <!-- SUBMIT -->
+    <button
+      id="submitSupportTicket"
+      class="primary-btn"
+      type="button"
+      data-i18n="traveler.support.submit"
+    >
       Submit Ticket
     </button>
+
   </div>
 </div>
+
 <!-- ================= JOB DETAILS MODAL ================= -->
 <div id="jobDetailsModal" class="modal hidden">
   <div class="modal-content job-details-modal">

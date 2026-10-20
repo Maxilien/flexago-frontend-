@@ -1852,6 +1852,838 @@ html += `
   });
 }
 // ============================================================
+// SENDER SUPPORT TICKETS
+// ============================================================
+
+function initSenderSupportTickets() {
+  const openBtn = document.getElementById(
+    "openSenderSupportTicketBtn"
+  );
+
+  const modal = document.getElementById(
+    "senderSupportTicketModal"
+  );
+
+  const closeBtn = document.getElementById(
+    "closeSenderSupportTicketModal"
+  );
+
+  const categorySelect =
+    document.getElementById(
+      "senderSupportCategory"
+    );
+
+  const deliverySelect =
+    document.getElementById(
+      "senderSupportDeliveryId"
+    );
+
+  const subjectInput =
+    document.getElementById(
+      "senderSupportSubjectInput"
+    );
+
+  const messageInput =
+    document.getElementById(
+      "senderSupportMessageInput"
+    );
+
+  const statusElement =
+    document.getElementById(
+      "senderSupportTicketStatus"
+    );
+
+  const submitBtn =
+    document.getElementById(
+      "submitSenderSupportTicketBtn"
+    );
+
+  const categoryButtons =
+    document.querySelectorAll(
+      ".support-category"
+    );
+
+  if (
+    !openBtn ||
+    !modal ||
+    !closeBtn ||
+    !categorySelect ||
+    !deliverySelect ||
+    !subjectInput ||
+    !messageInput ||
+    !statusElement ||
+    !submitBtn
+  ) {
+    console.warn(
+      "Sender support-ticket elements were not found."
+    );
+
+    return;
+  }
+
+  let supportTicketSubmitting = false;
+  let selectedSupportCategory = "";
+
+  // ==========================================================
+  // GET AUTHORIZED SENDER ID
+  // ==========================================================
+
+  function getSenderSupportUserId() {
+    return String(
+      user?._id ||
+      window.senderId ||
+      ""
+    ).trim();
+  }
+
+  // ==========================================================
+  // GET LOGGED-IN ACCOUNT INFORMATION
+  // ==========================================================
+
+  function getSenderSupportUser() {
+    try {
+      const storedUser =
+        JSON.parse(
+          localStorage.getItem("user") ||
+          "null"
+        );
+
+      return (
+        storedUser &&
+        typeof storedUser === "object"
+          ? storedUser
+          : {}
+      );
+
+    } catch (error) {
+      console.error(
+        "Unable to read Sender support account information:",
+        error
+      );
+
+      return {};
+    }
+  }
+
+  // ==========================================================
+  // NORMALIZE SUPPORT CATEGORY
+  // ==========================================================
+
+  function normalizeSupportCategory(
+    category
+  ) {
+    const normalized = String(
+      category || ""
+    )
+      .trim()
+      .toLowerCase();
+
+    /*
+     * Existing Sender HTML uses "payments",
+     * while the backend accepts "payment".
+     */
+    if (normalized === "payments") {
+      return "payment";
+    }
+
+    return normalized;
+  }
+
+  // ==========================================================
+  // STATUS MESSAGE
+  // ==========================================================
+
+  function showSenderSupportStatus(
+    message,
+    type = "info"
+  ) {
+    statusElement.textContent =
+      message || "";
+
+    statusElement.classList.remove(
+      "hidden",
+      "success",
+      "error",
+      "info"
+    );
+
+    if (!message) {
+      statusElement.classList.add(
+        "hidden"
+      );
+
+      return;
+    }
+
+    statusElement.classList.add(
+      type
+    );
+  }
+
+  // ==========================================================
+  // FORMAT DELIVERY LABEL
+  // ==========================================================
+
+  function buildSenderSupportDeliveryLabel(
+    delivery
+  ) {
+    const deliveryId = String(
+      delivery?._id ||
+      delivery?.id ||
+      ""
+    ).trim();
+
+    const status = String(
+      delivery?.status ||
+      "delivery"
+    )
+      .trim()
+      .replace(/_/g, " ");
+
+    const description = String(
+      delivery?.package?.description ||
+      delivery?.itemDescription ||
+      delivery?.description ||
+      "Package"
+    ).trim();
+
+    const shortId =
+      deliveryId.length > 8
+        ? deliveryId.slice(-8)
+        : deliveryId;
+
+    return (
+      `${description} - ${status} - #${shortId}`
+    );
+  }
+
+  // ==========================================================
+  // RESET DELIVERY DROPDOWN
+  // ==========================================================
+
+  function resetSenderDeliverySelect() {
+    deliverySelect.innerHTML = "";
+
+    const defaultOption =
+      document.createElement("option");
+
+    defaultOption.value = "";
+
+    defaultOption.textContent =
+      "Not related to a specific delivery";
+
+    deliverySelect.appendChild(
+      defaultOption
+    );
+  }
+
+  // ==========================================================
+  // POPULATE SENDER DELIVERIES
+  // ==========================================================
+
+  async function populateSenderSupportDeliveries() {
+    resetSenderDeliverySelect();
+
+    const senderUserId =
+      getSenderSupportUserId();
+
+    if (!senderUserId) {
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `${BASE_URL}/api/deliveries`,
+        {
+          method: "GET"
+        }
+      );
+
+      let result = null;
+
+      try {
+        result = await response.json();
+
+      } catch (parseError) {
+        console.error(
+          "Sender support delivery response parse error:",
+          parseError
+        );
+      }
+
+      if (!response.ok) {
+        throw new Error(
+          result?.error ||
+          result?.message ||
+          "Unable to load Sender deliveries."
+        );
+      }
+
+      const allDeliveries =
+        Array.isArray(result)
+          ? result
+          : Array.isArray(result?.data)
+            ? result.data
+            : Array.isArray(
+                result?.deliveries
+              )
+              ? result.deliveries
+              : [];
+
+      const senderDeliveries =
+        allDeliveries.filter(
+          (delivery) => {
+            const deliverySenderId =
+              String(
+                delivery?.senderId ||
+                delivery?.sender?._id ||
+                delivery?.sender ||
+                ""
+              ).trim();
+
+            return (
+              deliverySenderId ===
+              senderUserId
+            );
+          }
+        );
+
+      senderDeliveries
+        .sort((first, second) => {
+          const firstDate =
+            new Date(
+              first?.createdAt || 0
+            ).getTime();
+
+          const secondDate =
+            new Date(
+              second?.createdAt || 0
+            ).getTime();
+
+          return secondDate - firstDate;
+        })
+        .forEach((delivery) => {
+          const deliveryId = String(
+            delivery?._id ||
+            delivery?.id ||
+            ""
+          ).trim();
+
+          if (!deliveryId) {
+            return;
+          }
+
+          const option =
+            document.createElement(
+              "option"
+            );
+
+          option.value =
+            deliveryId;
+
+          option.textContent =
+            buildSenderSupportDeliveryLabel(
+              delivery
+            );
+
+          deliverySelect.appendChild(
+            option
+          );
+        });
+
+    } catch (error) {
+      console.error(
+        "Unable to populate Sender support deliveries:",
+        error
+      );
+
+      showSenderSupportStatus(
+        "Delivery references could not be loaded. You can still submit a general support ticket.",
+        "info"
+      );
+    }
+  }
+
+  // ==========================================================
+  // UPDATE CATEGORY BUTTON STATE
+  // ==========================================================
+
+  function updateCategoryButtonState(
+    category
+  ) {
+    const normalizedCategory =
+      normalizeSupportCategory(
+        category
+      );
+
+    categoryButtons.forEach(
+      (button) => {
+        const buttonCategory =
+          normalizeSupportCategory(
+            button.dataset.category
+          );
+
+        button.classList.toggle(
+          "active",
+          Boolean(normalizedCategory) &&
+          buttonCategory ===
+            normalizedCategory
+        );
+      }
+    );
+  }
+
+  // ==========================================================
+  // RESET FORM
+  // ==========================================================
+
+  function resetSenderSupportForm({
+    preserveCategory = false
+  } = {}) {
+    if (!preserveCategory) {
+      selectedSupportCategory = "";
+      categorySelect.value = "";
+
+      updateCategoryButtonState("");
+    }
+
+    deliverySelect.value = "";
+    subjectInput.value = "";
+    messageInput.value = "";
+
+    submitBtn.disabled = false;
+
+    showSenderSupportStatus("");
+  }
+
+  // ==========================================================
+  // OPEN MODAL
+  // ==========================================================
+
+  async function openSenderSupportModal(
+    category = ""
+  ) {
+    selectedSupportCategory =
+      normalizeSupportCategory(
+        category
+      );
+
+    resetSenderSupportForm({
+      preserveCategory:
+        Boolean(
+          selectedSupportCategory
+        )
+    });
+
+    if (selectedSupportCategory) {
+      categorySelect.value =
+        selectedSupportCategory;
+
+      updateCategoryButtonState(
+        selectedSupportCategory
+      );
+    }
+
+    modal.classList.remove(
+      "hidden"
+    );
+
+    modal.setAttribute(
+      "aria-hidden",
+      "false"
+    );
+
+    document.body.classList.add(
+      "modal-open"
+    );
+
+    if (
+      window.lucide &&
+      typeof window.lucide.createIcons ===
+        "function"
+    ) {
+      window.lucide.createIcons();
+    }
+
+    await populateSenderSupportDeliveries();
+
+    window.setTimeout(() => {
+      if (selectedSupportCategory) {
+        subjectInput.focus();
+      } else {
+        categorySelect.focus();
+      }
+    }, 0);
+  }
+
+  // ==========================================================
+  // CLOSE MODAL
+  // ==========================================================
+
+  function closeSenderSupportModal() {
+    if (supportTicketSubmitting) {
+      return;
+    }
+
+    modal.classList.add(
+      "hidden"
+    );
+
+    modal.setAttribute(
+      "aria-hidden",
+      "true"
+    );
+
+    document.body.classList.remove(
+      "modal-open"
+    );
+
+    resetSenderSupportForm();
+
+    openBtn.focus();
+  }
+
+  // ==========================================================
+  // VALIDATE FORM
+  // ==========================================================
+
+  function validateSenderSupportForm() {
+    const category =
+      categorySelect.value.trim();
+
+    const subject =
+      subjectInput.value.trim();
+
+    const description =
+      messageInput.value.trim();
+
+    if (!category) {
+      showSenderSupportStatus(
+        "Select an issue category.",
+        "error"
+      );
+
+      categorySelect.focus();
+      return false;
+    }
+
+    if (!subject) {
+      showSenderSupportStatus(
+        "Enter a subject for the support ticket.",
+        "error"
+      );
+
+      subjectInput.focus();
+      return false;
+    }
+
+    if (subject.length > 200) {
+      showSenderSupportStatus(
+        "Subject cannot exceed 200 characters.",
+        "error"
+      );
+
+      subjectInput.focus();
+      return false;
+    }
+
+    if (!description) {
+      showSenderSupportStatus(
+        "Describe the issue before submitting.",
+        "error"
+      );
+
+      messageInput.focus();
+      return false;
+    }
+
+    if (description.length > 5000) {
+      showSenderSupportStatus(
+        "Description cannot exceed 5000 characters.",
+        "error"
+      );
+
+      messageInput.focus();
+      return false;
+    }
+
+    return true;
+  }
+
+  // ==========================================================
+  // SUBMIT SUPPORT TICKET
+  // ==========================================================
+
+  async function submitSenderSupportTicket() {
+    if (supportTicketSubmitting) {
+      return;
+    }
+
+    if (!validateSenderSupportForm()) {
+      return;
+    }
+
+    const senderUserId =
+      getSenderSupportUserId();
+
+    if (!senderUserId) {
+      showSenderSupportStatus(
+        "Unable to identify the logged-in Sender.",
+        "error"
+      );
+
+      return;
+    }
+
+    const accountUser =
+      getSenderSupportUser();
+
+    const firstName = String(
+      accountUser.firstName ||
+      ""
+    ).trim();
+
+    const lastName = String(
+      accountUser.lastName ||
+      ""
+    ).trim();
+
+    const requesterName =
+      `${firstName} ${lastName}`.trim();
+
+    const requesterEmail = String(
+      accountUser.email ||
+      window.senderEmail ||
+      ""
+    ).trim();
+
+    const requesterPhone = String(
+      accountUser.phone ||
+      accountUser.phoneNumber ||
+      ""
+    ).trim();
+
+    const payload = {
+      category:
+        normalizeSupportCategory(
+          categorySelect.value
+        ),
+
+      subject:
+        subjectInput.value.trim(),
+
+      description:
+        messageInput.value.trim(),
+
+      deliveryId:
+        deliverySelect.value.trim(),
+
+      requesterName,
+      requesterEmail,
+      requesterPhone
+    };
+
+    supportTicketSubmitting = true;
+    submitBtn.disabled = true;
+
+    showSenderSupportStatus(
+      "Submitting support ticket...",
+      "info"
+    );
+
+    try {
+      const response = await fetch(
+        `${BASE_URL}/api/support-tickets`,
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json",
+
+            "x-user-id":
+              senderUserId,
+
+            "x-user-role":
+              "sender"
+          },
+
+          body: JSON.stringify(
+            payload
+          )
+        }
+      );
+
+      let result = null;
+
+      try {
+        result =
+          await response.json();
+
+      } catch (parseError) {
+        console.error(
+          "Sender support response parse error:",
+          parseError
+        );
+      }
+
+      if (!response.ok) {
+        throw new Error(
+          result?.error ||
+          result?.message ||
+          "Unable to submit support ticket."
+        );
+      }
+
+      if (
+        !result?.success ||
+        !result?.data
+      ) {
+        throw new Error(
+          result?.error ||
+          "The support ticket was not created."
+        );
+      }
+
+      const ticketNumber =
+        result.data.ticketNumber ||
+        "Unavailable";
+
+      selectedSupportCategory = "";
+
+      categorySelect.value = "";
+      deliverySelect.value = "";
+      subjectInput.value = "";
+      messageInput.value = "";
+
+      updateCategoryButtonState("");
+
+      showSenderSupportStatus(
+        `Support ticket submitted successfully. Ticket number: ${ticketNumber}`,
+        "success"
+      );
+
+    } catch (error) {
+      console.error(
+        "Unable to submit Sender support ticket:",
+        error
+      );
+
+      showSenderSupportStatus(
+        error.message ||
+        "Unable to submit support ticket.",
+        "error"
+      );
+
+    } finally {
+      supportTicketSubmitting = false;
+      submitBtn.disabled = false;
+    }
+  }
+
+  // ==========================================================
+  // SUPPORT CATEGORY BUTTONS
+  // ==========================================================
+
+  categoryButtons.forEach(
+    (button) => {
+      button.type = "button";
+
+      button.addEventListener(
+        "click",
+        () => {
+          const category =
+            normalizeSupportCategory(
+              button.dataset.category
+            );
+
+          openSenderSupportModal(
+            category
+          );
+        }
+      );
+    }
+  );
+
+  // ==========================================================
+  // MANUAL CATEGORY SELECTOR
+  // ==========================================================
+
+  categorySelect.addEventListener(
+    "change",
+    () => {
+      selectedSupportCategory =
+        normalizeSupportCategory(
+          categorySelect.value
+        );
+
+      updateCategoryButtonState(
+        selectedSupportCategory
+      );
+    }
+  );
+
+  // ==========================================================
+  // OPEN SUPPORT BUTTON
+  // ==========================================================
+
+  openBtn.addEventListener(
+    "click",
+    () => {
+      openSenderSupportModal();
+    }
+  );
+
+  // ==========================================================
+  // CLOSE BUTTON
+  // ==========================================================
+
+  closeBtn.addEventListener(
+    "click",
+    closeSenderSupportModal
+  );
+
+  // ==========================================================
+  // CLOSE WHEN BACKDROP IS CLICKED
+  // ==========================================================
+
+  modal.addEventListener(
+    "click",
+    (event) => {
+      if (event.target === modal) {
+        closeSenderSupportModal();
+      }
+    }
+  );
+
+  // ==========================================================
+  // ESCAPE KEY
+  // ==========================================================
+
+  document.addEventListener(
+    "keydown",
+    (event) => {
+      if (
+        event.key === "Escape" &&
+        !modal.classList.contains(
+          "hidden"
+        )
+      ) {
+        closeSenderSupportModal();
+      }
+    }
+  );
+
+  // ==========================================================
+  // SUBMIT BUTTON
+  // ==========================================================
+
+  submitBtn.addEventListener(
+    "click",
+    submitSenderSupportTicket
+  );
+}
+// ============================================================
 // SENDER DELIVERY CHAT
 // Sender to Traveler
 // ============================================================
@@ -3815,6 +4647,7 @@ function initSenderPayoutView() {
 document.addEventListener("DOMContentLoaded", () => {
   safe(initSenderIcons);
   safe(initSenderDeliveryChat);
+  safe(initSenderSupportTickets);
   safe(loadSenderIdentity);
   safe(initSenderSidebar);
   safe(initSenderCreateForm);
