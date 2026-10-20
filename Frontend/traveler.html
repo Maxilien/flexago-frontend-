@@ -925,23 +925,158 @@
 
   </div>
 </section>
-<!-- ================= SUPPORT PANEL ================= -->
+<!-- ========================================================= -->
+<!-- SUPPORT VIEW (TRAVELER VERSION)                           -->
+<!-- ========================================================= -->
+
 <div id="supportPanel" class="hidden">
-  <div class="support-box">
-    <strong data-i18n="traveler.support.need_help">Need help?</strong>
-    <ul>
-      <li data-i18n="traveler.support.account">Account issues</li>
-      <li data-i18n="traveler.support.verification">Verification problems</li>
-      <li data-i18n="traveler.support.payouts">Payout questions</li>
-      <li data-i18n="traveler.support.delivery">Trip or delivery concerns</li>
-    </ul>
+
+  <div class="panel traveler-support-view-panel">
+
+    <!-- HEADER -->
+    <header class="panel-header">
+
+      <div>
+        <div
+          class="panel-title"
+          data-i18n="traveler.support.title"
+        >
+          Support
+        </div>
+
+        <div
+          class="panel-subtitle"
+          data-i18n="traveler.support.subtitle"
+        >
+          Get help with your deliveries, payouts, verification, or account.
+        </div>
+      </div>
+
+    </header>
+
+    <!-- BODY -->
+    <div class="panel-body">
+
+      <section class="section-block">
+
+        <h2
+          class="section-title"
+          data-i18n="traveler.support.categories"
+        >
+          Support Categories
+        </h2>
+
+        <div class="traveler-support-category-list">
+
+          <!-- DELIVERY -->
+          <button
+            class="traveler-support-category"
+            type="button"
+            data-category="delivery"
+          >
+            <i data-lucide="package"></i>
+
+            <span
+              data-i18n="traveler.support.delivery"
+            >
+              Delivery Issues
+            </span>
+          </button>
+
+          <!-- PAYOUT -->
+          <button
+            class="traveler-support-category"
+            type="button"
+            data-category="payout"
+          >
+            <i data-lucide="wallet-cards"></i>
+
+            <span
+              data-i18n="traveler.support.payouts"
+            >
+              Payout Questions
+            </span>
+          </button>
+
+          <!-- ACCOUNT -->
+          <button
+            class="traveler-support-category"
+            type="button"
+            data-category="account"
+          >
+            <i data-lucide="user"></i>
+
+            <span
+              data-i18n="traveler.support.account"
+            >
+              Account &amp; Identity
+            </span>
+          </button>
+
+          <!-- VERIFICATION -->
+          <button
+            class="traveler-support-category"
+            type="button"
+            data-category="verification"
+          >
+            <i data-lucide="shield-check"></i>
+
+            <span
+              data-i18n="traveler.support.verification"
+            >
+              Verification Problems
+            </span>
+          </button>
+
+          <!-- TECHNICAL -->
+          <button
+            class="traveler-support-category"
+            type="button"
+            data-category="technical"
+          >
+            <i data-lucide="wrench"></i>
+
+            <span>
+              Technical Problems
+            </span>
+          </button>
+
+          <!-- OTHER -->
+          <button
+            class="traveler-support-category"
+            type="button"
+            data-category="other"
+          >
+            <i data-lucide="circle-help"></i>
+
+            <span>
+              Other Questions
+            </span>
+          </button>
+
+        </div>
+
+      </section>
+
+      <!-- OPEN TICKET -->
+      <section class="section-block">
+
+        <button
+          id="openSupportTicket"
+          class="primary-btn traveler-support-open-btn"
+          type="button"
+          data-i18n="traveler.support.open_ticket"
+        >
+          Open Support Ticket
+        </button>
+
+      </section>
+
+    </div>
+
   </div>
 
-  <button id="openSupportTicket" class="primary-btn" data-i18n="traveler.support.open_ticket">
-    Open Support Ticket
-  </button>
 </div>
-
 <!-- ================= SUPPORT TICKET MODAL ================= -->
 <div id="supportModal" class="modal hidden">
   <div class="modal-content support-ticket-modal">

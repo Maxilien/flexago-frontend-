@@ -2200,5 +2200,116 @@ select {
 
   #submitSupportTicket {
     min-height: 46px;
-  }
+  }  
+}  
+
+/* ============================================================
+   TRAVELER SUPPORT VIEW
+============================================================ */
+
+.traveler-support-view-panel {
+  width: 100%;
+  margin: 0;
 }
+
+/* ============================================================
+   SUPPORT CATEGORY GRID
+============================================================ */
+
+.traveler-support-category-list {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+/* ============================================================
+   SUPPORT CATEGORY BUTTONS
+============================================================ */
+
+.traveler-support-category {
+  display: flex;
+  align-items: center;
+
+  gap: 0.65rem;
+
+  min-height: 48px;
+  padding: 0.75rem 0.9rem;
+
+  background:
+    rgba(15, 23, 42, 0.5);
+
+  border:
+    1px solid var(--border-color);
+
+  border-radius: 10px;
+
+  color: var(--text-light);
+
+  font-size: 0.82rem;
+  text-align: left;
+
+  cursor: pointer;
+}
+
+.traveler-support-category:hover {
+  border-color:
+    rgba(59, 130, 246, 0.5);
+
+  background:
+    rgba(59, 130, 246, 0.08);
+}
+
+.traveler-support-category.active {
+  border-color: var(--blue);
+
+  background:
+    rgba(59, 130, 246, 0.12);
+}
+
+.traveler-support-category i,
+.traveler-support-category svg {
+  width: 18px;
+  height: 18px;
+
+  flex-shrink: 0;
+
+  color: var(--blue);
+}
+
+/* ============================================================
+   OPEN SUPPORT TICKET BUTTON
+============================================================ */
+
+.traveler-support-open-btn {
+  width: 100%;
+  min-height: 46px;
+
+  margin-top: 0.25rem;
+}
+
+/* ============================================================
+   KEYBOARD FOCUS
+============================================================ */
+
+.traveler-support-category:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* ============================================================
+   MOBILE
+============================================================ */
+
+@media (max-width: 600px) {
+
+  .traveler-support-category-list {
+    grid-template-columns: 1fr;
+  }
+
+  .traveler-support-category {
+    min-height: 50px;
+  }
+}                                                                                                                          

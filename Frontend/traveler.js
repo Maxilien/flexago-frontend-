@@ -2967,6 +2967,10 @@ function initTravelerSupportTickets() {
     document.getElementById(
       "submitSupportTicket"
     );
+const categoryButtons =
+  document.querySelectorAll(
+    ".traveler-support-category"
+  );
 
   if (
     !openBtn ||
@@ -3190,29 +3194,46 @@ function initTravelerSupportTickets() {
   // OPEN MODAL
   // ==========================================================
 
-  function openSupportTicketModal() {
-    resetSupportTicketForm();
+function openSupportTicketModal(
+  presetCategory = ""
+) {
+  resetSupportTicketForm();
 
-    populateSupportDeliveries();
+  const normalizedCategory =
+    String(
+      presetCategory || ""
+    )
+      .trim()
+      .toLowerCase();
 
-    modal.classList.remove(
-      "hidden"
-    );
-
-    modal.setAttribute(
-      "aria-hidden",
-      "false"
-    );
-
-    document.body.classList.add(
-      "modal-open"
-    );
-
-    window.setTimeout(() => {
-      categorySelect.focus();
-    }, 0);
+  if (normalizedCategory) {
+    categorySelect.value =
+      normalizedCategory;
   }
 
+  populateSupportDeliveries();
+
+  modal.classList.remove(
+    "hidden"
+  );
+
+  modal.setAttribute(
+    "aria-hidden",
+    "false"
+  );
+
+  document.body.classList.add(
+    "modal-open"
+  );
+
+  window.setTimeout(() => {
+    if (normalizedCategory) {
+      subjectInput.focus();
+    } else {
+      categorySelect.focus();
+    }
+  }, 0);
+}
   // ==========================================================
   // CLOSE MODAL
   // ==========================================================
@@ -3470,6 +3491,30 @@ function initTravelerSupportTickets() {
       submitBtn.disabled = false;
     }
   }
+// ==========================================================
+// SUPPORT CATEGORY BUTTONS
+// ==========================================================
+
+categoryButtons.forEach(
+  (button) => {
+    button.addEventListener(
+      "click",
+      () => {
+        const category =
+          String(
+            button.dataset.category ||
+            ""
+          )
+            .trim()
+            .toLowerCase();
+
+        openSupportTicketModal(
+          category
+        );
+      }
+    );
+  }
+);
 
   // ==========================================================
   // OPEN BUTTON
