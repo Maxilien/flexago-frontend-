@@ -1044,202 +1044,6 @@
   </div>
 </section>
 
-<!-- ========================================================= -->
-<!-- SUPPORT TICKET MODAL                                      -->
-<!-- ========================================================= -->
-
-<div
-  id="travelerSupportTicketModal"
-  class="modal hidden"
-  aria-hidden="true"
->
-  <div class="modal-content traveler-support-ticket-modal">
-
-    <!-- HEADER -->
-    <div class="modal-header">
-
-      <div>
-        <h2
-          class="modal-title"
-          data-i18n="traveler.support.ticket_title"
-        >
-          Submit a Support Ticket
-        </h2>
-
-        <p class="traveler-support-ticket-subtitle">
-          Tell us what you need help with. Our support team will review your request.
-        </p>
-      </div>
-
-      <button
-        id="closeTravelerSupportTicketModal"
-        class="modal-close-btn"
-        type="button"
-        aria-label="Close support ticket"
-        title="Close"
-      >
-        <i data-lucide="x"></i>
-      </button>
-
-    </div>
-
-    <!-- BODY -->
-    <div class="modal-body">
-
-      <!-- ISSUE CATEGORY -->
-      <div class="traveler-support-ticket-field">
-
-        <label
-          class="form-label"
-          for="travelerSupportCategory"
-        >
-          Issue Category
-        </label>
-
-        <select
-          id="travelerSupportCategory"
-          class="input-field"
-          required
-        >
-          <option value="">
-            Select an issue
-          </option>
-
-          <option value="account">
-            Account Issue
-          </option>
-
-          <option value="verification">
-            Verification Problem
-          </option>
-
-          <option value="payment">
-            Payment Issue
-          </option>
-
-          <option value="payout">
-            Payout Question
-          </option>
-
-          <option value="delivery">
-            Delivery Issue
-          </option>
-
-          <option value="chat">
-            Chat / Communication Problem
-          </option>
-
-          <option value="safety">
-            Safety Concern
-          </option>
-
-          <option value="technical">
-            Technical Problem
-          </option>
-
-          <option value="other">
-            Other
-          </option>
-        </select>
-
-      </div>
-
-      <!-- RELATED DELIVERY -->
-      <div class="traveler-support-ticket-field">
-
-        <label
-          class="form-label"
-          for="travelerSupportDeliveryId"
-        >
-          Related Delivery
-
-          <span class="traveler-support-optional">
-            (optional)
-          </span>
-        </label>
-
-        <select
-          id="travelerSupportDeliveryId"
-          class="input-field"
-        >
-          <option value="">
-            Not related to a specific delivery
-          </option>
-        </select>
-
-      </div>
-
-      <!-- SUBJECT -->
-      <div class="traveler-support-ticket-field">
-
-        <label
-          class="form-label"
-          for="travelerSupportSubjectInput"
-        >
-          Subject
-        </label>
-
-        <input
-          id="travelerSupportSubjectInput"
-          class="input-field"
-          type="text"
-          maxlength="200"
-          placeholder="Briefly describe the issue"
-          data-i18n-placeholder="traveler.support.subject_placeholder"
-          autocomplete="off"
-          required
-        />
-
-      </div>
-
-      <!-- DESCRIPTION -->
-      <div class="traveler-support-ticket-field">
-
-        <label
-          class="form-label"
-          for="travelerSupportMessageInput"
-        >
-          Description
-        </label>
-
-        <textarea
-          id="travelerSupportMessageInput"
-          class="input-field traveler-support-ticket-message"
-          rows="5"
-          maxlength="5000"
-          placeholder="Describe your issue..."
-          data-i18n-placeholder="traveler.support.message_placeholder"
-          required
-        ></textarea>
-
-      </div>
-
-      <!-- STATUS -->
-      <div
-        id="travelerSupportTicketStatus"
-        class="traveler-support-ticket-status hidden"
-        role="status"
-        aria-live="polite"
-      ></div>
-
-    </div>
-
-    <!-- FOOTER -->
-    <div class="modal-footer">
-
-      <button
-        id="submitTravelerSupportTicketBtn"
-        class="primary-btn"
-        type="button"
-        data-i18n="traveler.support.submit_ticket"
-      >
-        Submit Ticket
-      </button>
-
-    </div>
-
-  </div>
-</div>
 <!-- ================= JOB DETAILS MODAL ================= -->
 <div id="jobDetailsModal" class="modal hidden">
   <div class="modal-content job-details-modal">
@@ -1478,6 +1282,202 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 </script>
+<!-- ========================================================= -->
+<!-- SUPPORT TICKET MODAL                                      -->
+<!-- ========================================================= -->
+
+<div
+  id="travelerSupportTicketModal"
+  class="modal hidden"
+  aria-hidden="true"
+>
+  <div class="modal-content traveler-support-ticket-modal">
+
+    <!-- HEADER -->
+    <div class="modal-header">
+
+      <div>
+        <h2
+          class="modal-title"
+          data-i18n="traveler.support.ticket_title"
+        >
+          Submit a Support Ticket
+        </h2>
+
+        <p class="traveler-support-ticket-subtitle">
+          Tell us what you need help with. Our support team will review your request.
+        </p>
+      </div>
+
+      <button
+        id="closeTravelerSupportTicketModal"
+        class="modal-close-btn"
+        type="button"
+        aria-label="Close support ticket"
+        title="Close"
+      >
+        <i data-lucide="x"></i>
+      </button>
+
+    </div>
+
+    <!-- BODY -->
+    <div class="modal-body">
+
+      <!-- ISSUE CATEGORY -->
+      <div class="traveler-support-ticket-field">
+
+        <label
+          class="form-label"
+          for="travelerSupportCategory"
+        >
+          Issue Category
+        </label>
+
+        <select
+          id="travelerSupportCategory"
+          class="input-field"
+          required
+        >
+          <option value="">
+            Select an issue
+          </option>
+
+          <option value="account">
+            Account Issue
+          </option>
+
+          <option value="verification">
+            Verification Problem
+          </option>
+
+          <option value="payment">
+            Payment Issue
+          </option>
+
+          <option value="payout">
+            Payout Question
+          </option>
+
+          <option value="delivery">
+            Delivery Issue
+          </option>
+
+          <option value="chat">
+            Chat / Communication Problem
+          </option>
+
+          <option value="safety">
+            Safety Concern
+          </option>
+
+          <option value="technical">
+            Technical Problem
+          </option>
+
+          <option value="other">
+            Other
+          </option>
+        </select>
+
+      </div>
+
+      <!-- RELATED DELIVERY -->
+      <div class="traveler-support-ticket-field">
+
+        <label
+          class="form-label"
+          for="travelerSupportDeliveryId"
+        >
+          Related Delivery
+
+          <span class="traveler-support-optional">
+            (optional)
+          </span>
+        </label>
+
+        <select
+          id="travelerSupportDeliveryId"
+          class="input-field"
+        >
+          <option value="">
+            Not related to a specific delivery
+          </option>
+        </select>
+
+      </div>
+
+      <!-- SUBJECT -->
+      <div class="traveler-support-ticket-field">
+
+        <label
+          class="form-label"
+          for="travelerSupportSubjectInput"
+        >
+          Subject
+        </label>
+
+        <input
+          id="travelerSupportSubjectInput"
+          class="input-field"
+          type="text"
+          maxlength="200"
+          placeholder="Briefly describe the issue"
+          data-i18n-placeholder="traveler.support.subject_placeholder"
+          autocomplete="off"
+          required
+        />
+
+      </div>
+
+      <!-- DESCRIPTION -->
+      <div class="traveler-support-ticket-field">
+
+        <label
+          class="form-label"
+          for="travelerSupportMessageInput"
+        >
+          Description
+        </label>
+
+        <textarea
+          id="travelerSupportMessageInput"
+          class="input-field traveler-support-ticket-message"
+          rows="5"
+          maxlength="5000"
+          placeholder="Describe your issue..."
+          data-i18n-placeholder="traveler.support.message_placeholder"
+          required
+        ></textarea>
+
+      </div>
+
+      <!-- STATUS -->
+      <div
+        id="travelerSupportTicketStatus"
+        class="traveler-support-ticket-status hidden"
+        role="status"
+        aria-live="polite"
+      ></div>
+
+    </div>
+
+    <!-- FOOTER -->
+    <div class="modal-footer">
+
+      <button
+        id="submitTravelerSupportTicketBtn"
+        class="primary-btn"
+        type="button"
+        data-i18n="traveler.support.submit_ticket"
+      >
+        Submit Ticket
+      </button>
+
+    </div>
+
+  </div>
+</div>
 
 <!-- ⭐ Google Maps API -->
 <script
