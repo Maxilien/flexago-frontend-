@@ -3515,52 +3515,7 @@ categoryButtons.forEach(
     );
   }
 );
-// ==========================================================
-// DYNAMIC SUPPORT VIEW CONTROLS
-//
-// loadPage("support") copies the Support panel into
-// #dynamicView. Event delegation keeps those copied controls
-// functional without duplicating the modal.
-// ==========================================================
 
-document.addEventListener(
-  "click",
-  (event) => {
-    const dynamicCategoryButton =
-      event.target.closest(
-        "#dynamicView .traveler-support-category"
-      );
-
-    if (dynamicCategoryButton) {
-      event.preventDefault();
-
-      const category =
-        String(
-          dynamicCategoryButton.dataset.category ||
-          ""
-        )
-          .trim()
-          .toLowerCase();
-
-      openSupportTicketModal(
-        category
-      );
-
-      return;
-    }
-
-    const dynamicOpenButton =
-      event.target.closest(
-        "#dynamicView #openSupportTicket"
-      );
-
-    if (dynamicOpenButton) {
-      event.preventDefault();
-
-      openSupportTicketModal();
-    }
-  }
-);
   // ==========================================================
   // OPEN BUTTON
   // ==========================================================
@@ -4541,6 +4496,10 @@ function loadPage(view) {
 
   const jobsLayout =
     document.getElementById("jobsLayout");
+const supportPanel =
+  document.getElementById(
+    "supportPanel"
+  );
 
   if (!dynamic || !jobsLayout) {
     console.error(
@@ -4549,6 +4508,13 @@ function loadPage(view) {
 
     return;
   }
+// Hide the original Support panel before switching views.
+// The Support branch below will show it when needed.
+if (supportPanel) {
+  supportPanel.classList.add(
+    "hidden"
+  );
+}
 
   /* ==========================================================
      JOBS VIEW
@@ -4670,31 +4636,37 @@ function loadPage(view) {
      SUPPORT VIEW
   ========================================================== */
 
-  else if (view === "support") {
-    const supportPanel =
-      document.getElementById(
-        "supportPanel"
-      );
+else if (view === "support") {
+  if (!supportPanel) {
+    console.error(
+      "supportPanel not found"
+    );
 
-    if (!supportPanel) {
-      console.error(
-        "supportPanel not found"
-      );
-
-      return;
-    }
-
-    dynamic.innerHTML =
-      supportPanel.innerHTML;
-
-    setTimeout(() => {
-      safe(initSupportPage);
-
-      if (window.lucide) {
-        window.lucide.createIcons();
-      }
-    }, 20);
+    return;
   }
+
+  // Hide and clear the copied-content container.
+  dynamic.classList.add(
+    "hidden"
+  );
+
+  dynamic.innerHTML = "";
+
+  // Display the original Support panel.
+  supportPanel.classList.remove(
+    "hidden"
+  );
+
+  if (
+    window.lucide &&
+    typeof window.lucide.createIcons ===
+      "function"
+  ) {
+    window.lucide.createIcons();
+  }
+
+  window.scrollTo(0, 0);
+}
 
   /* ==========================================================
      UNKNOWN VIEW
