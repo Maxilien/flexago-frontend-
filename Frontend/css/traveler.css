@@ -2312,4 +2312,34 @@ select {
   .traveler-support-category {
     min-height: 50px;
   }
+}
+
+/* ============================================================
+   TRAVELER SUPPORT PAGE OVERRIDE
+
+   The original #supportPanel was previously styled as a hidden
+   floating panel. It is now used as a normal workspace view.
+============================================================ */
+
+#supportPanel.hidden {
+  display: none !important;
+}
+
+#supportPanel:not(.hidden) {
+  position: static;
+
+  display: block !important;
+
+  width: 100%;
+  max-width: none;
+
+  margin: 0;
+  padding: 0;
+
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+
+  z-index: auto;
 }                                                                                                                          
