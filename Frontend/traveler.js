@@ -2967,10 +2967,6 @@ function initTravelerSupportTickets() {
     document.getElementById(
       "submitSupportTicket"
     );
-const categoryButtons =
-  document.querySelectorAll(
-    ".traveler-support-category"
-  );
 
   if (
     !openBtn ||
@@ -3194,46 +3190,29 @@ const categoryButtons =
   // OPEN MODAL
   // ==========================================================
 
-function openSupportTicketModal(
-  presetCategory = ""
-) {
-  resetSupportTicketForm();
+  function openSupportTicketModal() {
+    resetSupportTicketForm();
 
-  const normalizedCategory =
-    String(
-      presetCategory || ""
-    )
-      .trim()
-      .toLowerCase();
+    populateSupportDeliveries();
 
-  if (normalizedCategory) {
-    categorySelect.value =
-      normalizedCategory;
+    modal.classList.remove(
+      "hidden"
+    );
+
+    modal.setAttribute(
+      "aria-hidden",
+      "false"
+    );
+
+    document.body.classList.add(
+      "modal-open"
+    );
+
+    window.setTimeout(() => {
+      categorySelect.focus();
+    }, 0);
   }
 
-  populateSupportDeliveries();
-
-  modal.classList.remove(
-    "hidden"
-  );
-
-  modal.setAttribute(
-    "aria-hidden",
-    "false"
-  );
-
-  document.body.classList.add(
-    "modal-open"
-  );
-
-  window.setTimeout(() => {
-    if (normalizedCategory) {
-      subjectInput.focus();
-    } else {
-      categorySelect.focus();
-    }
-  }, 0);
-}
   // ==========================================================
   // CLOSE MODAL
   // ==========================================================
@@ -3491,30 +3470,6 @@ function openSupportTicketModal(
       submitBtn.disabled = false;
     }
   }
-// ==========================================================
-// SUPPORT CATEGORY BUTTONS
-// ==========================================================
-
-categoryButtons.forEach(
-  (button) => {
-    button.addEventListener(
-      "click",
-      () => {
-        const category =
-          String(
-            button.dataset.category ||
-            ""
-          )
-            .trim()
-            .toLowerCase();
-
-        openSupportTicketModal(
-          category
-        );
-      }
-    );
-  }
-);
 
   // ==========================================================
   // OPEN BUTTON
@@ -4496,10 +4451,6 @@ function loadPage(view) {
 
   const jobsLayout =
     document.getElementById("jobsLayout");
-const supportPanel =
-  document.getElementById(
-    "supportPanel"
-  );
 
   if (!dynamic || !jobsLayout) {
     console.error(
@@ -4508,13 +4459,6 @@ const supportPanel =
 
     return;
   }
-// Hide the original Support panel before switching views.
-// The Support branch below will show it when needed.
-if (supportPanel) {
-  supportPanel.classList.add(
-    "hidden"
-  );
-}
 
   /* ==========================================================
      JOBS VIEW
@@ -4636,37 +4580,31 @@ if (supportPanel) {
      SUPPORT VIEW
   ========================================================== */
 
-else if (view === "support") {
-  if (!supportPanel) {
-    console.error(
-      "supportPanel not found"
-    );
+  else if (view === "support") {
+    const supportPanel =
+      document.getElementById(
+        "supportPanel"
+      );
 
-    return;
+    if (!supportPanel) {
+      console.error(
+        "supportPanel not found"
+      );
+
+      return;
+    }
+
+    dynamic.innerHTML =
+      supportPanel.innerHTML;
+
+    setTimeout(() => {
+      safe(initSupportPage);
+
+      if (window.lucide) {
+        window.lucide.createIcons();
+      }
+    }, 20);
   }
-
-  // Hide and clear the copied-content container.
-  dynamic.classList.add(
-    "hidden"
-  );
-
-  dynamic.innerHTML = "";
-
-  // Display the original Support panel.
-  supportPanel.classList.remove(
-    "hidden"
-  );
-
-  if (
-    window.lucide &&
-    typeof window.lucide.createIcons ===
-      "function"
-  ) {
-    window.lucide.createIcons();
-  }
-
-  window.scrollTo(0, 0);
-}
 
   /* ==========================================================
      UNKNOWN VIEW
