@@ -2923,52 +2923,69 @@ function getTravelerChatUserId() {
 }
 // ============================================================
 // TRAVELER SUPPORT TICKETS
+// Matches the working Sender Support architecture
 // ============================================================
 
 function initTravelerSupportTickets() {
-  const openBtn = document.getElementById(
-    "openSupportTicket"
-  );
+  const supportView =
+    document.getElementById(
+      "travelerSupportView"
+    );
 
-  const modal = document.getElementById(
-    "supportModal"
-  );
+  const openBtn =
+    document.getElementById(
+      "openTravelerSupportTicketBtn"
+    );
 
-  const closeBtn = document.getElementById(
-    "closeSupportModal"
-  );
+  const modal =
+    document.getElementById(
+      "travelerSupportTicketModal"
+    );
+
+  const closeBtn =
+    document.getElementById(
+      "closeTravelerSupportTicketModal"
+    );
 
   const categorySelect =
     document.getElementById(
-      "supportCategory"
+      "travelerSupportCategory"
     );
 
   const deliverySelect =
     document.getElementById(
-      "supportDeliveryId"
+      "travelerSupportDeliveryId"
     );
 
   const subjectInput =
     document.getElementById(
-      "supportSubject"
+      "travelerSupportSubjectInput"
     );
 
   const messageInput =
     document.getElementById(
-      "supportMessage"
+      "travelerSupportMessageInput"
     );
 
   const statusElement =
     document.getElementById(
-      "supportTicketStatus"
+      "travelerSupportTicketStatus"
     );
 
   const submitBtn =
     document.getElementById(
-      "submitSupportTicket"
+      "submitTravelerSupportTicketBtn"
     );
 
+  const categoryButtons =
+    supportView
+      ? supportView.querySelectorAll(
+          ".support-category"
+        )
+      : [];
+
   if (
+    !supportView ||
     !openBtn ||
     !modal ||
     !closeBtn ||
@@ -2987,14 +3004,34 @@ function initTravelerSupportTickets() {
   }
 
   let supportTicketSubmitting = false;
+  let selectedSupportCategory = "";
 
   // ==========================================================
-  // GET TRAVELER PROFILE ID
+  // GET AUTHORIZED TRAVELER ID
   // ==========================================================
 
-  function getSupportTravelerId() {
+  function getTravelerSupportUserId() {
+    let storedUser = {};
+
+    try {
+      storedUser =
+        JSON.parse(
+          localStorage.getItem("user") ||
+          "null"
+        ) || {};
+
+    } catch (error) {
+      console.error(
+        "Unable to read Traveler account:",
+        error
+      );
+    }
+
     return String(
       window.travelerId ||
+      storedUser?._id ||
+      localStorage.getItem("travelerId") ||
+      localStorage.getItem("userId") ||
       ""
     ).trim();
   }
@@ -3003,7 +3040,7 @@ function initTravelerSupportTickets() {
   // GET LOGGED-IN ACCOUNT INFORMATION
   // ==========================================================
 
-  function getSupportUser() {
+  function getTravelerSupportUser() {
     try {
       const storedUser =
         JSON.parse(
@@ -3020,7 +3057,7 @@ function initTravelerSupportTickets() {
 
     } catch (error) {
       console.error(
-        "Unable to read support user information:",
+        "Unable to read Traveler support account information:",
         error
       );
 
@@ -3029,10 +3066,30 @@ function initTravelerSupportTickets() {
   }
 
   // ==========================================================
+  // NORMALIZE CATEGORY
+  // ==========================================================
+
+  function normalizeTravelerSupportCategory(
+    category
+  ) {
+    const normalized = String(
+      category || ""
+    )
+      .trim()
+      .toLowerCase();
+
+    if (normalized === "payments") {
+      return "payment";
+    }
+
+    return normalized;
+  }
+
+  // ==========================================================
   // STATUS MESSAGE
   // ==========================================================
 
-  function showSupportTicketStatus(
+  function showTravelerSupportStatus(
     message,
     type = "info"
   ) {
@@ -3063,7 +3120,7 @@ function initTravelerSupportTickets() {
   // FORMAT DELIVERY LABEL
   // ==========================================================
 
-  function buildSupportDeliveryLabel(
+  function buildTravelerSupportDeliveryLabel(
     delivery
   ) {
     const deliveryId = String(
@@ -3079,13 +3136,12 @@ function initTravelerSupportTickets() {
       .trim()
       .replace(/_/g, " ");
 
-    const description =
-      String(
-        delivery?.package?.description ||
-        delivery?.itemDescription ||
-        delivery?.description ||
-        "Package"
-      ).trim();
+    const description = String(
+      delivery?.package?.description ||
+      delivery?.itemDescription ||
+      delivery?.description ||
+      "Package"
+    ).trim();
 
     const shortId =
       deliveryId.length > 8
@@ -3098,10 +3154,10 @@ function initTravelerSupportTickets() {
   }
 
   // ==========================================================
-  // POPULATE RELATED DELIVERIES
+  // RESET DELIVERY DROPDOWN
   // ==========================================================
 
-  function populateSupportDeliveries() {
+  function resetTravelerDeliverySelect() {
     deliverySelect.innerHTML = "";
 
     const defaultOption =
@@ -3115,8 +3171,17 @@ function initTravelerSupportTickets() {
     deliverySelect.appendChild(
       defaultOption
     );
+  }
 
-    const deliveryMap = new Map();
+  // ==========================================================
+  // POPULATE TRAVELER DELIVERIES
+  // ==========================================================
+
+  function populateTravelerSupportDeliveries() {
+    resetTravelerDeliverySelect();
+
+    const deliveryMap =
+      new Map();
 
     const deliveryCollections = [
       Array.isArray(acceptedJobs)
@@ -3151,21 +3216,79 @@ function initTravelerSupportTickets() {
         );
       });
 
-    deliveryMap.forEach(
-      (delivery, deliveryId) => {
+    const travelerDeliveries =
+      Array.from(
+        deliveryMap.values()
+      );
+
+    travelerDeliveries
+      .sort((first, second) => {
+        const firstDate =
+          new Date(
+            first?.createdAt || 0
+          ).getTime();
+
+        const secondDate =
+          new Date(
+            second?.createdAt || 0
+          ).getTime();
+
+        return secondDate - firstDate;
+      })
+      .forEach((delivery) => {
+        const deliveryId = String(
+          delivery?._id ||
+          delivery?.id ||
+          ""
+        ).trim();
+
+        if (!deliveryId) {
+          return;
+        }
+
         const option =
-          document.createElement("option");
+          document.createElement(
+            "option"
+          );
 
         option.value =
           deliveryId;
 
         option.textContent =
-          buildSupportDeliveryLabel(
+          buildTravelerSupportDeliveryLabel(
             delivery
           );
 
         deliverySelect.appendChild(
           option
+        );
+      });
+  }
+
+  // ==========================================================
+  // UPDATE CATEGORY BUTTON STATE
+  // ==========================================================
+
+  function updateTravelerCategoryButtonState(
+    category
+  ) {
+    const normalizedCategory =
+      normalizeTravelerSupportCategory(
+        category
+      );
+
+    categoryButtons.forEach(
+      (button) => {
+        const buttonCategory =
+          normalizeTravelerSupportCategory(
+            button.dataset.category
+          );
+
+        button.classList.toggle(
+          "active",
+          Boolean(normalizedCategory) &&
+          buttonCategory ===
+            normalizedCategory
         );
       }
     );
@@ -3175,25 +3298,56 @@ function initTravelerSupportTickets() {
   // RESET FORM
   // ==========================================================
 
-  function resetSupportTicketForm() {
-    categorySelect.value = "";
+  function resetTravelerSupportForm({
+    preserveCategory = false
+  } = {}) {
+    if (!preserveCategory) {
+      selectedSupportCategory = "";
+      categorySelect.value = "";
+
+      updateTravelerCategoryButtonState(
+        ""
+      );
+    }
+
     deliverySelect.value = "";
     subjectInput.value = "";
     messageInput.value = "";
 
     submitBtn.disabled = false;
 
-    showSupportTicketStatus("");
+    showTravelerSupportStatus("");
   }
 
   // ==========================================================
   // OPEN MODAL
   // ==========================================================
 
-  function openSupportTicketModal() {
-    resetSupportTicketForm();
+  function openTravelerSupportModal(
+    category = ""
+  ) {
+    selectedSupportCategory =
+      normalizeTravelerSupportCategory(
+        category
+      );
 
-    populateSupportDeliveries();
+    resetTravelerSupportForm({
+      preserveCategory:
+        Boolean(
+          selectedSupportCategory
+        )
+    });
+
+    if (selectedSupportCategory) {
+      categorySelect.value =
+        selectedSupportCategory;
+
+      updateTravelerCategoryButtonState(
+        selectedSupportCategory
+      );
+    }
+
+    populateTravelerSupportDeliveries();
 
     modal.classList.remove(
       "hidden"
@@ -3208,8 +3362,20 @@ function initTravelerSupportTickets() {
       "modal-open"
     );
 
+    if (
+      window.lucide &&
+      typeof window.lucide.createIcons ===
+        "function"
+    ) {
+      window.lucide.createIcons();
+    }
+
     window.setTimeout(() => {
-      categorySelect.focus();
+      if (selectedSupportCategory) {
+        subjectInput.focus();
+      } else {
+        categorySelect.focus();
+      }
     }, 0);
   }
 
@@ -3217,7 +3383,7 @@ function initTravelerSupportTickets() {
   // CLOSE MODAL
   // ==========================================================
 
-  function closeSupportTicketModal() {
+  function closeTravelerSupportModal() {
     if (supportTicketSubmitting) {
       return;
     }
@@ -3235,7 +3401,7 @@ function initTravelerSupportTickets() {
       "modal-open"
     );
 
-    resetSupportTicketForm();
+    resetTravelerSupportForm();
 
     openBtn.focus();
   }
@@ -3244,7 +3410,7 @@ function initTravelerSupportTickets() {
   // VALIDATE FORM
   // ==========================================================
 
-  function validateSupportTicketForm() {
+  function validateTravelerSupportForm() {
     const category =
       categorySelect.value.trim();
 
@@ -3255,52 +3421,57 @@ function initTravelerSupportTickets() {
       messageInput.value.trim();
 
     if (!category) {
-      showSupportTicketStatus(
+      showTravelerSupportStatus(
         "Select an issue category.",
         "error"
       );
 
       categorySelect.focus();
+
       return false;
     }
 
     if (!subject) {
-      showSupportTicketStatus(
+      showTravelerSupportStatus(
         "Enter a subject for the support ticket.",
         "error"
       );
 
       subjectInput.focus();
+
       return false;
     }
 
     if (subject.length > 200) {
-      showSupportTicketStatus(
+      showTravelerSupportStatus(
         "Subject cannot exceed 200 characters.",
         "error"
       );
 
       subjectInput.focus();
+
       return false;
     }
 
     if (!description) {
-      showSupportTicketStatus(
+      showTravelerSupportStatus(
         "Describe the issue before submitting.",
         "error"
       );
 
       messageInput.focus();
+
       return false;
     }
 
     if (description.length > 5000) {
-      showSupportTicketStatus(
+      showTravelerSupportStatus(
         "Description cannot exceed 5000 characters.",
         "error"
       );
 
       messageInput.focus();
+
       return false;
     }
 
@@ -3316,15 +3487,15 @@ function initTravelerSupportTickets() {
       return;
     }
 
-    if (!validateSupportTicketForm()) {
+    if (!validateTravelerSupportForm()) {
       return;
     }
 
-    const travelerId =
-      getSupportTravelerId();
+    const travelerUserId =
+      getTravelerSupportUserId();
 
-    if (!travelerId) {
-      showSupportTicketStatus(
+    if (!travelerUserId) {
+      showTravelerSupportStatus(
         "Unable to identify the logged-in Traveler.",
         "error"
       );
@@ -3333,7 +3504,7 @@ function initTravelerSupportTickets() {
     }
 
     const accountUser =
-      getSupportUser();
+      getTravelerSupportUser();
 
     const firstName = String(
       accountUser.firstName ||
@@ -3362,7 +3533,9 @@ function initTravelerSupportTickets() {
 
     const payload = {
       category:
-        categorySelect.value.trim(),
+        normalizeTravelerSupportCategory(
+          categorySelect.value
+        ),
 
       subject:
         subjectInput.value.trim(),
@@ -3381,7 +3554,7 @@ function initTravelerSupportTickets() {
     supportTicketSubmitting = true;
     submitBtn.disabled = true;
 
-    showSupportTicketStatus(
+    showTravelerSupportStatus(
       "Submitting support ticket...",
       "info"
     );
@@ -3397,7 +3570,7 @@ function initTravelerSupportTickets() {
               "application/json",
 
             "x-user-id":
-              travelerId,
+              travelerUserId,
 
             "x-user-role":
               "traveler"
@@ -3412,11 +3585,12 @@ function initTravelerSupportTickets() {
       let result = null;
 
       try {
-        result = await response.json();
+        result =
+          await response.json();
 
       } catch (parseError) {
         console.error(
-          "Support ticket response parse error:",
+          "Traveler support response parse error:",
           parseError
         );
       }
@@ -3443,12 +3617,18 @@ function initTravelerSupportTickets() {
         result.data.ticketNumber ||
         "Unavailable";
 
+      selectedSupportCategory = "";
+
       categorySelect.value = "";
       deliverySelect.value = "";
       subjectInput.value = "";
       messageInput.value = "";
 
-      showSupportTicketStatus(
+      updateTravelerCategoryButtonState(
+        ""
+      );
+
+      showTravelerSupportStatus(
         `Support ticket submitted successfully. Ticket number: ${ticketNumber}`,
         "success"
       );
@@ -3459,7 +3639,7 @@ function initTravelerSupportTickets() {
         error
       );
 
-      showSupportTicketStatus(
+      showTravelerSupportStatus(
         error.message ||
         "Unable to submit support ticket.",
         "error"
@@ -3472,12 +3652,56 @@ function initTravelerSupportTickets() {
   }
 
   // ==========================================================
-  // OPEN BUTTON
+  // SUPPORT CATEGORY BUTTONS
+  // ==========================================================
+
+  categoryButtons.forEach(
+    (button) => {
+      button.type = "button";
+
+      button.addEventListener(
+        "click",
+        () => {
+          const category =
+            normalizeTravelerSupportCategory(
+              button.dataset.category
+            );
+
+          openTravelerSupportModal(
+            category
+          );
+        }
+      );
+    }
+  );
+
+  // ==========================================================
+  // MANUAL CATEGORY SELECTOR
+  // ==========================================================
+
+  categorySelect.addEventListener(
+    "change",
+    () => {
+      selectedSupportCategory =
+        normalizeTravelerSupportCategory(
+          categorySelect.value
+        );
+
+      updateTravelerCategoryButtonState(
+        selectedSupportCategory
+      );
+    }
+  );
+
+  // ==========================================================
+  // OPEN SUPPORT BUTTON
   // ==========================================================
 
   openBtn.addEventListener(
     "click",
-    openSupportTicketModal
+    () => {
+      openTravelerSupportModal();
+    }
   );
 
   // ==========================================================
@@ -3486,7 +3710,7 @@ function initTravelerSupportTickets() {
 
   closeBtn.addEventListener(
     "click",
-    closeSupportTicketModal
+    closeTravelerSupportModal
   );
 
   // ==========================================================
@@ -3497,7 +3721,7 @@ function initTravelerSupportTickets() {
     "click",
     (event) => {
       if (event.target === modal) {
-        closeSupportTicketModal();
+        closeTravelerSupportModal();
       }
     }
   );
@@ -3515,7 +3739,7 @@ function initTravelerSupportTickets() {
           "hidden"
         )
       ) {
-        closeSupportTicketModal();
+        closeTravelerSupportModal();
       }
     }
   );
@@ -4282,14 +4506,6 @@ function closeJobDetailsModal() {
   document.getElementById("jobDetailsModal").classList.add("hidden");
 }
 
-
-/* ============================================================
-   SUPPORT PAGE
-   ============================================================ */
-function initSupportPage() {
-  // Placeholder
-}
-
 /* ============================================================
    TRAVELER ID LOADING — FINAL VERSION
    ============================================================ */
@@ -4452,6 +4668,11 @@ function loadPage(view) {
   const jobsLayout =
     document.getElementById("jobsLayout");
 
+const supportView =
+  document.getElementById(
+    "travelerSupportView"
+  );
+
   if (!dynamic || !jobsLayout) {
     console.error(
       "dynamicView or jobsLayout was not found"
@@ -4466,7 +4687,14 @@ function loadPage(view) {
 
   if (view === "jobs") {
     dynamic.classList.add("hidden");
+
     jobsLayout.classList.remove("hidden");
+
+  if (supportView) {
+    supportView.classList.add(
+      "hidden"
+    );
+  }
 
     setTimeout(() => {
       safe(initTravelerMap);
@@ -4580,32 +4808,37 @@ function loadPage(view) {
      SUPPORT VIEW
   ========================================================== */
 
-  else if (view === "support") {
-    const supportPanel =
-      document.getElementById(
-        "supportPanel"
-      );
+else if (view === "support") {
+  if (!supportView) {
+    console.error(
+      "travelerSupportView not found"
+    );
 
-    if (!supportPanel) {
-      console.error(
-        "supportPanel not found"
-      );
-
-      return;
-    }
-
-    dynamic.innerHTML =
-      supportPanel.innerHTML;
-
-    setTimeout(() => {
-      safe(initSupportPage);
-
-      if (window.lucide) {
-        window.lucide.createIcons();
-      }
-    }, 20);
+    return;
   }
 
+  jobsLayout.classList.add(
+    "hidden"
+  );
+
+  dynamic.classList.add(
+    "hidden"
+  );
+
+  supportView.classList.remove(
+    "hidden"
+  );
+
+  if (
+    window.lucide &&
+    typeof window.lucide.createIcons ===
+      "function"
+  ) {
+    window.lucide.createIcons();
+  }
+
+  window.scrollTo(0, 0);
+}
   /* ==========================================================
      UNKNOWN VIEW
   ========================================================== */
