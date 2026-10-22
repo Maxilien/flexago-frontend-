@@ -2927,7 +2927,9 @@ function connectSenderChatSocket() {
 
   try {
     senderChatWs =
-      new WebSocket(WS_URL);
+      new WebSocket(
+        DELIVERY_CHAT_WS_URL
+      );
 
     senderChatWs.addEventListener(
       "open",
