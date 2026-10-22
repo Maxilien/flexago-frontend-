@@ -2702,8 +2702,8 @@ let pendingSenderChatBroadcast = null;
 
 function getSenderChatUserId() {
   return String(
-    user?._id ||
     window.senderId ||
+    user?._id ||
     localStorage.getItem("userId") ||
     ""
   ).trim();
