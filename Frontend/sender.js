@@ -3040,140 +3040,199 @@ function initSenderDeliveryChat() {
     return;
   }
 
-  // ==========================================================
-  // MESSAGE UI HELPERS
-  // ==========================================================
+// ==========================================================
+// MESSAGE UI HELPERS
+// ==========================================================
 
-  function clearMessages() {
-    messagesContainer.innerHTML = "";
-  }
+function clearMessages() {
+  messagesContainer.innerHTML = "";
+}
 
-  function removeMessageState() {
-    messagesContainer
-      .querySelectorAll(
-        ".sender-delivery-chat-empty"
-      )
-      .forEach((element) => {
-        element.remove();
-      });
-  }
-
-  function showMessageState(text) {
-    clearMessages();
-
-    const state =
-      document.createElement("div");
-
-    state.className =
-      "sender-delivery-chat-empty";
-
-    state.textContent = text;
-
-    messagesContainer.appendChild(
-      state
-    );
-  }
-
-  function scrollMessagesToBottom() {
-    messagesContainer.scrollTop =
-      messagesContainer.scrollHeight;
-  }
-
-  function hasRenderedMessage(messageId) {
-    if (!messageId) {
-      return false;
-    }
-
-    return Boolean(
-      messagesContainer.querySelector(
-        `[data-message-id="${String(messageId)}"]`
-      )
-    );
-  }
-
-  function renderSenderChatMessage(message) {
-    if (!message) {
-      return false;
-    }
-
-    const text =
-      typeof message.message === "string"
-        ? message.message.trim()
-        : "";
-
-    if (!text) {
-      return false;
-    }
-
-    const messageId = String(
-      message._id ||
-      message.id ||
-      ""
-    ).trim();
-
-    if (
-      messageId &&
-      hasRenderedMessage(messageId)
-    ) {
-      return false;
-    }
-
-    removeMessageState();
-
-    const isSenderMessage =
-      message.senderRole === "sender";
-
-    const row =
-      document.createElement("div");
-
-    row.className =
-      `sender-delivery-chat-message ${
-        isSenderMessage
-          ? "sent"
-          : "received"
-      }`;
-
-    if (messageId) {
-      row.dataset.messageId =
-        messageId;
-    }
-
-    const bubble =
-      document.createElement("div");
-
-    bubble.className =
-      "sender-delivery-chat-message-bubble";
-
-    bubble.textContent = text;
-
-    row.appendChild(bubble);
-
-    messagesContainer.appendChild(row);
-
-    return true;
-  }
-
-  function renderSenderChatHistory(messages) {
-    clearMessages();
-
-    if (
-      !Array.isArray(messages) ||
-      messages.length === 0
-    ) {
-      showMessageState(
-        "No messages yet. Start the conversation with the Traveler."
-      );
-
-      return;
-    }
-
-    messages.forEach((message) => {
-      renderSenderChatMessage(message);
+function removeMessageState() {
+  messagesContainer
+    .querySelectorAll(
+      ".sender-delivery-chat-empty"
+    )
+    .forEach((element) => {
+      element.remove();
     });
+}
 
-    scrollMessagesToBottom();
+function showMessageState(text) {
+  clearMessages();
+
+  const state =
+    document.createElement("div");
+
+  state.className =
+    "sender-delivery-chat-empty";
+
+  state.textContent = text;
+
+  messagesContainer.appendChild(
+    state
+  );
+}
+
+function scrollMessagesToBottom() {
+  messagesContainer.scrollTop =
+    messagesContainer.scrollHeight;
+}
+
+function hasRenderedMessage(messageId) {
+  if (!messageId) {
+    return false;
   }
 
+  return Boolean(
+    messagesContainer.querySelector(
+      `[data-message-id="${String(messageId)}"]`
+    )
+  );
+}
+
+// ==========================================================
+// RENDER ONE MESSAGE
+// ==========================================================
+
+function renderSenderChatMessage(message) {
+  if (!message) {
+    return false;
+  }
+
+  const text =
+    typeof message.message === "string"
+      ? message.message.trim()
+      : "";
+
+  if (!text) {
+    return false;
+  }
+
+  const messageId = String(
+    message._id ||
+    message.id ||
+    ""
+  ).trim();
+
+  if (
+    messageId &&
+    hasRenderedMessage(messageId)
+  ) {
+    return false;
+  }
+
+  removeMessageState();
+
+  const isSenderMessage =
+    message.senderRole === "sender";
+
+  const roleLabel =
+    isSenderMessage
+      ? "Sender"
+      : "Traveler";
+
+  let timeLabel = "";
+
+  if (message.createdAt) {
+    const createdAt =
+      new Date(message.createdAt);
+
+    if (
+      !Number.isNaN(
+        createdAt.getTime()
+      )
+    ) {
+      timeLabel =
+        createdAt.toLocaleTimeString(
+          [],
+          {
+            hour: "numeric",
+            minute: "2-digit"
+          }
+        );
+    }
+  }
+
+  const row =
+    document.createElement("div");
+
+  row.className =
+    `sender-delivery-chat-message ${
+      isSenderMessage
+        ? "sent"
+        : "received"
+    }`;
+
+  if (messageId) {
+    row.dataset.messageId =
+      messageId;
+  }
+
+  const bubble =
+    document.createElement("div");
+
+  bubble.className =
+    "sender-delivery-chat-message-bubble";
+
+  const meta =
+    document.createElement("div");
+
+  meta.className =
+    "delivery-chat-message-meta";
+
+meta.textContent =
+  timeLabel
+    ? `${roleLabel} | ${timeLabel}`
+    : roleLabel;
+
+  const messageText =
+    document.createElement("div");
+
+  messageText.className =
+    "delivery-chat-message-text";
+
+  messageText.textContent =
+    text;
+
+  bubble.appendChild(meta);
+  bubble.appendChild(messageText);
+
+  row.appendChild(bubble);
+
+  messagesContainer.appendChild(
+    row
+  );
+
+  return true;
+}
+
+// ==========================================================
+// RENDER MESSAGE HISTORY
+// ==========================================================
+
+function renderSenderChatHistory(messages) {
+  clearMessages();
+
+  if (
+    !Array.isArray(messages) ||
+    messages.length === 0
+  ) {
+    showMessageState(
+      "No messages yet. Start the conversation with the Traveler."
+    );
+
+    return;
+  }
+
+  messages.forEach((message) => {
+    renderSenderChatMessage(
+      message
+    );
+  });
+
+  scrollMessagesToBottom();
+}
   // ==========================================================
   // MARK MESSAGES AS READ
   // ==========================================================

@@ -2141,77 +2141,132 @@ function getTravelerChatUserId() {
     );
   }
 
-  // ==========================================================
-  // RENDER ONE MESSAGE
-  // ==========================================================
+// ==========================================================
+// RENDER ONE MESSAGE
+// ==========================================================
 
-  function renderDeliveryChatMessage(message) {
-    if (!message) {
-      return false;
-    }
-
-    const messageText =
-      typeof message.message === "string"
-        ? message.message.trim()
-        : "";
-
-    if (!messageText) {
-      return false;
-    }
-
-    const messageId = String(
-      message._id ||
-      message.id ||
-      ""
-    ).trim();
-
-    if (
-      messageId &&
-      hasRenderedMessage(messageId)
-    ) {
-      return false;
-    }
-
-    removeConversationState();
-
-    const isTravelerMessage =
-      message.senderRole === "traveler";
-
-    const messageRow =
-      document.createElement("div");
-
-    messageRow.className =
-      `delivery-chat-message ${
-        isTravelerMessage
-          ? "sent"
-          : "received"
-      }`;
-
-    if (messageId) {
-      messageRow.dataset.messageId =
-        messageId;
-    }
-
-    const messageBubble =
-      document.createElement("div");
-
-    messageBubble.className =
-      "delivery-chat-message-bubble";
-
-    messageBubble.textContent =
-      messageText;
-
-    messageRow.appendChild(
-      messageBubble
-    );
-
-    messagesContainer.appendChild(
-      messageRow
-    );
-
-    return true;
+function renderDeliveryChatMessage(message) {
+  if (!message) {
+    return false;
   }
 
+  const messageText =
+    typeof message.message === "string"
+      ? message.message.trim()
+      : "";
+
+  if (!messageText) {
+    return false;
+  }
+
+  const messageId = String(
+    message._id ||
+    message.id ||
+    ""
+  ).trim();
+
+  if (
+    messageId &&
+    hasRenderedMessage(messageId)
+  ) {
+    return false;
+  }
+
+  removeConversationState();
+
+  const isTravelerMessage =
+    message.senderRole === "traveler";
+
+  const roleLabel =
+    isTravelerMessage
+      ? "Traveler"
+      : "Sender";
+
+  let timeLabel = "";
+
+  if (message.createdAt) {
+    const createdAt =
+      new Date(message.createdAt);
+
+    if (
+      !Number.isNaN(
+        createdAt.getTime()
+      )
+    ) {
+      timeLabel =
+        createdAt.toLocaleTimeString(
+          [],
+          {
+            hour: "numeric",
+            minute: "2-digit"
+          }
+        );
+    }
+  }
+
+  const messageRow =
+    document.createElement("div");
+
+  messageRow.className =
+    `delivery-chat-message ${
+      isTravelerMessage
+        ? "sent"
+        : "received"
+    }`;
+
+  if (messageId) {
+    messageRow.dataset.messageId =
+      messageId;
+  }
+
+  const messageBubble =
+    document.createElement("div");
+
+  messageBubble.className =
+    "delivery-chat-message-bubble";
+
+  const meta =
+    document.createElement("div");
+
+  meta.className =
+    "delivery-chat-message-meta";
+
+meta.textContent =
+  timeLabel
+    ? `${roleLabel} | ${timeLabel}`
+    : roleLabel;
+
+  const text =
+    document.createElement("div");
+
+  text.className =
+    "delivery-chat-message-text";
+
+  text.textContent =
+    messageText;
+
+  messageBubble.appendChild(
+    meta
+  );
+
+  messageBubble.appendChild(
+    text
+  );
+
+  messageRow.appendChild(
+    messageBubble
+  );
+
+  messagesContainer.appendChild(
+    messageRow
+  );
+
+  return true;
+}
+
+// ==========================================================
+// RENDER MESSAGE HISTORY
+// ==========================================================
   // ==========================================================
   // RENDER MESSAGE HISTORY
   // ==========================================================
