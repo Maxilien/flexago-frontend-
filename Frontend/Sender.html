@@ -1425,7 +1425,186 @@
 </button>
 </div>
 </main>
+<!-- ========================================================= -->
+<!-- SENDER TRAVELER RATING MODAL                              -->
+<!-- ========================================================= -->
 
+<div
+  id="senderRatingModal"
+  class="modal hidden"
+  aria-hidden="true"
+>
+  <div class="modal-content sender-rating-modal">
+
+    <!-- HEADER -->
+    <div class="modal-header">
+
+      <div>
+        <h2 class="modal-title">
+          Rate Your Traveler
+        </h2>
+
+        <p class="sender-rating-subtitle">
+          How was your delivery experience?
+        </p>
+      </div>
+
+      <button
+        id="closeSenderRatingModal"
+        class="modal-close-btn"
+        type="button"
+        aria-label="Close rating"
+        title="Close"
+      >
+        <i data-lucide="x"></i>
+      </button>
+
+    </div>
+
+    <!-- BODY -->
+    <div class="modal-body">
+
+      <!-- DELIVERY REFERENCE -->
+      <div class="sender-rating-delivery">
+
+        <span class="form-label">
+          Delivery
+        </span>
+
+        <div
+          id="senderRatingDeliveryReference"
+          class="sender-rating-delivery-reference"
+        >
+          Completed delivery
+        </div>
+
+      </div>
+
+      <!-- STAR RATING -->
+      <div class="sender-rating-field">
+
+        <label class="form-label">
+          Rating
+        </label>
+
+        <div
+          id="senderRatingStars"
+          class="sender-rating-stars"
+          role="radiogroup"
+          aria-label="Traveler rating"
+        >
+
+          <button
+            type="button"
+            class="sender-rating-star"
+            data-rating="1"
+            aria-label="1 star"
+            title="1 star"
+          >
+            ★
+          </button>
+
+          <button
+            type="button"
+            class="sender-rating-star"
+            data-rating="2"
+            aria-label="2 stars"
+            title="2 stars"
+          >
+            ★
+          </button>
+
+          <button
+            type="button"
+            class="sender-rating-star"
+            data-rating="3"
+            aria-label="3 stars"
+            title="3 stars"
+          >
+            ★
+          </button>
+
+          <button
+            type="button"
+            class="sender-rating-star"
+            data-rating="4"
+            aria-label="4 stars"
+            title="4 stars"
+          >
+            ★
+          </button>
+
+          <button
+            type="button"
+            class="sender-rating-star"
+            data-rating="5"
+            aria-label="5 stars"
+            title="5 stars"
+          >
+            ★
+          </button>
+
+        </div>
+
+        <div
+          id="senderRatingSelection"
+          class="sender-rating-selection"
+        >
+          Select a rating
+        </div>
+
+      </div>
+
+      <!-- OPTIONAL REVIEW -->
+      <div class="sender-rating-field">
+
+        <label
+          class="form-label"
+          for="senderRatingReview"
+        >
+          Review
+
+          <span class="sender-rating-optional">
+            (optional)
+          </span>
+        </label>
+
+        <textarea
+          id="senderRatingReview"
+          class="input-field sender-rating-review"
+          rows="5"
+          maxlength="1000"
+          placeholder="Share your experience with this Traveler..."
+        ></textarea>
+
+      </div>
+
+      <!-- STATUS -->
+      <div
+        id="senderRatingStatus"
+        class="sender-rating-status hidden"
+        role="status"
+        aria-live="polite"
+      ></div>
+
+    </div>
+
+    <!-- FOOTER -->
+    <div class="modal-footer">
+
+      <button
+        id="submitSenderRatingBtn"
+        class="primary-btn"
+        type="button"
+        disabled
+      >
+        Submit Rating
+      </button>
+
+    </div>
+
+  </div>
+</div>
 <!-- ========================================================= -->
 <!-- SCRIPTS (FINAL, RACE‑CONDITION SAFE)                      -->
 <!-- ========================================================= -->

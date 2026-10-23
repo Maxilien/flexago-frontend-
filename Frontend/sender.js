@@ -1724,132 +1724,1034 @@ function formatDeliveryStatus(status) {
   }
 }
 /* ============================================================
+   SENDER DELIVERY RATING HELPERS
+============================================================ */
+
+function getSenderRatingIdentity() {
+  return String(
+    window.senderId ||
+    user?._id ||
+    localStorage.getItem("userId") ||
+    ""
+  ).trim();
+}
+
+function setDeliveryRatingButtonState(
+  button,
+  rating
+) {
+  if (!button) {
+    return;
+  }
+
+  const score =
+    Number(
+      rating?.score || 0
+    );
+
+  button.disabled = true;
+
+  button.classList.add(
+    "sender-rating-completed"
+  );
+
+  button.textContent =
+    score >= 1 && score <= 5
+      ? `Rated ${score}/5`
+      : "Already Rated";
+
+  button.dataset.rated =
+    "true";
+}
+
+async function loadDeliveryRatingState(
+  deliveryId,
+  button
+) {
+  const senderId =
+    getSenderRatingIdentity();
+
+  if (
+    !deliveryId ||
+    !senderId ||
+    !button
+  ) {
+    return;
+  }
+
+  button.disabled = true;
+
+  button.textContent =
+    "Checking rating...";
+
+  try {
+    const response =
+      await fetch(
+        `${BASE_URL}/api/ratings/delivery/${deliveryId}`,
+        {
+          method: "GET",
+
+          headers: {
+            "x-user-id":
+              senderId,
+
+            "x-user-role":
+              "sender"
+          }
+        }
+      );
+
+    const result =
+      await response.json();
+
+    if (
+      !response.ok ||
+      !result.success
+    ) {
+      throw new Error(
+        result.error ||
+        "Unable to check delivery rating."
+      );
+    }
+
+    if (
+      result.rated &&
+      result.data
+    ) {
+      setDeliveryRatingButtonState(
+        button,
+        result.data
+      );
+
+      return;
+    }
+
+    button.disabled = false;
+
+    button.textContent =
+      "Rate Traveler";
+
+    button.dataset.rated =
+      "false";
+
+  } catch (error) {
+    console.error(
+      "Unable to check delivery rating:",
+      error
+    );
+
+    /*
+     * Do not block rating submission if the
+     * rating-state request temporarily fails.
+     */
+    button.disabled = false;
+
+    button.textContent =
+      "Rate Traveler";
+
+    button.dataset.rated =
+      "false";
+  }
+}
+
+/* ============================================================
    RENDER DELIVERY LIST (with traveler details)
 ============================================================ */
-function renderMyDeliveries(list) {
 
+function renderMyDeliveries(list) {
   const container =
     document.getElementById(
       "myDeliveriesList"
     );
 
-  container.innerHTML = "";
-
-  if (!list || list.length === 0) {
-    container.innerHTML =
-      `<p class="empty-text">No deliveries found.</p>`;
+  if (!container) {
     return;
   }
 
-  list.forEach(d => {
+  container.innerHTML = "";
 
-    const div =
+  if (
+    !Array.isArray(list) ||
+    list.length === 0
+  ) {
+    container.innerHTML =
+      `<p class="empty-text">No deliveries found.</p>`;
+
+    return;
+  }
+
+  list.forEach((delivery) => {
+    const deliveryCard =
       document.createElement("div");
 
-    div.className =
+    deliveryCard.className =
       "delivery-card";
 
     let html = `
-
       <div class="delivery-row">
-        <span><strong>Item Description:</strong></span>
-        <span>${d.package?.description || "Package"}</span>
+        <span>
+          <strong>Item Description:</strong>
+        </span>
+
+        <span>
+          ${delivery.package?.description || "Package"}
+        </span>
       </div>
 
       <div class="delivery-row">
-        <span><strong>Status:</strong></span>
-        <span class="delivery-status status-${d.status}">
-          ${formatDeliveryStatus(d.status)}
+        <span>
+          <strong>Status:</strong>
+        </span>
+
+        <span
+          class="delivery-status status-${delivery.status}"
+        >
+          ${formatDeliveryStatus(delivery.status)}
         </span>
       </div>
 
       <div class="delivery-row">
         <span>Pickup:</span>
-        <span>${d.pickup?.address || "N/A"}</span>
+
+        <span>
+          ${delivery.pickup?.address || "N/A"}
+        </span>
       </div>
 
       <div class="delivery-row">
         <span>Dropoff:</span>
-        <span>${d.dropoff?.address || "N/A"}</span>
+
+        <span>
+          ${delivery.dropoff?.address || "N/A"}
+        </span>
       </div>
 
       <div class="delivery-row">
         <span>Price:</span>
-        <span>$${d.price?.toFixed(2) || "0.00"}</span>
+
+        <span>
+          $${Number(delivery.price || 0).toFixed(2)}
+        </span>
       </div>
 
       <div class="delivery-row">
         <span>Type:</span>
-        <span>${d.package?.deliveryType || "N/A"}</span>
+
+        <span>
+          ${delivery.package?.deliveryType || "N/A"}
+        </span>
       </div>
 
       <div class="delivery-row">
         <span>Insurance:</span>
-        <span>${d.package?.insurance ? "Yes" : "No"}</span>
+
+        <span>
+          ${delivery.package?.insurance ? "Yes" : "No"}
+        </span>
       </div>
     `;
-/* ============================================================
-   TRAVELER DETAILS
-============================================================ */
-if (d.travelerDetails && typeof d.travelerDetails === "object") {
-  const t = d.travelerDetails;
 
-  const travelerName =
-    `${t.firstName || ""} ${t.lastName || ""}`.trim() ||
-    "Unassigned";
+    /* ========================================================
+       TRAVELER DETAILS
+    ======================================================== */
 
-  const travelerRating =
-    t.rating || "N/A";
+    if (
+      delivery.travelerDetails &&
+      typeof delivery.travelerDetails ===
+        "object"
+    ) {
+      const traveler =
+        delivery.travelerDetails;
 
-  html += `
-    <div class="delivery-row traveler-info">
-      <span><strong>Traveler:</strong></span>
-      <span>${travelerName}</span>
-    </div>
+      const travelerName =
+        `${
+          traveler.firstName || ""
+        } ${
+          traveler.lastName || ""
+        }`.trim() ||
+        "Unassigned";
 
-    <div class="delivery-row traveler-info">
-      <span><strong>Rating:</strong></span>
-     <span>⭐ ${travelerRating}</span>
-    </div>
-  `;
-}
-/* ============================================================
-   PICKUP VERIFICATION (Step C)
-============================================================ */
-html += `
-  <div class="delivery-row">
-    <span><strong>Pickup Code:</strong></span>
-    <span>${d.pickupCode || "â€”"}</span>
-  </div>
+      const travelerRating =
+        traveler.rating ??
+        "N/A";
 
-  <div class="delivery-row">
-    <span><strong>Verified:</strong></span>
-    <span>${d.pickupVerified ? "Yes" : "No"}</span>
-  </div>
-`;
-
-    /* PHOTO PREVIEW */
-    if (d.package?.photoUrl) {
       html += `
-        <div class="delivery-row">
-          <img src="${d.package.photoUrl}" alt="Package Photo" class="delivery-photo-preview">
+        <div
+          class="delivery-row traveler-info"
+        >
+          <span>
+            <strong>Traveler:</strong>
+          </span>
+
+          <span>
+            ${travelerName}
+          </span>
+        </div>
+
+        <div
+          class="delivery-row traveler-info"
+        >
+          <span>
+            <strong>Rating:</strong>
+          </span>
+
+          <span>
+            ★ ${travelerRating}
+          </span>
         </div>
       `;
     }
 
-    /* CREATED DATE */
+    /* ========================================================
+       PICKUP VERIFICATION
+    ======================================================== */
+
     html += `
       <div class="delivery-row">
-        <small>${new Date(d.createdAt).toLocaleString()}</small>
+        <span>
+          <strong>Pickup Code:</strong>
+        </span>
+
+        <span>
+          ${delivery.pickupCode || "N/A"}
+        </span>
+      </div>
+
+      <div class="delivery-row">
+        <span>
+          <strong>Verified:</strong>
+        </span>
+
+        <span>
+          ${delivery.pickupVerified ? "Yes" : "No"}
+        </span>
       </div>
     `;
 
-    div.innerHTML = html;
+    /* ========================================================
+       PHOTO PREVIEW
+    ======================================================== */
 
-    div.onclick = () => openDeliveryStatus(d);
+    if (delivery.package?.photoUrl) {
+      html += `
+        <div class="delivery-row">
+          <img
+            src="${delivery.package.photoUrl}"
+            alt="Package Photo"
+            class="delivery-photo-preview"
+          >
+        </div>
+      `;
+    }
 
-    container.appendChild(div);
+    /* ========================================================
+       CREATED DATE
+    ======================================================== */
+
+    html += `
+      <div class="delivery-row">
+        <small>
+          ${
+            delivery.createdAt
+              ? new Date(
+                  delivery.createdAt
+                ).toLocaleString()
+              : ""
+          }
+        </small>
+      </div>
+    `;
+
+    /* ========================================================
+       RATE TRAVELER ACTION
+    ======================================================== */
+
+    const ratingEligible =
+      Boolean(delivery.travelerId) &&
+      (
+        delivery.status ===
+          "payout_pending" ||
+        delivery.status ===
+          "payout_completed"
+      );
+
+    if (ratingEligible) {
+      html += `
+        <div
+          class="delivery-row sender-rating-action"
+        >
+          <button
+            type="button"
+            class="primary-btn sender-rate-traveler-btn"
+            data-delivery-id="${delivery._id || ""}"
+            data-rated="false"
+          >
+            Rate Traveler
+          </button>
+        </div>
+      `;
+    }
+
+    deliveryCard.innerHTML =
+      html;
+
+    /* ========================================================
+       DELIVERY CARD CLICK
+    ==========================================
+          delivery
+        );
+      }
+    );
+
+    /* ========================================================
+       RATE TRAVELER BUTTON
+    ======================================================== */
+
+    const ratingButton =
+      deliveryCard.querySelector(
+        ".sender-rate-traveler-btn"
+      );
+
+    if (ratingButton) {
+      const deliveryId =
+        String(
+          delivery._id || ""
+        );
+
+      ratingButton.addEventListener(
+        "click",
+        (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+
+          if (
+            ratingButton.disabled ||
+            ratingButton.dataset.rated ===
+              "true"
+          ) {
+            return;
+          }
+
+          const traveler =
+            delivery.travelerDetails &&
+            typeof delivery.travelerDetails ===
+              "object"
+              ? delivery.travelerDetails
+              : {};
+
+          const travelerName =
+            `${
+              traveler.firstName || ""
+            } ${
+              traveler.lastName || ""
+            }`.trim() ||
+            "Traveler";
+
+          window.dispatchEvent(
+            new CustomEvent(
+              "flexago:open-sender-rating",
+              {
+                detail: {
+                  deliveryId,
+
+                  travelerId:
+                    String(
+                      delivery.travelerId || ""
+                    ),
+
+                  travelerName
+                }
+              }
+            )
+          );
+        }
+      );
+
+      loadDeliveryRatingState(
+        deliveryId,
+        ratingButton
+      );
+    }
+
+    container.appendChild(
+      deliveryCard
+    );
   });
+}
+
+/* ============================================================
+   UPDATE DELIVERY CARD AFTER RATING
+============================================================ */
+
+window.addEventListener(
+  "flexago:sender-rating-submitted",
+  (event) => {
+    const detail =
+      event.detail || {};
+
+    const deliveryId =
+      String(
+        detail.deliveryId || ""
+      );
+
+    if (!deliveryId) {
+      return;
+    }
+
+    const button =
+      document.querySelector(
+        `.sender-rate-traveler-btn[data-delivery-id="${deliveryId}"]`
+      );
+
+    if (!button) {
+      return;
+    }
+
+    setDeliveryRatingButtonState(
+      button,
+      detail.rating
+    );
+  }
+);
+
+// ============================================================
+// SENDER TRAVELER RATINGS
+// ============================================================
+function initSenderRating() {
+  const modal =
+    document.getElementById(
+      "senderRatingModal"
+    );
+
+  const closeBtn =
+    document.getElementById(
+      "closeSenderRatingModal"
+    );
+
+  const deliveryReference =
+    document.getElementById(
+      "senderRatingDeliveryReference"
+    );
+
+  const starsContainer =
+    document.getElementById(
+      "senderRatingStars"
+    );
+
+  const selectionElement =
+    document.getElementById(
+      "senderRatingSelection"
+    );
+
+  const reviewInput =
+    document.getElementById(
+      "senderRatingReview"
+    );
+
+  const statusElement =
+    document.getElementById(
+      "senderRatingStatus"
+    );
+
+  const submitBtn =
+    document.getElementById(
+      "submitSenderRatingBtn"
+    );
+
+  if (
+    !modal ||
+    !closeBtn ||
+    !deliveryReference ||
+    !starsContainer ||
+    !selectionElement ||
+    !reviewInput ||
+    !statusElement ||
+    !submitBtn
+  ) {
+    console.warn(
+      "Sender rating elements were not found."
+    );
+
+    return;
+  }
+
+  const starButtons =
+    Array.from(
+      starsContainer.querySelectorAll(
+        ".sender-rating-star"
+      )
+    );
+
+  let activeDeliveryId = "";
+  let selectedRating = 0;
+  let ratingSubmitting = false;
+
+  // ==========================================================
+  // GET AUTHORIZED SENDER ID
+  // ==========================================================
+
+  function getSenderRatingUserId() {
+    return String(
+      window.senderId ||
+      user?._id ||
+      localStorage.getItem("userId") ||
+      ""
+    ).trim();
+  }
+
+  // ==========================================================
+  // STATUS
+  // ==========================================================
+
+  function showRatingStatus(
+    message,
+    type = "info"
+  ) {
+    statusElement.textContent =
+      message;
+
+    statusElement.className =
+      `sender-rating-status ${type}`;
+  }
+
+  function clearRatingStatus() {
+    statusElement.textContent = "";
+
+    statusElement.className =
+      "sender-rating-status hidden";
+  }
+
+  // ==========================================================
+  // STAR SELECTION
+  // ==========================================================
+
+  function updateRatingStars(rating) {
+    selectedRating =
+      Number(rating) || 0;
+
+    starButtons.forEach(
+      (button) => {
+        const buttonRating =
+          Number(
+            button.dataset.rating
+          );
+
+        const isActive =
+          buttonRating <=
+          selectedRating;
+
+        button.classList.toggle(
+          "active",
+          isActive
+        );
+
+        button.setAttribute(
+          "aria-checked",
+          String(
+            buttonRating ===
+              selectedRating
+          )
+        );
+      }
+    );
+
+    selectionElement.textContent =
+      selectedRating > 0
+        ? `${selectedRating} ${
+            selectedRating === 1
+              ? "star"
+              : "stars"
+          } selected`
+        : "Select a rating";
+
+    submitBtn.disabled =
+      selectedRating === 0 ||
+      ratingSubmitting;
+  }
+
+  // ==========================================================
+  // RESET MODAL
+  // ==========================================================
+
+  function resetRatingModal() {
+    activeDeliveryId = "";
+    selectedRating = 0;
+    ratingSubmitting = false;
+
+    deliveryReference.textContent =
+      "Completed delivery";
+
+    reviewInput.value = "";
+
+    submitBtn.disabled = true;
+    submitBtn.textContent =
+      "Submit Rating";
+
+    clearRatingStatus();
+    updateRatingStars(0);
+  }
+
+  // ==========================================================
+  // OPEN MODAL
+  // ==========================================================
+
+  function openRatingModal(detail) {
+    const deliveryId =
+      String(
+        detail?.deliveryId || ""
+      ).trim();
+
+    if (!deliveryId) {
+      return;
+    }
+
+    resetRatingModal();
+
+    activeDeliveryId =
+      deliveryId;
+
+    const travelerName =
+      String(
+        detail?.travelerName ||
+        "Traveler"
+      ).trim();
+
+    deliveryReference.textContent =
+      `${travelerName} | Delivery ${deliveryId}`;
+
+    modal.classList.remove(
+      "hidden"
+    );
+
+    modal.setAttribute(
+      "aria-hidden",
+      "false"
+    );
+
+    document.body.classList.add(
+      "modal-open"
+    );
+
+    if (
+      window.lucide &&
+      typeof window.lucide.createIcons ===
+        "function"
+    ) {
+      window.lucide.createIcons();
+    }
+
+    starButtons[0]?.focus();
+  }
+
+  // ==========================================================
+  // CLOSE MODAL
+  // ==========================================================
+
+  function closeRatingModal() {
+    if (ratingSubmitting) {
+      return;
+    }
+
+    modal.classList.add(
+      "hidden"
+    );
+
+    modal.setAttribute(
+      "aria-hidden",
+      "true"
+    );
+
+    document.body.classList.remove(
+      "modal-open"
+    );
+
+    resetRatingModal();
+  }
+
+  // ==========================================================
+  // SUBMIT RATING
+  // ==========================================================
+
+  async function submitRating() {
+    if (ratingSubmitting) {
+      return;
+    }
+
+    const senderId =
+      getSenderRatingUserId();
+
+    const review =
+      reviewInput.value.trim();
+
+    if (!senderId) {
+      showRatingStatus(
+        "Unable to identify the Sender.",
+        "error"
+      );
+
+      return;
+    }
+
+    if (!activeDeliveryId) {
+      showRatingStatus(
+        "No completed delivery was selected.",
+        "error"
+      );
+
+      return;
+    }
+
+    if (
+      selectedRating < 1 ||
+      selectedRating > 5
+    ) {
+      showRatingStatus(
+        "Select a rating from 1 to 5 stars.",
+        "error"
+      );
+
+      return;
+    }
+
+    if (review.length > 1000) {
+      showRatingStatus(
+        "Review cannot exceed 1000 characters.",
+        "error"
+      );
+
+      return;
+    }
+
+    ratingSubmitting = true;
+
+    submitBtn.disabled = true;
+    submitBtn.textContent =
+      "Submitting...";
+
+    showRatingStatus(
+      "Submitting your rating...",
+      "info"
+    );
+
+    try {
+      const response =
+        await fetch(
+          `${BASE_URL}/api/ratings`,
+          {
+            method: "POST",
+
+            headers: {
+              "Content-Type":
+                "application/json",
+
+              "x-user-id":
+                senderId,
+
+              "x-user-role":
+                "sender"
+            },
+
+            body:
+              JSON.stringify({
+                deliveryId:
+                  activeDeliveryId,
+
+                score:
+                  selectedRating,
+
+                review
+              })
+          }
+        );
+
+      const result =
+        await response.json();
+
+      if (
+        !response.ok ||
+        !result.success
+      ) {
+        if (
+          response.status === 409
+        ) {
+          showRatingStatus(
+            "This delivery has already been rated.",
+            "info"
+          );
+
+          submitBtn.textContent =
+            "Already Rated";
+
+          window.dispatchEvent(
+            new CustomEvent(
+              "flexago:sender-rating-submitted",
+              {
+                detail: {
+                  deliveryId:
+                    activeDeliveryId,
+
+                  rating:
+                    result.data || null,
+
+                  alreadyRated:
+                    true
+                }
+              }
+            )
+          );
+
+          return;
+        }
+
+        throw new Error(
+          result.error ||
+          "Unable to submit your rating."
+        );
+      }
+
+      showRatingStatus(
+        "Thank you. Your Traveler rating was submitted successfully.",
+        "success"
+      );
+
+      submitBtn.textContent =
+        "Rating Submitted";
+
+      window.dispatchEvent(
+        new CustomEvent(
+          "flexago:sender-rating-submitted",
+          {
+            detail: {
+              deliveryId:
+                activeDeliveryId,
+
+              rating:
+                result.data?.rating ||
+                null,
+
+              traveler:
+                result.data?.traveler ||
+                null,
+
+              alreadyRated:
+                false
+            }
+          }
+        )
+      );
+
+    } catch (error) {
+      console.error(
+        "Unable to submit Sender rating:",
+        error
+      );
+
+      ratingSubmitting = false;
+
+      submitBtn.disabled =
+        selectedRating === 0;
+
+      submitBtn.textContent =
+        "Submit Rating";
+
+      showRatingStatus(
+        error.message ||
+        "Unable to submit your rating.",
+        "error"
+      );
+    }
+  }
+
+  // ==========================================================
+  // EVENTS
+  // ==========================================================
+
+  starButtons.forEach(
+    (button) => {
+      button.addEventListener(
+        "click",
+        () => {
+          updateRatingStars(
+            button.dataset.rating
+          );
+        }
+      );
+
+      button.addEventListener(
+        "mouseenter",
+        () => {
+          const hoverRating =
+            Number(
+              button.dataset.rating
+            );
+
+          starButtons.forEach(
+            (starButton) => {
+              starButton.classList.toggle(
+                "active",
+                Number(
+                  starButton.dataset.rating
+                ) <= hoverRating
+              );
+            }
+          );
+        }
+      );
+    }
+  );
+
+  starsContainer.addEventListener(
+    "mouseleave",
+    () => {
+      updateRatingStars(
+        selectedRating
+      );
+    }
+  );
+
+  submitBtn.addEventListener(
+    "click",
+    submitRating
+  );
+
+  closeBtn.addEventListener(
+    "click",
+    closeRatingModal
+  );
+
+  modal.addEventListener(
+    "click",
+    (event) => {
+      if (event.target === modal) {
+        closeRatingModal();
+      }
+    }
+  );
+
+  document.addEventListener(
+    "keydown",
+    (event) => {
+      if (
+        event.key === "Escape" &&
+        !modal.classList.contains(
+          "hidden"
+        )
+      ) {
+        closeRatingModal();
+      }
+    }
+  );
+
+  window.addEventListener(
+    "flexago:open-sender-rating",
+    (event) => {
+      openRatingModal(
+        event.detail
+      );
+    }
+  );
+
+  resetRatingModal();
 }
 // ============================================================
 // SENDER SUPPORT TICKETS
@@ -4709,6 +5611,7 @@ document.addEventListener("DOMContentLoaded", () => {
   safe(initSenderIcons);
   safe(initSenderDeliveryChat);
   safe(initSenderSupportTickets);
+  safe(initSenderRating);
   safe(loadSenderIdentity);
   safe(initSenderSidebar);
   safe(initSenderCreateForm);
