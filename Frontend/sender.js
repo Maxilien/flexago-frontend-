@@ -2094,14 +2094,15 @@ function renderMyDeliveries(list) {
 
     deliveryCard.innerHTML =
       html;
+/* ========================================================
+   DELIVERY CARD CLICK
+======================================================== */
 
-    /* ========================================================
-       DELIVERY CARD CLICK
-    ==========================================
-          delivery
-        );
-      }
-    );
+deliveryCard.onclick = () => {
+  openDeliveryStatus(
+    delivery
+  );
+};
 
     /* ========================================================
        RATE TRAVELER BUTTON
