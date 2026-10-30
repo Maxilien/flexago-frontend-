@@ -7,7 +7,10 @@ async function login(email, password) {
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify({
+          email,
+          password
+        })
       }
     );
 
@@ -15,40 +18,86 @@ async function login(email, password) {
 
     // Check HTTP response
     if (!res.ok) {
-      alert(result.error || result.message || "Login failed");
+      alert(
+        result.error ||
+        result.message ||
+        "Login failed"
+      );
       return;
     }
 
     // Backend may return either data or user
-    const user = result.data || result.user;
+    const user =
+      result.data ||
+      result.user;
 
     if (!user) {
-      alert("Login failed: no user returned from server");
+      alert(
+        "Login failed: no user returned from server"
+      );
+      return;
+    }
+
+    // Authentication token is required
+    if (!result.token) {
+      alert(
+        "Login failed: no authentication token returned"
+      );
       return;
     }
 
     // Save logged-in user
-    localStorage.setItem("user", JSON.stringify(user));
-    localStorage.setItem("userId", user._id);
+    localStorage.setItem(
+      "user",
+      JSON.stringify(user)
+    );
+
+    localStorage.setItem(
+      "userId",
+      user._id
+    );
+
+    // Save JWT for authenticated API requests
+    localStorage.setItem(
+      "authToken",
+      result.token
+    );
 
     // Traveler-specific ID
     if (user.role === "traveler") {
-      window.travelerId = user._id;
-      localStorage.setItem("travelerId", user._id);
+      window.travelerId =
+        user._id;
+
+      localStorage.setItem(
+        "travelerId",
+        user._id
+      );
     }
 
     // Redirect based on role
     if (user.role === "sender") {
-      window.location.href = "Sender.html";
-    } else if (user.role === "traveler") {
-      window.location.href = "Traveler.html";
+      window.location.href =
+        "Sender.html";
+
+    } else if (
+      user.role === "traveler"
+    ) {
+      window.location.href =
+        "Traveler.html";
+
     } else {
       alert("Unknown user role");
     }
 
   } catch (err) {
-    console.error("Login error:", err);
-    alert("Unable to connect to server. Please try again.");
+    console.error(
+      "Login error:",
+      err
+    );
+
+    alert(
+      "Unable to connect to server. Please try again."
+    );
   }
 }
 
@@ -56,9 +105,25 @@ async function login(email, password) {
    LOGIN BUTTON
 ============================================================ */
 
-document.getElementById("login-btn").addEventListener("click", () => {
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value;
+document
+  .getElementById("login-btn")
+  .addEventListener(
+    "click",
+    () => {
+      const email =
+        document
+          .getElementById("email")
+          .value
+          .trim();
 
-  login(email, password);
-});
+      const password =
+        document
+          .getElementById("password")
+          .value;
+
+      login(
+        email,
+        password
+      );
+    }
+  );

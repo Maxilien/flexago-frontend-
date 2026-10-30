@@ -1517,83 +1517,244 @@ async function pickupJob(jobId) {
 }
 
 /* ============================================================
-   COMPLETE JOB (FINAL VERSION — signedBy + photo + signature)
-   ============================================================ */
+   COMPLETE JOB (FINAL VERSION - signedBy + photo + signature)
+============================================================ */
 async function completeJob(deliveryId) {
   try {
-    console.log("Completing job:", deliveryId);
-
-    const modal = document.getElementById("proofOfDeliveryModal");
-
-    // 1️⃣ Signed By
-    const signedByInput = modal.querySelector(".signed-by-input");
-    const signedBy = signedByInput ? signedByInput.value.trim() : "";
-
-    // 2️⃣ Delivery Photo
-    const photoInput = modal.querySelector(".delivery-photo-input");
-    const photoFile = photoInput && photoInput.files.length > 0
-      ? photoInput.files[0]
-      : null;
-
-    // 3️⃣ Signature Canvas → Blob
-    const signatureCanvas = modal.querySelector(".signature-pad");
-    let signatureBlob = null;
-
-    if (signatureCanvas) {
-      const dataURL = signatureCanvas.toDataURL("image/png");
-      const byteString = atob(dataURL.split(",")[1]);
-      const mimeString = dataURL.split(",")[0].split(":")[1].split(";")[0];
-
-      const ab = new ArrayBuffer(byteString.length);
-      const ia = new Uint8Array(ab);
-      for (let i = 0; i < byteString.length; i++) {
-        ia[i] = byteString.charCodeAt(i);
-      }
-
-      signatureBlob = new Blob([ab], { type: mimeString });
-    }
-
-    // 4️⃣ Build FormData
-    const formData = new FormData();
-    formData.append("signedBy", signedBy);
-
-    if (photoFile) {
-      formData.append("photo", photoFile);
-    }
-
-    if (signatureBlob) {
-      formData.append("signature", signatureBlob, "signature.png");
-    }
-
-    // 5️⃣ Send to backend (multipart/form-data)
-    const response = await fetch(
-      `https://flexago-backend.onrender.com/api/deliveries/${deliveryId}/complete`,
-      {
-        method: "POST",
-        body: formData
-      }
+    console.log(
+      "Completing job:",
+      deliveryId
     );
 
-    if (!response.ok) {
-      throw new Error("Failed to complete job");
+    const authToken =
+      localStorage.getItem(
+        "authToken"
+      );
+
+    if (!authToken) {
+      alert(
+        "Your session has expired. Please log in again."
+      );
+
+      window.location.href =
+        "login.html";
+
+      return;
     }
 
-    const updatedJob = await response.json();
-    console.log("Job completed:", updatedJob);
+    const modal =
+      document.getElementById(
+        "proofOfDeliveryModal"
+      );
+
+    if (!modal) {
+      alert(
+        "Proof of delivery form could not be loaded."
+      );
+      return;
+    }
+
+    // Signed By
+    const signedByInput =
+      modal.querySelector(
+        ".signed-by-input"
+      );
+
+    const signedBy =
+      signedByInput
+        ? signedByInput.value.trim()
+        : "";
+
+    if (!signedBy) {
+      alert(
+        "Please enter who signed for the delivery."
+      );
+      return;
+    }
+
+    // Delivery Photo
+    const photoInput =
+      modal.querySelector(
+        ".delivery-photo-input"
+      );
+
+    const photoFile =
+      photoInput &&
+      photoInput.files.length > 0
+        ? photoInput.files[0]
+        : null;
+
+    if (!photoFile) {
+      alert(
+        "Please upload a delivery photo."
+      );
+      return;
+    }
+
+    // Signature Canvas -> Blob
+    const signatureCanvas =
+      modal.querySelector(
+        ".signature-pad"
+      );
+
+    if (!signatureCanvas) {
+      alert(
+        "Please provide a recipient signature."
+      );
+      return;
+    }
+
+    const dataURL =
+      signatureCanvas.toDataURL(
+        "image/png"
+      );
+
+    const byteString =
+      atob(
+        dataURL.split(",")[1]
+      );
+
+    const mimeString =
+      dataURL
+        .split(",")[0]
+        .split(":")[1]
+        .split(";")[0];
+
+    const arrayBuffer =
+      new ArrayBuffer(
+        byteString.length
+      );
+
+    const byteArray =
+      new Uint8Array(
+        arrayBuffer
+      );
+
+    for (
+      let i = 0;
+      i < byteString.length;
+      i++
+    ) {
+      byteArray[i] =
+        byteString.charCodeAt(i);
+    }
+
+    const signatureBlob =
+      new Blob(
+        [arrayBuffer],
+        {
+          type: mimeString
+        }
+      );
+
+    // Build FormData
+    const formData =
+      new FormData();
+
+    formData.append(
+      "signedBy",
+      signedBy
+    );
+
+    formData.append(
+      "photo",
+      photoFile
+    );
+
+    formData.append(
+      "signature",
+      signatureBlob,
+      "signature.png"
+    );
+
+    // Send authenticated completion request
+    const response =
+      await fetch(
+        `https://flexago-backend.onrender.com/api/deliveries/${deliveryId}/complete`,
+        {
+          method: "POST",
+
+          headers: {
+            Authorization:
+              `Bearer ${authToken}`
+          },
+
+          body: formData
+        }
+      );
+
+    const result =
+      await response.json();
+
+    if (
+      response.status === 401 ||
+      response.status === 403
+    ) {
+      console.error(
+        "Delivery completion authorization failed:",
+        result
+      );
+
+      alert(
+        result.error ||
+        "You are not authorized to complete this delivery."
+      );
+
+      return;
+    }
+
+    if (!response.ok) {
+      throw new Error(
+        result.error ||
+        "Failed to complete job"
+      );
+    }
+
+    if (!result.success) {
+      throw new Error(
+        result.error ||
+        "Unable to complete delivery"
+      );
+    }
+
+    console.log(
+      "Job completed:",
+      result
+    );
+
+    if (result.payoutError) {
+      alert(
+        "Delivery completed successfully. Traveler payment requires review."
+      );
+    } else {
+      alert(
+        "Delivery completed successfully!"
+      );
+    }
+
+    modal.classList.add(
+      "hidden"
+    );
 
     // Refresh job lists
     loadJobs();
 
   } catch (err) {
-    console.error("Error completing job:", err);
-    alert("Could not complete delivery.");
+    console.error(
+      "Error completing job:",
+      err
+    );
+
+    alert(
+      err.message ||
+      "Could not complete delivery."
+    );
   }
 }
 
 // ============================================================
 // REAL-TIME DELIVERY AND CHAT WEBSOCKET
 // ============================================================
-
 let wsUpdateTimeout = null;
 let wsReconnectTimeout = null;
 let activeSocketDeliveryId = null;
