@@ -5142,9 +5142,27 @@ async function loadTravelerStripeStatus() {
     `;
   }
 
-  const response = await fetch(
-    `${BASE_URL}/api/traveler-stripe/status/${window.travelerId}`
+ const authToken =
+  localStorage.getItem(
+    "authToken"
   );
+
+if (!authToken) {
+  throw new Error(
+    "Authentication required. Please log in again."
+  );
+}
+
+const response = await fetch(
+  `${BASE_URL}/api/traveler-stripe/status/${window.travelerId}`,
+  {
+    headers: {
+      Authorization:
+        `Bearer ${authToken}`
+    }
+  }
+);
+
 
   const responseText =
     await response.text();
@@ -5266,7 +5284,16 @@ async function startTravelerStripeOnboarding() {
       "Traveler profile ID is missing. Please refresh and try again."
     );
   }
+  const authToken =
+    localStorage.getItem(
+      "authToken"
+    );
 
+  if (!authToken) {
+    throw new Error(
+      "Authentication required. Please log in again."
+    );
+  }
   const connectBtn =
     document.getElementById("connectStripeBtn");
 
@@ -5286,10 +5313,11 @@ async function startTravelerStripeOnboarding() {
       {
         method: "POST",
 
-        headers: {
-          "Content-Type": "application/json"
-        },
-
+       headers: {
+  "Content-Type": "application/json",
+  Authorization:
+    `Bearer ${authToken}`
+},
         body: JSON.stringify({
           travelerId:
             window.travelerId,
@@ -5340,10 +5368,11 @@ async function startTravelerStripeOnboarding() {
       {
         method: "POST",
 
-        headers: {
-          "Content-Type": "application/json"
-        },
-
+headers: {
+  "Content-Type": "application/json",
+  Authorization:
+    `Bearer ${authToken}`
+},
         body: JSON.stringify({
           travelerId:
             window.travelerId
