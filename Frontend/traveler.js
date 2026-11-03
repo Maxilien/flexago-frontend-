@@ -5407,13 +5407,17 @@ if (pendingBalanceEl) {
 }
 
 if (instantWithdrawBtn) {
-  instantWithdrawBtn.disabled = true;
+  instantWithdrawBtn.disabled =
+    instantAvailable <= 0;
+
+  instantWithdrawBtn.dataset.amount =
+    instantAvailable.toFixed(2);
+
   instantWithdrawBtn.textContent =
     instantAvailable > 0
       ? `Instant Withdraw $${instantAvailable.toFixed(2)}`
       : "Instant Withdraw";
 }
-
 if (instantWithdrawMessage) {
   instantWithdrawMessage.textContent =
     instantAvailable > 0
@@ -5422,6 +5426,182 @@ if (instantWithdrawMessage) {
 }
 
 return result;
+}
+/* ============================================================
+   CREATE TRAVELER INSTANT PAYOUT
+============================================================ */
+
+async function createTravelerInstantPayout() {
+  if (!window.travelerId) {
+    throw new Error(
+      "Traveler profile ID is missing. Please refresh and try again."
+    );
+  }
+
+  const authToken =
+    localStorage.getItem(
+      "authToken"
+    );
+
+  if (!authToken) {
+    throw new Error(
+      "Authentication required. Please log in again."
+    );
+  }
+
+  const instantWithdrawBtn =
+    document.getElementById(
+      "instantWithdrawBtn"
+    );
+
+  const instantWithdrawMessage =
+    document.getElementById(
+      "instantWithdrawMessage"
+    );
+
+  /*
+   * Reload the Stripe balance immediately
+   * before creating the payout.
+   */
+  const balance =
+    await loadTravelerStripeBalance();
+
+  const instantAvailable =
+    Number(
+      balance.instantAvailable || 0
+    );
+
+  if (
+    !Number.isFinite(
+      instantAvailable
+    ) ||
+    instantAvailable <= 0
+  ) {
+    throw new Error(
+      "No funds are currently available for instant withdrawal."
+    );
+  }
+
+  const confirmed =
+    window.confirm(
+      `Withdraw $${instantAvailable.toFixed(2)} instantly to your Stripe payout account?`
+    );
+
+  if (!confirmed) {
+    return;
+  }
+
+  if (instantWithdrawBtn) {
+    instantWithdrawBtn.disabled = true;
+    instantWithdrawBtn.textContent =
+      "Processing Instant Withdrawal...";
+  }
+
+  if (instantWithdrawMessage) {
+    instantWithdrawMessage.textContent =
+      "Stripe is processing your instant withdrawal.";
+  }
+const requestId =
+  crypto.randomUUID();
+  try {
+    const response = await fetch(
+      `${BASE_URL}/api/traveler-stripe/instant-payout`,
+      {
+        method: "POST",
+
+        headers: {
+          "Content-Type":
+            "application/json",
+
+          Authorization:
+            `Bearer ${authToken}`
+        },
+
+body: JSON.stringify({
+  travelerId:
+    window.travelerId,
+
+  amount:
+    instantAvailable,
+
+  requestId
+})
+
+      }
+    );
+
+    const responseText =
+      await response.text();
+
+    let result = {};
+
+    if (responseText) {
+      try {
+        result =
+          JSON.parse(
+            responseText
+          );
+      } catch (parseError) {
+        throw new Error(
+          `Instant payout returned an invalid response. Status: ${response.status}`
+        );
+      }
+    }
+
+    if (
+      !response.ok ||
+      !result.success
+    ) {
+      throw new Error(
+        result.error ||
+        `Instant payout failed. Status: ${response.status}`
+      );
+    }
+
+    console.log(
+      "Traveler instant payout response:",
+      result
+    );
+
+    if (instantWithdrawMessage) {
+      const payoutStatus =
+        result.payout?.status ||
+        "processing";
+
+      instantWithdrawMessage.textContent =
+        `Instant withdrawal created successfully. Status: ${payoutStatus}.`;
+    }
+
+    alert(
+      `Instant withdrawal of $${instantAvailable.toFixed(2)} was created successfully.`
+    );
+
+    await loadTravelerStripeBalance();
+  } catch (error) {
+    console.error(
+      "Traveler instant withdrawal failed:",
+      error
+    );
+
+    if (instantWithdrawMessage) {
+      instantWithdrawMessage.textContent =
+        error.message ||
+        "Unable to create the instant withdrawal.";
+    }
+
+    alert(
+      error.message ||
+      "Unable to create the instant withdrawal."
+    );
+
+    await loadTravelerStripeBalance()
+      .catch(balanceError => {
+        console.error(
+          "Unable to refresh payout balance:",
+          balanceError
+        );
+      });
+  }
 }
 
 /* ============================================================
@@ -5584,7 +5764,10 @@ headers: {
   }
 }
 function initTravelerPayoutView() {
-  console.log("initTravelerPayoutView initialized");
+  console.log(
+    "initTravelerPayoutView initialized"
+  );
+
   const connectStripeBtn =
     document.getElementById(
       "connectStripeBtn"
@@ -5595,6 +5778,15 @@ function initTravelerPayoutView() {
       "refreshStripeStatusBtn"
     );
 
+  const instantWithdrawBtn =
+    document.getElementById(
+      "instantWithdrawBtn"
+    );
+
+  /* ==========================================================
+     STRIPE CONNECT BUTTON
+  ========================================================== */
+
   if (connectStripeBtn) {
     connectStripeBtn.addEventListener(
       "click",
@@ -5604,16 +5796,24 @@ function initTravelerPayoutView() {
     );
   }
 
+  /* ==========================================================
+     REFRESH STRIPE STATUS AND BALANCE
+  ========================================================== */
+
   if (refreshStripeStatusBtn) {
     refreshStripeStatusBtn.addEventListener(
       "click",
       async () => {
         try {
-          refreshStripeStatusBtn.disabled = true;
+          refreshStripeStatusBtn.disabled =
+            true;
+
           refreshStripeStatusBtn.textContent =
             "Checking...";
 
           await loadTravelerStripeStatus();
+
+          await loadTravelerStripeBalance();
         } catch (error) {
           console.error(
             "Stripe status refresh failed:",
@@ -5625,7 +5825,9 @@ function initTravelerPayoutView() {
             "Unable to refresh Stripe status."
           );
         } finally {
-          refreshStripeStatusBtn.disabled = false;
+          refreshStripeStatusBtn.disabled =
+            false;
+
           refreshStripeStatusBtn.textContent =
             "Refresh Status";
         }
@@ -5633,41 +5835,82 @@ function initTravelerPayoutView() {
     );
   }
 
-if (window.travelerId) {
-  loadTravelerStripeStatus().catch(
-    error => {
-      console.error(
-        "Initial Stripe status check failed:",
-        error
-      );
-    }
-  );
+  /* ==========================================================
+     INSTANT WITHDRAW BUTTON
+  ========================================================== */
 
-  loadTravelerStripeBalance()
-    .then(result => {
-      console.log(
-        "Initial Traveler payout balance loaded:",
-        result
-      );
-    })
-    .catch(error => {
-      console.error(
-        "Initial Traveler payout balance check failed:",
-        error
-      );
-    });
-}
+  if (instantWithdrawBtn) {
+    instantWithdrawBtn.addEventListener(
+      "click",
+      async () => {
+        try {
+          await createTravelerInstantPayout();
+        } catch (error) {
+          console.error(
+            "Instant withdrawal failed:",
+            error
+          );
+
+          alert(
+            error.message ||
+            "Unable to create instant withdrawal."
+          );
+        }
+      }
+    );
+  }
+
+  /* ==========================================================
+     INITIAL STRIPE STATUS AND BALANCE
+  ========================================================== */
+
+  if (window.travelerId) {
+    loadTravelerStripeStatus()
+      .catch(error => {
+        console.error(
+          "Initial Stripe status check failed:",
+          error
+        );
+      });
+
+    loadTravelerStripeBalance()
+      .then(result => {
+        console.log(
+          "Initial Traveler payout balance loaded:",
+          result
+        );
+      })
+      .catch(error => {
+        console.error(
+          "Initial Traveler payout balance check failed:",
+          error
+        );
+      });
+  }
+
+  /* ==========================================================
+     PAYOUT METHOD TABS
+  ========================================================== */
+
   const cardTab =
-    document.getElementById("travelerPayoutCardTab");
+    document.getElementById(
+      "travelerPayoutCardTab"
+    );
 
   const bankTab =
-    document.getElementById("travelerPayoutBankTab");
+    document.getElementById(
+      "travelerPayoutBankTab"
+    );
 
   const cardForm =
-    document.getElementById("travelerPayoutCardForm");
+    document.getElementById(
+      "travelerPayoutCardForm"
+    );
 
   const bankForm =
-    document.getElementById("travelerPayoutBankForm");
+    document.getElementById(
+      "travelerPayoutBankForm"
+    );
 
   if (
     cardTab &&
@@ -5675,27 +5918,62 @@ if (window.travelerId) {
     cardForm &&
     bankForm
   ) {
-    cardTab.addEventListener("click", () => {
-      cardTab.classList.add("active");
-      bankTab.classList.remove("active");
+    cardTab.addEventListener(
+      "click",
+      () => {
+        cardTab.classList.add(
+          "active"
+        );
 
-      cardForm.classList.remove("hidden");
-      bankForm.classList.add("hidden");
-    });
+        bankTab.classList.remove(
+          "active"
+        );
 
-    bankTab.addEventListener("click", () => {
-      bankTab.classList.add("active");
-      cardTab.classList.remove("active");
+        cardForm.classList.remove(
+          "hidden"
+        );
 
-      bankForm.classList.remove("hidden");
-      cardForm.classList.add("hidden");
-    });
+        bankForm.classList.add(
+          "hidden"
+        );
+      }
+    );
+
+    bankTab.addEventListener(
+      "click",
+      () => {
+        bankTab.classList.add(
+          "active"
+        );
+
+        cardTab.classList.remove(
+          "active"
+        );
+
+        bankForm.classList.remove(
+          "hidden"
+        );
+
+        cardForm.classList.add(
+          "hidden"
+        );
+      }
+    );
   }
 
-  const saveBtn =
-    document.getElementById("saveTravelerPayoutBtn");
+  /* ==========================================================
+     SAVE PAYOUT METHOD
+  ========================================================== */
 
-  console.log("Save button found:", saveBtn);
+  const saveBtn =
+    document.getElementById(
+      "saveTravelerPayoutBtn"
+    );
+
+  console.log(
+    "Save button found:",
+    saveBtn
+  );
 
   if (!saveBtn) {
     console.error(
@@ -5705,246 +5983,313 @@ if (window.travelerId) {
     return;
   }
 
-  saveBtn.addEventListener("click", async () => {
-    try {
-      console.log("Traveler payout save button clicked");
-
-      const activeTab =
-        document.querySelector(
-          "#dynamicView .toggle-btn.active"
+  saveBtn.addEventListener(
+    "click",
+    async () => {
+      try {
+        console.log(
+          "Traveler payout save button clicked"
         );
 
-      const method =
-        activeTab?.dataset.method;
+        const activeTab =
+          document.querySelector(
+            "#dynamicView .toggle-btn.active"
+          );
 
-      if (!method) {
-        throw new Error(
-          "Please select a payout method."
-        );
-      }
+        const method =
+          activeTab?.dataset.method;
 
-      if (!window.userId) {
-        throw new Error(
-          "Traveler user ID is missing. Please refresh or log in again."
-        );
-      }
-
-      let payload;
-
-      if (method === "card") {
-        const accountName =
-          document
-            .getElementById("travelerCardNameInput")
-            ?.value.trim() || "";
-
-        const cardNumber =
-          document
-            .getElementById("travelerCardNumberInput")
-            ?.value.replace(/\D/g, "") || "";
-
-        const expiration =
-          document
-            .getElementById("travelerCardExpInput")
-            ?.value.trim() || "";
-
-        const cvv =
-          document
-            .getElementById("travelerCardCvvInput")
-            ?.value.replace(/\D/g, "") || "";
-
-        if (
-          !accountName ||
-          cardNumber.length < 4 ||
-          !expiration ||
-          cvv.length < 3
-        ) {
+        if (!method) {
           throw new Error(
-            "Please complete all debit card fields."
+            "Please select a payout method."
           );
         }
 
-        payload = {
-          type: "card",
-          accountName,
-          last4: cardNumber.slice(-4)
-        };
-      } else if (method === "bank") {
-        const accountName =
-          document
-            .getElementById("travelerBankNameInput")
-            ?.value.trim() || "";
-
-        const routingNumber =
-          document
-            .getElementById("travelerBankRoutingInput")
-            ?.value.replace(/\D/g, "") || "";
-
-        const accountNumber =
-          document
-            .getElementById("travelerBankAccountInput")
-            ?.value.replace(/\D/g, "") || "";
-
-        const confirmAccountNumber =
-          document
-            .getElementById("travelerBankConfirmInput")
-            ?.value.replace(/\D/g, "") || "";
-
-        if (
-          !accountName ||
-          !routingNumber ||
-          accountNumber.length < 4 ||
-          !confirmAccountNumber
-        ) {
+        if (!window.userId) {
           throw new Error(
-            "Please complete all bank account fields."
+            "Traveler user ID is missing. Please refresh or log in again."
           );
         }
 
-        if (
-          accountNumber !== confirmAccountNumber
-        ) {
+        let payload;
+
+        if (method === "card") {
+          const accountName =
+            document
+              .getElementById(
+                "travelerCardNameInput"
+              )
+              ?.value.trim() ||
+            "";
+
+          const cardNumber =
+            document
+              .getElementById(
+                "travelerCardNumberInput"
+              )
+              ?.value.replace(
+                /\D/g,
+                ""
+              ) ||
+            "";
+
+          const expiration =
+            document
+              .getElementById(
+                "travelerCardExpInput"
+              )
+              ?.value.trim() ||
+            "";
+
+          const cvv =
+            document
+              .getElementById(
+                "travelerCardCvvInput"
+              )
+              ?.value.replace(
+                /\D/g,
+                ""
+              ) ||
+            "";
+
+          if (
+            !accountName ||
+            cardNumber.length < 4 ||
+            !expiration ||
+            cvv.length < 3
+          ) {
+            throw new Error(
+              "Please complete all debit card fields."
+            );
+          }
+
+          /*
+           * Preserve the existing metadata-only behavior.
+           * Do not send the full card number or CVC.
+           */
+          payload = {
+            type: "card",
+            accountName,
+            last4:
+              cardNumber.slice(-4)
+          };
+        } else if (method === "bank") {
+          const accountName =
+            document
+              .getElementById(
+                "travelerBankNameInput"
+              )
+              ?.value.trim() ||
+            "";
+
+          const routingNumber =
+            document
+              .getElementById(
+                "travelerBankRoutingInput"
+              )
+              ?.value.replace(
+                /\D/g,
+                ""
+              ) ||
+            "";
+
+          const accountNumber =
+            document
+              .getElementById(
+                "travelerBankAccountInput"
+              )
+              ?.value.replace(
+                /\D/g,
+                ""
+              ) ||
+            "";
+
+          const confirmAccountNumber =
+            document
+              .getElementById(
+                "travelerBankConfirmInput"
+              )
+              ?.value.replace(
+                /\D/g,
+                ""
+              ) ||
+            "";
+
+          if (
+            !accountName ||
+            !routingNumber ||
+            accountNumber.length < 4 ||
+            !confirmAccountNumber
+          ) {
+            throw new Error(
+              "Please complete all bank account fields."
+            );
+          }
+
+          if (
+            accountNumber !==
+            confirmAccountNumber
+          ) {
+            throw new Error(
+              "Bank account numbers do not match."
+            );
+          }
+
+          /*
+           * Preserve the existing metadata-only behavior.
+           * Do not send routing or account numbers.
+           */
+          payload = {
+            type: "bank",
+            accountName,
+            last4:
+              accountNumber.slice(-4)
+          };
+        } else {
           throw new Error(
-            "Bank account numbers do not match."
+            "Unsupported payout method."
           );
         }
 
-        payload = {
-          type: "bank",
-          accountName,
-          last4: accountNumber.slice(-4)
-        };
-      } else {
-        throw new Error(
-          "Unsupported payout method."
+        console.log(
+          "Saving Traveler payout method:",
+          payload
         );
-      }
 
-      console.log(
-        "Saving Traveler payout method:",
-        payload
-      );
+        console.log(
+          "Traveler user ID:",
+          window.userId
+        );
 
-      console.log(
-        "Traveler user ID:",
-        window.userId
-      );
+        console.log(
+          "Traveler profile ID:",
+          window.travelerId
+        );
 
-      console.log(
-        "Traveler profile ID:",
-        window.travelerId
-      );
+        saveBtn.disabled = true;
 
-      saveBtn.disabled = true;
-      saveBtn.textContent = "Saving...";
+        saveBtn.textContent =
+          "Saving...";
 
-      const response = await fetch(
-        `${BASE_URL}/api/users/payout-method/${window.userId}`,
-        {
-          method: "PUT",
+        const response = await fetch(
+          `${BASE_URL}/api/users/payout-method/${window.userId}`,
+          {
+            method: "PUT",
 
-          headers: {
-            "Content-Type": "application/json"
-          },
+            headers: {
+              "Content-Type":
+                "application/json"
+            },
 
-          body: JSON.stringify(payload)
+            body:
+              JSON.stringify(
+                payload
+              )
+          }
+        );
+
+        console.log(
+          "Response status:",
+          response.status
+        );
+
+        console.log(
+          "Response OK:",
+          response.ok
+        );
+
+        const responseText =
+          await response.text();
+
+        console.log(
+          "Raw response:",
+          responseText
+        );
+
+        let result = {};
+
+        if (responseText) {
+          try {
+            result =
+              JSON.parse(
+                responseText
+              );
+          } catch (parseError) {
+            throw new Error(
+              `Backend returned an invalid response. Status: ${response.status}`
+            );
+          }
         }
-      );
 
-      console.log(
-        "Response status:",
-        response.status
-      );
-
-      console.log(
-        "Response OK:",
-        response.ok
-      );
-
-      const responseText =
-        await response.text();
-
-      console.log(
-        "Raw response:",
-        responseText
-      );
-
-      let result = {};
-
-      if (responseText) {
-        try {
-          result =
-            JSON.parse(responseText);
-        } catch (parseError) {
+        if (!response.ok) {
           throw new Error(
-            `Backend returned an invalid response. Status: ${response.status}`
+            result.error ||
+            `Request failed with status ${response.status}`
           );
         }
-      }
 
-      if (!response.ok) {
-        throw new Error(
-          result.error ||
-          `Request failed with status ${response.status}`
+        if (!result.success) {
+          throw new Error(
+            result.error ||
+            "Failed to save payout method."
+          );
+        }
+
+        const methodDisplay =
+          document.getElementById(
+            "travelerPayoutMethodDisplay"
+          );
+
+        if (methodDisplay) {
+          const methodLabel =
+            payload.type === "card"
+              ? "Debit Card"
+              : "Bank Account";
+
+          const iconName =
+            payload.type === "card"
+              ? "credit-card"
+              : "banknote";
+
+          methodDisplay.innerHTML = `
+            <i data-lucide="${iconName}"></i>
+
+            <span>
+              ${methodLabel} ending in ${payload.last4}
+            </span>
+          `;
+
+          if (window.lucide) {
+            window.lucide.createIcons();
+          }
+        }
+
+        console.log(
+          "Traveler payout method saved:",
+          result
         );
-      }
 
-      if (!result.success) {
-        throw new Error(
-          result.error ||
+        alert(
+          "Payout method saved successfully."
+        );
+      } catch (error) {
+        console.error(
+          "Traveler payout save failed:",
+          error
+        );
+
+        alert(
+          error.message ||
           "Failed to save payout method."
         );
+      } finally {
+        saveBtn.disabled = false;
+
+        saveBtn.textContent =
+          "Save Payout Method";
       }
-
-      const methodDisplay =
-        document.getElementById(
-          "travelerPayoutMethodDisplay"
-        );
-
-      if (methodDisplay) {
-        const methodLabel =
-          payload.type === "card"
-            ? "Debit Card"
-            : "Bank Account";
-
-        const iconName =
-          payload.type === "card"
-            ? "credit-card"
-            : "banknote";
-
-        methodDisplay.innerHTML = `
-          <i data-lucide="${iconName}"></i>
-          <span>${methodLabel} ending in ${payload.last4}</span>
-        `;
-
-        if (window.lucide) {
-          window.lucide.createIcons();
-        }
-      }
-
-      console.log(
-        "Traveler payout method saved:",
-        result
-      );
-
-      alert(
-        "Payout method saved successfully."
-      );
-    } catch (error) {
-      console.error(
-        "Traveler payout save failed:",
-        error
-      );
-
-      alert(
-        error.message ||
-        "Failed to save payout method."
-      );
-    } finally {
-      saveBtn.disabled = false;
-      saveBtn.textContent =
-        "Save Payout Method";
     }
-  });
+  );
 }
 /* ============================================================
    FINAL DOM READY BOOTSTRAP — TRAVELER ACCOUNT DEFAULT
