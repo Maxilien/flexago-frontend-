@@ -839,16 +839,23 @@
 <!-- ========================================================= -->
 <!-- PAYOUTS VIEW (TRAVELER VERSION)                           -->
 <!-- ========================================================= -->
+
 <section id="travelerPaymentsView" class="page-template hidden">
   <div class="panel" id="travelerPayoutsPanel">
 
     <header class="panel-header">
       <div>
-        <div class="panel-title" data-i18n="traveler.payouts.title">
+        <div
+          class="panel-title"
+          data-i18n="traveler.payouts.title"
+        >
           Payouts
         </div>
 
-        <div class="panel-subtitle" data-i18n="traveler.payouts.subtitle">
+        <div
+          class="panel-subtitle"
+          data-i18n="traveler.payouts.subtitle"
+        >
           Manage how you receive your delivery earnings.
         </div>
       </div>
@@ -856,75 +863,185 @@
 
     <div class="panel-body">
 
+      <!-- =====================================================
+           CURRENT PAYOUT METHOD
+      ====================================================== -->
+
       <section class="section-block">
-        <h2 class="section-title" data-i18n="traveler.payouts.current_method">
+
+        <h2
+          class="section-title"
+          data-i18n="traveler.payouts.current_method"
+        >
           Current Payout Method
         </h2>
 
-        <div id="travelerPayoutMethodDisplay" class="payout-method-display">
+        <div
+          id="travelerPayoutMethodDisplay"
+          class="payout-method-display"
+        >
           <i data-lucide="credit-card"></i>
+
           <span data-i18n="traveler.payouts.no_method">
             No payout method added
           </span>
         </div>
+
       </section>
 
-<!-- ==========================================================
-     STRIPE CONNECT PAYOUTS
-=========================================================== -->
+      <!-- =====================================================
+           STRIPE CONNECT PAYOUTS
+      ====================================================== -->
 
-<section class="section-block">
-
-  <h2 class="section-title">
-    Stripe Connect Payouts
-  </h2>
-
-  <div
-    id="stripeConnectStatus"
-    class="payout-method-display"
-  >
-    <i data-lucide="landmark"></i>
-    <span>
-      Not Connected
-    </span>
-  </div>
-
-  <div
-    id="stripeConnectDetails"
-    style="margin-top:12px;"
-  ></div>
-
-  <div
-    style="
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      margin-top:15px;
-    "
-  >
-
-    <button
-      type="button"
-      id="connectStripeBtn"
-      class="primary-btn"
-    >
-      Connect Stripe Account
-    </button>
-
-    <button
-      type="button"
-      id="refreshStripeStatusBtn"
-      class="secondary-btn"
-    >
-      Refresh Status
-    </button>
-
-  </div>
-
-</section>
       <section class="section-block">
 
-        <h2 class="section-title" data-i18n="traveler.payouts.add_edit_title">
+        <h2 class="section-title">
+          Stripe Connect Payouts
+        </h2>
+
+        <div
+          id="stripeConnectStatus"
+          class="payout-method-display"
+        >
+          <i data-lucide="landmark"></i>
+
+          <span>
+            Not Connected
+          </span>
+        </div>
+
+        <div
+          id="stripeConnectDetails"
+          style="margin-top:12px;"
+        ></div>
+
+        <div
+          style="
+            display:flex;
+            gap:10px;
+            flex-wrap:wrap;
+            margin-top:15px;
+          "
+        >
+
+          <button
+            type="button"
+            id="connectStripeBtn"
+            class="primary-btn"
+          >
+            Connect Stripe Account
+          </button>
+
+          <button
+            type="button"
+            id="refreshStripeStatusBtn"
+            class="secondary-btn"
+          >
+            Refresh Status
+          </button>
+
+        </div>
+
+      </section>
+
+      <!-- =====================================================
+           STRIPE PAYOUT BALANCE
+      ====================================================== -->
+
+      <section class="section-block">
+
+        <h2 class="section-title">
+          Payout Balance
+        </h2>
+
+        <div class="payout-method-display">
+          <i data-lucide="zap"></i>
+
+          <div>
+            <div>
+              Available for Instant Withdrawal
+            </div>
+
+            <strong id="stripeInstantAvailable">
+              $0.00
+            </strong>
+          </div>
+        </div>
+
+        <div
+          style="
+            margin-top:12px;
+            display:grid;
+            grid-template-columns:repeat(
+              auto-fit,
+              minmax(180px, 1fr)
+            );
+            gap:12px;
+          "
+        >
+
+          <div class="payout-method-display">
+            <div>
+              <div>
+                Standard Available
+              </div>
+
+              <strong id="stripeStandardAvailable">
+                $0.00
+              </strong>
+            </div>
+          </div>
+
+          <div class="payout-method-display">
+            <div>
+              <div>
+                Pending
+              </div>
+
+              <strong id="stripePendingBalance">
+                $0.00
+              </strong>
+            </div>
+          </div>
+
+        </div>
+
+        <button
+          type="button"
+          id="instantWithdrawBtn"
+          class="primary-btn"
+          disabled
+          style="
+            width:100%;
+            margin-top:16px;
+          "
+        >
+          Instant Withdraw
+        </button>
+
+        <div
+          id="instantWithdrawMessage"
+          style="
+            margin-top:10px;
+            font-size:0.9rem;
+            opacity:0.8;
+          "
+        >
+          Checking instant withdrawal availability...
+        </div>
+
+      </section>
+
+      <!-- =====================================================
+           ADD OR EDIT PAYOUT METHOD
+      ====================================================== -->
+
+      <section class="section-block">
+
+        <h2
+          class="section-title"
+          data-i18n="traveler.payouts.add_edit_title"
+        >
           Add or Edit Payout Method
         </h2>
 
@@ -937,6 +1054,7 @@
             id="travelerPayoutCardTab"
           >
             <i data-lucide="credit-card"></i>
+
             <span data-i18n="traveler.payouts.card">
               Debit Card
             </span>
@@ -949,6 +1067,7 @@
             id="travelerPayoutBankTab"
           >
             <i data-lucide="banknote"></i>
+
             <span data-i18n="traveler.payouts.bank">
               Bank Account
             </span>
@@ -956,7 +1075,12 @@
 
         </div>
 
-        <div id="travelerPayoutCardForm" class="payout-form">
+        <!-- Debit Card -->
+
+        <div
+          id="travelerPayoutCardForm"
+          class="payout-form"
+        >
 
           <input
             class="input-field"
@@ -992,7 +1116,12 @@
 
         </div>
 
-        <div id="travelerPayoutBankForm" class="payout-form hidden">
+        <!-- Bank Account -->
+
+        <div
+          id="travelerPayoutBankForm"
+          class="payout-form hidden"
+        >
 
           <input
             class="input-field"
@@ -1026,6 +1155,9 @@
 
       </section>
 
+      <!-- =====================================================
+           SAVE PAYOUT METHOD
+      ====================================================== -->
 
       <section class="section-block">
 
@@ -1041,10 +1173,8 @@
       </section>
 
     </div>
-
   </div>
 </section>
-
 <!-- ================= JOB DETAILS MODAL ================= -->
 <div id="jobDetailsModal" class="modal hidden">
   <div class="modal-content job-details-modal">

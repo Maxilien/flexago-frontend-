@@ -5334,24 +5334,94 @@ async function loadTravelerStripeBalance() {
     );
   }
 
-  console.log(
-    "Traveler Stripe payout balance:",
-    {
-      available:
-        result.available,
+console.log(
+  "Traveler Stripe payout balance:",
+  {
+    available:
+      result.available,
 
-      pending:
-        result.pending,
+    pending:
+      result.pending,
 
-      instantAvailable:
-        result.instantAvailable,
+    instantAvailable:
+      result.instantAvailable,
 
-      currency:
-        result.currency
-    }
+    currency:
+      result.currency
+  }
+);
+
+const instantAvailableEl =
+  document.getElementById(
+    "stripeInstantAvailable"
   );
 
-  return result;
+const standardAvailableEl =
+  document.getElementById(
+    "stripeStandardAvailable"
+  );
+
+const pendingBalanceEl =
+  document.getElementById(
+    "stripePendingBalance"
+  );
+
+const instantWithdrawBtn =
+  document.getElementById(
+    "instantWithdrawBtn"
+  );
+
+const instantWithdrawMessage =
+  document.getElementById(
+    "instantWithdrawMessage"
+  );
+
+const instantAvailable =
+  Number(
+    result.instantAvailable || 0
+  );
+
+const standardAvailable =
+  Number(
+    result.available || 0
+  );
+
+const pendingBalance =
+  Number(
+    result.pending || 0
+  );
+
+if (instantAvailableEl) {
+  instantAvailableEl.textContent =
+    `$${instantAvailable.toFixed(2)}`;
+}
+
+if (standardAvailableEl) {
+  standardAvailableEl.textContent =
+    `$${standardAvailable.toFixed(2)}`;
+}
+
+if (pendingBalanceEl) {
+  pendingBalanceEl.textContent =
+    `$${pendingBalance.toFixed(2)}`;
+}
+
+if (instantWithdrawBtn) {
+  instantWithdrawBtn.disabled = true;
+  instantWithdrawBtn.textContent =
+    instantAvailable > 0
+      ? `Instant Withdraw $${instantAvailable.toFixed(2)}`
+      : "Instant Withdraw";
+}
+
+if (instantWithdrawMessage) {
+  instantWithdrawMessage.textContent =
+    instantAvailable > 0
+      ? `$${instantAvailable.toFixed(2)} is eligible for instant withdrawal.`
+      : "No funds are currently available for instant withdrawal.";
+}
+
+return result;
 }
 
 /* ============================================================
