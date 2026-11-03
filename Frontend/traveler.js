@@ -5275,6 +5275,86 @@ const response = await fetch(
 }
 
 /* ============================================================
+   TRAVELER STRIPE PAYOUT BALANCE
+============================================================ */
+
+async function loadTravelerStripeBalance() {
+  if (!window.travelerId) {
+    throw new Error(
+      "Traveler profile ID is missing. Please refresh and try again."
+    );
+  }
+
+  const authToken =
+    localStorage.getItem(
+      "authToken"
+    );
+
+  if (!authToken) {
+    throw new Error(
+      "Authentication required. Please log in again."
+    );
+  }
+
+  const response = await fetch(
+    `${BASE_URL}/api/traveler-stripe/balance/${window.travelerId}`,
+    {
+      headers: {
+        Authorization:
+          `Bearer ${authToken}`
+      }
+    }
+  );
+
+  const responseText =
+    await response.text();
+
+  let result = {};
+
+  if (responseText) {
+    try {
+      result =
+        JSON.parse(
+          responseText
+        );
+    } catch (parseError) {
+      throw new Error(
+        `Stripe balance returned an invalid response. Status: ${response.status}`
+      );
+    }
+  }
+
+  if (
+    !response.ok ||
+    !result.success
+  ) {
+    throw new Error(
+      result.error ||
+      `Unable to retrieve Stripe balance. Status: ${response.status}`
+    );
+  }
+
+  console.log(
+    "Traveler Stripe payout balance:",
+    {
+      available:
+        result.available,
+
+      pending:
+        result.pending,
+
+      instantAvailable:
+        result.instantAvailable,
+
+      currency:
+        result.currency
+    }
+  );
+
+  return result;
+}
+
+/* ============================================================
    START TRAVELER STRIPE ONBOARDING
 ============================================================ */
 
@@ -5483,16 +5563,30 @@ function initTravelerPayoutView() {
     );
   }
 
-  if (window.travelerId) {
-    loadTravelerStripeStatus().catch(
-      error => {
-        console.error(
-          "Initial Stripe status check failed:",
-          error
-        );
-      }
-    );
-  }
+if (window.travelerId) {
+  loadTravelerStripeStatus().catch(
+    error => {
+      console.error(
+        "Initial Stripe status check failed:",
+        error
+      );
+    }
+  );
+
+  loadTravelerStripeBalance()
+    .then(result => {
+      console.log(
+        "Initial Traveler payout balance loaded:",
+        result
+      );
+    })
+    .catch(error => {
+      console.error(
+        "Initial Traveler payout balance check failed:",
+        error
+      );
+    });
+}
   const cardTab =
     document.getElementById("travelerPayoutCardTab");
 
