@@ -255,10 +255,12 @@
       const startBtn = document.getElementById("startBtn");
 
       startBtn.addEventListener("click", () => guarded(startBtn, async () => {
-        const result = await api("/identity/start", { method: "POST" });
+        const result = await api("/identity/start", {
+          body: { native: window.Flexago.isNative }
+        });
 
         if (result.alreadyVerified) window.Flexago.go("create-account");
-        else window.location.href = result.url;
+        else await window.Flexago.openExternal(result.url, () => window.Flexago.go("verify-stripe"));
       }));
     },
 

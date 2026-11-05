@@ -1,0 +1,17 @@
+{
+  "appId": "com.flexagoo.app",
+  "appName": "FlexaGo",
+  "webDir": "www",
+  "ios": {
+    "backgroundColor": "#000000",
+    "contentInset": "never",
+    "scrollEnabled": true
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 800,
+      "backgroundColor": "#000000",
+      "showSpinner": false
+    }
+  }
+}

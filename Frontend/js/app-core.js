@@ -182,6 +182,32 @@
     renderPhotoStrip(strip, urls.length > 1 ? urls : []);
   }
 
+  /* ---------- outside pages (Stripe, Checkr) ---------- */
+  // In the app these open in a sheet over the app, so people return
+  // to where they were. On the web they open in the same tab.
+  async function openExternal(url, onClose) {
+    const browser = window.Capacitor?.Plugins?.Browser;
+
+    if (!isNative || !browser) {
+      window.location.href = url;
+      return;
+    }
+
+    if (onClose) {
+      const listener = await browser.addListener("browserFinished", () => {
+        listener.remove();
+        onClose();
+      });
+    }
+
+    await browser.open({ url });
+  }
+
+  // The app's header is black, so the clock and battery need to be light.
+  if (isNative) {
+    window.Capacitor?.Plugins?.StatusBar?.setStyle({ style: "DARK" });
+  }
+
   /* ---------- existing accounts re-verify ---------- */
   function isFullyVerified(user) {
     return Boolean(user.emailVerified && user.phoneVerified && user.identityVerified);
@@ -309,7 +335,8 @@
         const result = await response.json();
 
         if (result.url) {
-          window.location.href = result.url;
+          await openExternal(result.url, () => renderVerification(container));
+          button.disabled = false;
           return;
         }
 
@@ -521,6 +548,7 @@
     packagePhotos,
     showExtraPhotos,
     fillVerifiedBadges,
+    openExternal,
     isFullyVerified,
     startReverification,
     renderVerification,

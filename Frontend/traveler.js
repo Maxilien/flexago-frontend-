@@ -5755,6 +5755,7 @@ headers: {
     `Bearer ${authToken}`
 },
         body: JSON.stringify({
+          native: Flexago.isNative,
           travelerId:
             window.travelerId
         })
@@ -5793,8 +5794,9 @@ headers: {
       );
     }
 
-    window.location.assign(
-      linkResult.onboardingUrl
+    await Flexago.openExternal(
+      linkResult.onboardingUrl,
+      () => document.getElementById("refreshStripeStatusBtn")?.click()
     );
   } catch (error) {
     console.error(

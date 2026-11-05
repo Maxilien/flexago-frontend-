@@ -263,6 +263,8 @@ const PHRASES = {
   "Required before you can accept your first job.": ["Obligatorio antes de aceptar tu primer trabajo.", "Obligatoire avant d'accepter votre première mission.", "Obligatwa anvan ou aksepte premye travay ou.", "接受第一个任务前必须完成。", "Obrigatório antes de aceitar seu primeiro trabalho."],
   "Complete your background check before accepting jobs.": ["Completa tu verificación de antecedentes antes de aceptar trabajos.", "Terminez votre vérification avant d'accepter des missions.", "Fini verifikasyon dosye ou anvan ou aksepte travay.", "请先完成背景调查再接受任务。", "Conclua sua verificação de antecedentes antes de aceitar trabalhos."],
   "Add your address in Account & Identity first.": ["Primero agrega tu dirección en Cuenta e identidad.", "Ajoutez d'abord votre adresse dans Compte et identité.", "Ajoute adrès ou nan Kont ak idantite anvan.", "请先在账户与身份中添加地址。", "Primeiro adicione seu endereço em Conta e identidade."],
+  "All done": ["Todo listo", "C'est terminé", "Tout fini", "已完成", "Tudo pronto"],
+  "Close this window to return to the FlexaGo app.": ["Cierra esta ventana para volver a la app FlexaGo.", "Fermez cette fenêtre pour revenir à l'app FlexaGo.", "Fèmen fenèt sa a pou tounen nan app FlexaGo a.", "关闭此窗口以返回 FlexaGo 应用。", "Feche esta janela para voltar ao app FlexaGo."],
   "Back to My Deliveries": ["Volver a mis entregas", "Retour à mes livraisons", "Tounen nan livrezon mwen yo", "返回我的配送", "Voltar às minhas entregas"]
 };
 
