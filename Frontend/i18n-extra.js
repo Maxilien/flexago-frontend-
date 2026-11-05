@@ -26,18 +26,19 @@ const ACCOUNT_TEXT = {
 };
 
 const EXTRA_TEXT = {
-  en: ["Search country", "On your route", "{miles} mi off route"],
-  es: ["Buscar país", "En tu ruta", "A {miles} mi de tu ruta"],
-  fr: ["Rechercher un pays", "Sur votre trajet", "À {miles} mi de votre trajet"],
-  ht: ["Chèche peyi", "Sou wout ou", "{miles} mil lwen wout ou"],
-  zh: ["搜索国家", "在您的路线上", "偏离路线 {miles} 英里"],
-  pt: ["Buscar país", "Na sua rota", "A {miles} mi da sua rota"]
+  en: ["Search country", "On your route", "{miles} mi off route", "Finish verification"],
+  es: ["Buscar país", "En tu ruta", "A {miles} mi de tu ruta", "Finalizar verificación"],
+  fr: ["Rechercher un pays", "Sur votre trajet", "À {miles} mi de votre trajet", "Terminer la vérification"],
+  ht: ["Chèche peyi", "Sou wout ou", "{miles} mil lwen wout ou", "Fini verifikasyon"],
+  zh: ["搜索国家", "在您的路线上", "偏离路线 {miles} 英里", "完成验证"],
+  pt: ["Buscar país", "Na sua rota", "A {miles} mi da sua rota", "Concluir verificação"]
 };
 
 Object.keys(EXTRA_TEXT).forEach((lang) => {
-  const [searchCountry, onRoute, offRoute] = EXTRA_TEXT[lang];
+  const [searchCountry, onRoute, offRoute, finishVerification] = EXTRA_TEXT[lang];
 
   AUTH_TEXT[lang].search_country = searchCountry;
+  AUTH_TEXT[lang].finish_verification = finishVerification;
   ACCOUNT_TEXT[lang].on_route = onRoute;
   ACCOUNT_TEXT[lang].off_route = offRoute;
 });
@@ -245,6 +246,23 @@ const PHRASES = {
   "Type a message before sending.": ["Escribe un mensaje antes de enviar.", "Écrivez un message avant d'envoyer.", "Ekri yon mesaj anvan ou voye.", "请先输入消息。", "Digite uma mensagem antes de enviar."],
   "Loading conversation...": ["Cargando conversación...", "Chargement de la conversation...", "N ap chaje konvèsasyon an...", "正在加载会话...", "Carregando conversa..."],
   "SMS isn't available for this country yet.": ["Los SMS aún no están disponibles para este país.", "Les SMS ne sont pas encore disponibles pour ce pays.", "SMS poko disponib pou peyi sa a.", "该国家/地区暂不支持短信。", "O SMS ainda não está disponível para este país."],
+  "Report": ["Reportar", "Signaler", "Rapòte", "举报", "Denunciar"],
+  "Report this person": ["Reportar a esta persona", "Signaler cette personne", "Rapòte moun sa a", "举报此人", "Denunciar esta pessoa"],
+  "What happened?": ["¿Qué pasó?", "Que s'est-il passé ?", "Kisa ki pase?", "发生了什么？", "O que aconteceu?"],
+  "Details (optional)": ["Detalles (opcional)", "Détails (facultatif)", "Detay (opsyonèl)", "详情（可选）", "Detalhes (opcional)"],
+  "Also block this person": ["También bloquear a esta persona", "Bloquer aussi cette personne", "Bloke moun sa a tou", "同时屏蔽此人", "Bloquear esta pessoa também"],
+  "Cancel": ["Cancelar", "Annuler", "Anile", "取消", "Cancelar"],
+  "Send report": ["Enviar reporte", "Envoyer le signalement", "Voye rapò a", "提交举报", "Enviar denúncia"],
+  "Please choose a reason.": ["Elige un motivo.", "Choisissez un motif.", "Tanpri chwazi yon rezon.", "请选择原因。", "Escolha um motivo."],
+  "Thanks. Our team will review your report.": ["Gracias. Nuestro equipo revisará tu reporte.", "Merci. Notre équipe examinera votre signalement.", "Mèsi. Ekip nou an ap gade rapò ou.", "感谢您。我们的团队会审核您的举报。", "Obrigado. Nossa equipe analisará sua denúncia."],
+  "You can't message this person.": ["No puedes enviar mensajes a esta persona.", "Vous ne pouvez pas écrire à cette personne.", "Ou pa ka voye mesaj bay moun sa a.", "您无法向此人发送消息。", "Você não pode enviar mensagens a esta pessoa."],
+  "Under review": ["En revisión", "En cours d'examen", "Y ap revize", "审核中", "Em análise"],
+  "In progress": ["En curso", "En cours", "An kou", "进行中", "Em andamento"],
+  "Not started": ["Sin iniciar", "Non commencé", "Pa kòmanse", "未开始", "Não iniciado"],
+  "Start background check": ["Iniciar verificación de antecedentes", "Commencer la vérification", "Kòmanse verifikasyon dosye", "开始背景调查", "Iniciar verificação de antecedentes"],
+  "Required before you can accept your first job.": ["Obligatorio antes de aceptar tu primer trabajo.", "Obligatoire avant d'accepter votre première mission.", "Obligatwa anvan ou aksepte premye travay ou.", "接受第一个任务前必须完成。", "Obrigatório antes de aceitar seu primeiro trabalho."],
+  "Complete your background check before accepting jobs.": ["Completa tu verificación de antecedentes antes de aceptar trabajos.", "Terminez votre vérification avant d'accepter des missions.", "Fini verifikasyon dosye ou anvan ou aksepte travay.", "请先完成背景调查再接受任务。", "Conclua sua verificação de antecedentes antes de aceitar trabalhos."],
+  "Add your address in Account & Identity first.": ["Primero agrega tu dirección en Cuenta e identidad.", "Ajoutez d'abord votre adresse dans Compte et identité.", "Ajoute adrès ou nan Kont ak idantite anvan.", "请先在账户与身份中添加地址。", "Primeiro adicione seu endereço em Conta e identidade."],
   "Back to My Deliveries": ["Volver a mis entregas", "Retour à mes livraisons", "Tounen nan livrezon mwen yo", "返回我的配送", "Voltar às minhas entregas"]
 };
 

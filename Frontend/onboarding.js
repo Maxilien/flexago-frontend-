@@ -34,7 +34,7 @@
 
     if (response.status === 401) {
       localStorage.removeItem(TOKEN_KEY);
-      window.Flexago.go("signup");
+      window.Flexago.go(window.Flexago.token() ? "login" : "signup");
       throw new Error("expired");
     }
 
@@ -213,7 +213,15 @@
     },
 
     "verify-email"() {
-      guarded(null, loadState);
+      guarded(null, async () => {
+        const state = await loadState();
+
+        if (state.reverify) {
+          const email = document.getElementById("email");
+          email.value = state.email;
+          email.readOnly = true;
+        }
+      });
       codeStep("email", () => document.getElementById("email").value);
     },
 
@@ -289,11 +297,25 @@
     },
 
     "create-account"() {
+      let reverifying = false;
+
       guarded(null, async () => {
         const state = await loadState();
         document.getElementById("fullName").value = `${state.firstName} ${state.lastName}`;
         document.getElementById("email").value = state.email;
         document.getElementById("phone").value = state.phone;
+
+        if (state.reverify) {
+          reverifying = true;
+          ["password", "confirmPassword"].forEach((id) => {
+            const field = document.getElementById(id);
+            field.closest("form").querySelector(`label[for="${id}"]`).classList.add("hidden");
+            field.classList.add("hidden");
+          });
+          document.querySelector("#createForm .fine-print").classList.add("hidden");
+          document.querySelector("#createForm button").setAttribute("data-i18n", "auth.finish_verification");
+          window.setLanguage(document.documentElement.lang);
+        }
       });
 
       document.getElementById("createForm").addEventListener("submit", (event) => {
@@ -303,7 +325,7 @@
         guarded(button, async () => {
           const password = document.getElementById("password").value;
 
-          if (password !== document.getElementById("confirmPassword").value) {
+          if (!reverifying && password !== document.getElementById("confirmPassword").value) {
             throw new Error(tr("auth.error_password_match", "Passwords do not match."));
           }
 

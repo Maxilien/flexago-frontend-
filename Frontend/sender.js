@@ -1583,7 +1583,8 @@ function initSenderGenerateDelivery() {
       },
 
       notes: notes || "",
-      price: estimatedPrice
+      distanceMiles: window.currentDistanceMiles,
+      insuranceType: document.getElementById("insuranceType")?.value
     };
 
     console.log(
@@ -1645,7 +1646,7 @@ function initSenderGenerateDelivery() {
 
       if (paymentAmountDisplay) {
         paymentAmountDisplay.textContent =
-          `$${estimatedPrice.toFixed(2)}`;
+          `$${Number(result.data.price).toFixed(2)}`;
       }
 
 if (paymentSection) {
@@ -3630,6 +3631,7 @@ function initSenderSupportTickets() {
 let senderChatWs = null;
 let senderChatReconnectTimeout = null;
 let activeSenderChatDeliveryId = null;
+window.getActiveChatDeliveryId = () => activeSenderChatDeliveryId;
 let senderChatShouldReconnect = true;
 let senderChatJoined = false;
 let senderChatSending = false;
@@ -5321,18 +5323,6 @@ async function openDeliveryStatus(delivery) {
   );
 }
 /* ============================================================
-   LOGOUT — CLEAR AUTH + REDIRECT (OLD SYSTEM)
-   ============================================================ */
-function logout() {
-  localStorage.removeItem("user");
-  localStorage.removeItem("userId");
-  localStorage.removeItem("senderId");
-  localStorage.removeItem("travelerId");
-  localStorage.removeItem("senderEmail");
-
-  Flexago.go("login");
-}
-/* ============================================================
    LOAD ACCOUNT & IDENTITY — FULL PROFILE POPULATION
 ============================================================ */
 async function loadAccountAndIdentity() {
@@ -5350,6 +5340,11 @@ async function loadAccountAndIdentity() {
     }
 
     const { data: user } = await res.json();
+
+    if (!Flexago.isFullyVerified(user)) {
+      await Flexago.startReverification();
+      return;
+    }
 
     // ============================
     // HEADER SECTION

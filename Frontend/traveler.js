@@ -320,7 +320,12 @@ async function acceptJob(jobId) {
 
     if (!res.ok || json.success === false) {
       console.error("Accept failed:", json.error || json.message);
-      alert("Failed to accept job");
+      alert(json.error || "Failed to accept job");
+
+      if (json.code === "BACKGROUND_CHECK_REQUIRED") {
+        document.querySelector('.sidebar-item[data-view="verification"]')?.click();
+      }
+
       return;
     }
 
@@ -1768,6 +1773,7 @@ let wsUpdateTimeout = null;
 let wsReconnectTimeout = null;
 let activeSocketDeliveryId = null;
 let activeSocketChatDeliveryId = null;
+window.getActiveChatDeliveryId = () => activeSocketChatDeliveryId;
 let shouldReconnectTravelerSocket = true;
 
 // ============================================================
@@ -4755,6 +4761,11 @@ async function loadTravelerIdentity() {
     }
 
     const profile = json.data;
+
+    if (!Flexago.isFullyVerified(profile)) {
+      await Flexago.startReverification();
+      return;
+    }
 
     window.travelerId = profile.traveler._id;
 

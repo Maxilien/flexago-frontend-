@@ -74,6 +74,12 @@ async function login(email, password) {
       );
     }
 
+    // Accounts from before strict onboarding verify first.
+    if (!Flexago.isFullyVerified(user)) {
+      await Flexago.startReverification();
+      return;
+    }
+
     // Redirect based on role
     if (user.role === "sender") {
       Flexago.go("Sender");

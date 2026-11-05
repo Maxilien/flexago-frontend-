@@ -182,6 +182,26 @@
     renderPhotoStrip(strip, urls.length > 1 ? urls : []);
   }
 
+  /* ---------- existing accounts re-verify ---------- */
+  function isFullyVerified(user) {
+    return Boolean(user.emailVerified && user.phoneVerified && user.identityVerified);
+  }
+
+  async function startReverification() {
+    const response = await fetch(`${API}/api/onboarding/reverify/start`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: "{}"
+    });
+    const result = await response.json();
+
+    if (!result.success) throw new Error(result.error);
+
+    localStorage.setItem("flexagoOnboardingToken", result.token);
+
+    go(result.data.emailVerified ? "verify-phone" : "verify-email");
+  }
+
   /* ---------- verified status ---------- */
   function verifiedFlags(user) {
     return {
@@ -218,13 +238,6 @@
       ["Identity check", flags.identity]
     ];
 
-    if (user.role === "traveler") {
-      rows.push([
-        "Background check",
-        user.traveler?.background_status === "clear"
-      ]);
-    }
-
     const list = document.createElement("ul");
     list.className = "verification-list";
 
@@ -241,6 +254,74 @@
     });
 
     container.replaceChildren(list);
+
+    if (user.role === "traveler") {
+      renderBackgroundCheck(container, list, user.traveler);
+    }
+  }
+
+  function renderBackgroundCheck(container, list, traveler) {
+    const status = traveler?.background_status;
+    const clear = status === "clear";
+
+    const label = clear
+      ? "✓ Verified"
+      : ["consider", "suspended"].includes(status)
+        ? "Under review"
+        : traveler?.checkr_report_id
+          ? "In progress"
+          : "Not started";
+
+    const item = document.createElement("li");
+    const name = document.createElement("span");
+    const state = document.createElement("strong");
+
+    name.textContent = "Background check";
+    state.textContent = label;
+    state.classList.toggle("is-verified", clear);
+    item.append(name, state);
+    list.append(item);
+
+    if (label !== "Not started") return;
+
+    const note = document.createElement("p");
+    const button = document.createElement("button");
+    const error = document.createElement("p");
+
+    note.className = "verification-note";
+    note.textContent = "Required before you can accept your first job.";
+    button.type = "button";
+    button.className = "primary-btn";
+    button.textContent = "Start background check";
+    error.className = "danger-zone-error";
+    error.setAttribute("role", "alert");
+
+    button.addEventListener("click", async () => {
+      button.disabled = true;
+      error.textContent = "";
+
+      try {
+        const response = await fetch(`${API}/api/traveler/background-check/start`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: "{}"
+        });
+        const result = await response.json();
+
+        if (result.url) {
+          window.location.href = result.url;
+          return;
+        }
+
+        error.textContent = result.error || "Unable to start your background check.";
+      } catch (e) {
+        error.textContent = "Unable to start your background check.";
+      }
+
+      button.disabled = false;
+    });
+
+    container.append(note, button, error);
   }
 
   /* ---------- account deletion (App Store requirement) ---------- */
@@ -297,6 +378,96 @@
     container.append(zone);
   }
 
+  /* ---------- report and block ---------- */
+  function openSafetyDialog(deliveryId) {
+    const dialog = document.createElement("dialog");
+    dialog.className = "safety-dialog";
+    dialog.innerHTML = `
+      <h3>Report this person</h3>
+      <label class="form-label" for="safetyReason">What happened?</label>
+      <select id="safetyReason" class="input-field">
+        <option value="">Select a reason</option>
+        <option value="harassment">Harassment or abuse</option>
+        <option value="fraud">Scam or fraud</option>
+        <option value="unsafe">Unsafe behavior</option>
+        <option value="prohibited_item">Prohibited item</option>
+        <option value="other">Something else</option>
+      </select>
+      <label class="form-label" for="safetyDetails">Details (optional)</label>
+      <textarea id="safetyDetails" class="input-field" rows="4" maxlength="2000"></textarea>
+      <label class="safety-block-option"><input type="checkbox" id="safetyAlsoBlock" /> <span>Also block this person</span></label>
+      <p class="danger-zone-error" role="alert"></p>
+      <div class="safety-dialog-actions">
+        <button type="button" class="safety-cancel">Cancel</button>
+        <button type="button" class="primary-btn safety-submit">Send report</button>
+      </div>
+    `;
+
+    const error = dialog.querySelector("[role=alert]");
+    const close = () => { dialog.close(); dialog.remove(); };
+    const post = (action, body) => fetch(`${API}/api/safety/deliveries/${deliveryId}/${action}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body)
+    }).then((response) => response.json());
+
+    dialog.querySelector(".safety-cancel").addEventListener("click", close);
+
+    dialog.querySelector(".safety-submit").addEventListener("click", async (event) => {
+      const reason = dialog.querySelector("#safetyReason").value;
+
+      if (!reason) {
+        error.textContent = "Please choose a reason.";
+        return;
+      }
+
+      event.target.disabled = true;
+
+      try {
+        const result = await post("report", {
+          reason,
+          details: dialog.querySelector("#safetyDetails").value
+        });
+
+        if (!result.success) throw new Error(result.error);
+
+        if (dialog.querySelector("#safetyAlsoBlock").checked) {
+          const blocked = await post("block", {});
+          if (!blocked.success) throw new Error(blocked.error);
+        }
+
+        close();
+        window.alert("Thanks. Our team will review your report.");
+      } catch (e) {
+        error.textContent = e.message || "Unable to send your report.";
+        event.target.disabled = false;
+      }
+    });
+
+    document.body.append(dialog);
+    dialog.showModal();
+  }
+
+  function initSafetyActions() {
+    const header = document.querySelector(".sender-delivery-chat-header, .delivery-chat-header");
+
+    if (!header) return;
+
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "chat-report-btn";
+    button.textContent = "Report";
+
+    button.addEventListener("click", () => {
+      const deliveryId = window.getActiveChatDeliveryId?.();
+      if (deliveryId) openSafetyDialog(deliveryId);
+    });
+
+    header.lastElementChild.before(button);
+  }
+
+  document.addEventListener("DOMContentLoaded", initSafetyActions);
+
   /* ---------- phone menu ---------- */
   function initMenu() {
     const button = document.getElementById("hamburgerBtn");
@@ -307,6 +478,14 @@
     const backdrop = document.createElement("div");
     backdrop.className = "sidebar-backdrop";
     document.body.append(backdrop);
+
+    // On phones, Logout lives at the bottom of this menu.
+    const logoutButton = document.createElement("button");
+    logoutButton.type = "button";
+    logoutButton.className = "sidebar-logout";
+    logoutButton.textContent = "Logout";
+    logoutButton.addEventListener("click", () => window.logout());
+    sidebar.append(logoutButton);
 
     button.setAttribute("aria-label", "Menu");
     button.setAttribute("aria-expanded", "false");
@@ -342,6 +521,8 @@
     packagePhotos,
     showExtraPhotos,
     fillVerifiedBadges,
+    isFullyVerified,
+    startReverification,
     renderVerification,
     mountDeleteAccount
   };
