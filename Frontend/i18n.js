@@ -39,7 +39,12 @@ function applyTranslations() {
   document.querySelectorAll("[data-i18n]").forEach(el => {
     const key = el.getAttribute("data-i18n");
     const translated = t(key);
-    if (translated) el.textContent = translated;
+
+    // Only write real changes: the language observer watches the page,
+    // so rewriting identical text would trigger it again forever.
+    if (translated && el.textContent !== translated) {
+      el.textContent = translated;
+    }
   });
 
   document.querySelectorAll("[data-i18n-placeholder]").forEach(el => {

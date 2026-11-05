@@ -36,7 +36,15 @@
   // Logged-in people go straight to their workspace.
   const savedUser = JSON.parse(localStorage.getItem("user") || "null");
   if (savedUser && Flexago.token()) {
-    Flexago.go(savedUser.role === "traveler" ? "traveler" : "Sender");
+    window.flexagoRedirecting = true;
+
+    // Wait for the first layout: in the app, redirecting sooner leaves the
+    // next page without the iPhone's notch measurements.
+    window.addEventListener("load", () => {
+      setTimeout(() => {
+        Flexago.go(savedUser.role === "traveler" ? "traveler" : "Sender");
+      }, 150);
+    });
   }
 </script>
 </body>

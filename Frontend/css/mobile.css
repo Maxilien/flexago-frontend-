@@ -39,7 +39,13 @@
 }
 
 @media (max-width: 768px) {
-  html, body { max-width: 100%; overflow-x: hidden; }
+  /* The page itself scrolls on phones. A fixed-height shell gets stuck
+     offset when the iPhone keyboard pushes it, and can't scroll back. */
+  html, body { height: auto; min-height: 100%; max-width: 100%; overflow-x: clip; }
+  .app-shell { height: auto !important; min-height: 100dvh; overflow: visible !important; }
+  .main-layout, .content-area { overflow: visible !important; }
+  .top-nav { position: sticky; top: 0; z-index: 900; }
+  body.sidebar-open .chat-toggle-btn, body.sidebar-open .chat-bubble-btn, body.sidebar-open .chat-floating-btn { display: none !important; }
 
   /* iOS zooms into any field under 16px */
   input, select, textarea { font-size: 16px !important; }

@@ -208,6 +208,16 @@
     window.Capacitor?.Plugins?.StatusBar?.setStyle({ style: "DARK" });
   }
 
+  // Keep the launch logo up until a real page has loaded. The home page
+  // sets flexagoRedirecting when it's about to move to the dashboard.
+  if (isNative) {
+    window.addEventListener("load", () => {
+      if (!window.flexagoRedirecting) {
+        window.Capacitor?.Plugins?.SplashScreen?.hide();
+      }
+    });
+  }
+
   /* ---------- existing accounts re-verify ---------- */
   function isFullyVerified(user) {
     return Boolean(user.emailVerified && user.phoneVerified && user.identityVerified);
