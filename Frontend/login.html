@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <script src="js/app-core.js"></script>
   <title>Login – Flexago</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
@@ -77,12 +78,9 @@
     }
 
     .flexago-logo-img {
-      height: 80px;
+      height: 40px;
       width: auto;
-      object-fit: contain;
-      background: #000000; /* sync with banner */
-      padding: 4px;
-      border-radius: 6px;
+      display: block;
     }
 
     .top-nav-title-main {
@@ -119,6 +117,7 @@
       border-radius: 6px;
     }
   </style>
+  <link rel="icon" type="image/png" href="IMG/flexago-icon.png" />
 </head>
 
 <body>
@@ -131,7 +130,7 @@
 
     <!-- ⭐ FLEXAGO LOGO (lowercase img/) -->
     <div class="flexago-logo">
-      <img src="IMG/flexago-logo.JPG" alt="Flexago Logo" class="flexago-logo-img">
+      <img src="IMG/flexago-logo.png" alt="Flexago Logo" class="flexago-logo-img">
     </div>
 
     <!-- Title (Login-specific) -->
@@ -150,9 +149,7 @@
 
     <!-- Navigation -->
     <nav class="top-nav-links">
-      <a href="Sender.html" class="top-nav-link">Sender</a>
-      <a href="Traveler.html" class="top-nav-link">Traveler</a>
-      <a href="about.html" class="top-nav-link">About</a>
+      <a href="https://www.flexagoo.com" class="top-nav-link" target="_blank" rel="noopener" data-i18n="auth.about">About</a>
     </nav>
 
     <!-- Language Selector -->
@@ -171,15 +168,18 @@
 
 <div class="login-container">
 
-  <h2>Login</h2>
+  <h2 data-i18n="auth.login">Login</h2>
 
-  <input id="email" class="input-field" placeholder="Email" />
-  <input id="password" class="input-field" type="password" placeholder="Password" />
+  <input id="email" class="input-field" type="email" inputmode="email" autocomplete="email" placeholder="Email" data-i18n-placeholder="auth.email" />
+  <input id="password" class="input-field" type="password" autocomplete="current-password" placeholder="Password" data-i18n-placeholder="auth.password_plain" />
 
-  <button id="login-btn" class="login-btn">Login</button>
+  <button id="login-btn" class="login-btn" data-i18n="auth.login">Login</button>
+  <p style="text-align:center;margin-top:16px;"><span data-i18n="auth.no_account">New to Flexago?</span> <a href="signup" data-i18n="auth.create_button">Create account</a></p>
 
 </div>
 
+<script src="i18n.js"></script>
+<script src="i18n-extra.js"></script>
 <script src="login.js"></script>
 
 </body>

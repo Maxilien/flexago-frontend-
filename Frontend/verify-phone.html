@@ -2,272 +2,59 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Verify Phone – Flexago</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-
-  <link rel="stylesheet" href="css/auth.css" />
-
-  <style>
-    body {
-      font-family: Inter, sans-serif;
-      background: #f9fafb;
-      margin: 0;
-      padding: 0;
-    }
-
-    /* ============================================================
-       TOP NAV — PURE BLACK BANNER
-    ============================================================ */
-    .top-nav {
-      background: #000000;
-      color: white;
-      padding: 14px 24px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .top-nav-left {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
-
-    .flexago-logo-img {
-      height: 48px;
-      width: auto;
-      background: #000000; /* sync with banner */
-      padding: 4px;
-      border-radius: 6px;
-    }
-
-    .top-nav-title-main {
-      font-size: 1.2rem;
-      font-weight: 600;
-    }
-
-    .top-nav-title-sub {
-      font-size: 0.8rem;
-      opacity: 0.8;
-    }
-
-    .top-nav-links a {
-      color: white;
-      text-decoration: none;
-      margin-right: 16px;
-      font-size: 0.95rem;
-    }
-
-    .lang-select {
-      padding: 6px;
-      border-radius: 6px;
-      border: none;
-      font-size: 0.9rem;
-    }
-
-    /* ============================================================
-       VERIFY CONTAINER
-    ============================================================ */
-    .verify-container {
-      max-width: 420px;
-      margin: 60px auto;
-      background: white;
-      padding: 32px;
-      border-radius: 12px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-      text-align: center;
-    }
-
-    h1 {
-      margin-bottom: 10px;
-      font-size: 1.6rem;
-      font-weight: 600;
-    }
-
-    p {
-      color: #6b7280;
-      margin-bottom: 24px;
-      font-size: 0.95rem;
-    }
-
-    .verify-box {
-      margin-top: 20px;
-      text-align: left;
-    }
-
-    .phone-row {
-      display: flex;
-      gap: 10px;
-    }
-
-    .country-select {
-      width: 110px;
-      padding: 12px;
-      border: 1px solid #d1d5db;
-      border-radius: 8px;
-      font-size: 1rem;
-      background: white;
-    }
-
-    .input-field {
-      width: 100%;
-      padding: 12px;
-      border: 1px solid #d1d5db;
-      border-radius: 8px;
-      margin-top: 6px;
-      margin-bottom: 16px;
-      font-size: 1rem;
-    }
-
-    .primary-btn {
-      width: 100%;
-      padding: 12px;
-      background: #2563eb;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 1rem;
-      cursor: pointer;
-      margin-bottom: 12px;
-    }
-
-    .secondary-btn {
-      width: 100%;
-      padding: 12px;
-      background: #e5e7eb;
-      color: #374151;
-      border: none;
-      border-radius: 8px;
-      font-size: 1rem;
-      cursor: pointer;
-      margin-bottom: 12px;
-    }
-
-    .next-btn {
-      width: 100%;
-      padding: 12px;
-      background: #10b981;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 1rem;
-      cursor: pointer;
-      opacity: 0.5;
-    }
-
-    .next-btn.enabled {
-      opacity: 1;
-      cursor: pointer;
-    }
-
-    /* ============================================================
-       ⭐ REQUIRED TWILIO CTA (SHORT VERSION)
-    ============================================================ */
-    .sms-cta {
-      font-size: 0.85rem;
-      color: #6b7280;
-      margin-top: -10px;
-      margin-bottom: 18px;
-      line-height: 1.4;
-    }
-
-    .sms-cta a {
-      color: #2563eb;
-      text-decoration: none;
-    }
-  </style>
+  <title>Verify phone – Flexago</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <link rel="stylesheet" href="css/onboarding.css" />
+  <link rel="icon" type="image/png" href="IMG/flexago-icon.png" />
 </head>
-
-<body>
-
-<!-- ========================================================= -->
-<!-- TOP NAVBAR — Unified FlexaGo Banner                       -->
-<!-- ========================================================= -->
+<body data-step="verify-phone">
 <header class="top-nav">
   <div class="top-nav-left">
-
-    <!-- ⭐ FLEXAGO LOGO (lowercase img/) -->
-    <div class="flexago-logo">
-      <img src="IMG/flexago-logo.JPG" alt="Flexago Logo" class="flexago-logo-img">
+    <img src="IMG/flexago-logo.png" alt="Flexago" class="flexago-logo-img" />
+    <div>
+      <div class="top-nav-title-main">FlexaGo</div>
+      <div class="top-nav-title-sub" data-i18n="auth.tagline">Logistics marketplace for travelers &amp; senders</div>
     </div>
-
-    <!-- Title -->
-    <div class="top-nav-title">
-      <div class="top-nav-title-main">Verify Your Phone</div>
-      <div class="top-nav-title-sub">Logistics marketplace for travelers & senders</div>
-    </div>
-
   </div>
-
-  <div class="top-nav-right">
-    <nav class="top-nav-links">
-      <a href="Sender.html">Sender</a>
-      <a href="Traveler.html">Traveler</a>
-      <a href="about.html">About</a>
-    </nav>
-
-    <select class="lang-select" id="languageSelector">
-      <option value="en">EN</option>
-      <option value="es">ES</option>
-      <option value="fr">FR</option>
-      <option value="ht">HT</option>
-      <option value="zh">ZH</option>
-      <option value="pt">PT</option>
+  <select class="lang-select" id="languageSelector" aria-label="Language">
+      <option value="en">EN</option><option value="es">ES</option><option value="fr">FR</option>
+      <option value="ht">HT</option><option value="zh">ZH</option><option value="pt">PT</option>
     </select>
-  </div>
 </header>
-
-
-<div class="verify-container">
-
-  <h1>Verify Your Phone</h1>
-  <p>Enter your phone number to receive a verification code.</p>
-
-  <div class="verify-box">
-
-    <!-- COUNTRY CODE + PHONE -->
-    <label>Phone Number</label>
-
+<main>
+  <div class="card">
+    <div class="steps" aria-hidden="true"><span class="done"></span><span class="done"></span><span class="done"></span><span class=""></span><span class=""></span></div>
+    <p class="step-label" data-i18n="auth.step3">Step 3 of 5</p>
+    <h1 data-i18n="auth.phone_title">Verify your phone</h1>
+    <p class="lead" data-i18n="auth.phone_lead">We'll text a 6-digit code to confirm this number is yours.</p>
+    <label for="phone" data-i18n="auth.phone">Phone number</label>
     <div class="phone-row">
-      <select id="countryCode" class="country-select">
-        <option value="+1">🇺🇸 +1</option>
-        <option value="+44">🇬🇧 +44</option>
-        <option value="+61">🇦🇺 +61</option>
-        <option value="+33">🇫🇷 +33</option>
-        <option value="+49">🇩🇪 +49</option>
-        <option value="+34">🇪🇸 +34</option>
-        <option value="+81">🇯🇵 +81</option>
-        <option value="+971">🇦🇪 +971</option>
-      </select>
-
-      <input id="phoneInput" class="input-field" placeholder="555 123 4567" />
+      <input id="countryCode" type="hidden" value="+1" />
+      <button id="countryBtn" class="input-field country-btn" type="button" aria-haspopup="listbox" aria-expanded="false" aria-controls="countryPanel"></button>
+      <input id="phone" class="input-field" type="tel" inputmode="tel" autocomplete="tel-national" placeholder="555 123 4567" />
     </div>
-
-    <!-- ⭐ REQUIRED TWILIO CTA -->
-    <p class="sms-cta">
-      By clicking SEND SMS CODE to verify your phone number, you are agreeing to receive SMS verification code from Flexago for account verification and login security. Message and data rates may apply. Reply STOP to opt out and HELP for HELp.
-      <a href="https://www.flexagoo.com/privacy.html" target="_blank">Privacy Policy</a>
-      and
-      <a href="https://www.flexagoo.com/terms.html" target="_blank">Terms of Service</a>.
-    </p>
-
-    <button id="sendSmsBtn" class="primary-btn">Send SMS Code</button>
-
-    <!-- ENTER SMS CODE -->
-    <label>Enter SMS Code</label>
-    <input id="smsCodeInput" class="input-field" placeholder="123456" />
-
-    <button id="verifyPhoneBtn" class="primary-btn">Verify Phone</button>
-    <button id="resendPhoneBtn" class="secondary-btn">Resend Code</button>
-
-    <!-- NEXT BUTTON -->
-    <button id="nextBtn" class="next-btn" disabled>Next</button>
-
+    <div id="countryPanel" class="country-panel hidden">
+      <input id="countrySearch" class="input-field" type="search" autocomplete="off" placeholder="Search country" data-i18n-placeholder="auth.search_country" aria-label="Search country" />
+      <ul id="countryList" class="country-list" role="listbox"></ul>
+    </div>
+    <p class="fine-print"><span data-i18n="auth.sms_consent">By tapping Send code, you agree to receive SMS verification messages from Flexago. Message and data rates may apply. See our</span>
+      <a href="https://www.flexagoo.com/privacy.html" target="_blank" rel="noopener" data-i18n="auth.privacy">Privacy Policy</a> &amp;
+      <a href="https://www.flexagoo.com/terms.html" target="_blank" rel="noopener" data-i18n="auth.terms">Terms of Service</a>.</p>
+    <button id="sendBtn" class="btn btn-secondary" type="button" data-i18n="auth.send_code">Send code</button>
+    <label for="code" data-i18n="auth.code">Verification code</label>
+    <input id="code" class="input-field" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="123456" />
+    <button id="verifyBtn" class="btn" type="button" data-i18n="auth.verify_continue">Verify and continue</button>
+    <p id="message" class="message" role="status" aria-live="polite"></p>
   </div>
-
-</div>
-
-<script src="verify-phone.js"></script>
-
+</main>
+<footer class="site-footer">
+  <a href="https://www.flexagoo.com/privacy.html" target="_blank" rel="noopener" data-i18n="auth.privacy">Privacy Policy</a>
+  <a href="https://www.flexagoo.com/terms.html" target="_blank" rel="noopener" data-i18n="auth.terms">Terms of Service</a>
+</footer>
+<script src="js/app-core.js"></script>
+<script src="i18n.js"></script>
+<script src="i18n-extra.js"></script>
+<script src="js/countries.js"></script>
+<script src="onboarding.js"></script>
 </body>
 </html>

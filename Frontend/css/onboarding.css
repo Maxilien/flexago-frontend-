@@ -1,0 +1,54 @@
+/* Shared look for login-style pages: matches the login screen. */
+:root { --blue: #2563eb; --blue-dark: #1d4ed8; --ink: #111827; --muted: #6b7280; --line: #d1d5db; --ok: #15803d; --bad: #b91c1c; }
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; min-height: 100dvh; display: flex; flex-direction: column; background: #f9fafb; color: var(--ink); font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+.top-nav { background: #000; color: #fff; padding: calc(12px + env(safe-area-inset-top)) 20px 12px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.top-nav-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.flexago-logo-img { height: 44px; width: auto; display: block; }
+.top-nav-title-main { font-weight: 700; font-size: 1.05rem; }
+.top-nav-title-sub { font-size: .8rem; color: #d1d5db; }
+.lang-select { background: #1f2937; color: #fff; border: 1px solid #374151; border-radius: 8px; padding: 8px; font-size: 16px; }
+main { flex: 1; width: 100%; max-width: 460px; margin: 0 auto; padding: 24px 16px calc(32px + env(safe-area-inset-bottom)); }
+.card { background: #fff; border-radius: 14px; padding: 24px; box-shadow: 0 2px 10px rgba(0,0,0,.06); }
+.steps { display: flex; gap: 6px; margin-bottom: 8px; }
+.steps span { flex: 1; height: 5px; border-radius: 3px; background: #e5e7eb; }
+.steps span.done { background: var(--blue); }
+.step-label { margin: 0 0 16px; font-size: .85rem; color: var(--muted); }
+h1 { margin: 0 0 8px; font-size: 1.5rem; }
+.lead { margin: 0 0 20px; color: var(--muted); line-height: 1.45; }
+label { display: block; margin: 14px 0 6px; font-weight: 600; font-size: .9rem; }
+.input-field, select.input-field { width: 100%; min-height: 48px; padding: 12px; border: 1px solid var(--line); border-radius: 10px; background: #fff; color: var(--ink); font-size: 16px; }
+.input-field:focus { outline: 2px solid var(--blue); outline-offset: 1px; }
+.input-field[readonly] { background: #f3f4f6; color: #374151; }
+.phone-row { display: flex; gap: 8px; }
+.phone-row .country-btn { width: auto; min-width: 104px; flex: none; text-align: left; white-space: nowrap; cursor: pointer; }
+.country-panel { margin-top: 8px; padding: 8px; border: 1px solid var(--line); border-radius: 10px; background: #fff; }
+.country-list { list-style: none; max-height: 240px; margin: 8px 0 0; padding: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+.country-list button { width: 100%; min-height: 44px; padding: 8px; border: 0; border-radius: 8px; background: none; color: var(--ink); font-size: 1rem; text-align: left; cursor: pointer; }
+.country-list button:hover, .country-list button:focus-visible { background: #eff6ff; }
+.btn { width: 100%; min-height: 48px; margin-top: 14px; border: 0; border-radius: 10px; background: var(--blue); color: #fff; font-size: 1rem; font-weight: 600; cursor: pointer; }
+.btn:hover:not(:disabled) { background: var(--blue-dark); }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+.btn-secondary { background: #fff; color: var(--blue); border: 1px solid var(--blue); }
+.btn-secondary:hover:not(:disabled) { background: #eff6ff; }
+.role-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.role-options label { margin: 0; padding: 14px 10px; min-height: 48px; border: 1px solid var(--line); border-radius: 10px; text-align: center; cursor: pointer; }
+.role-options input { position: absolute; opacity: 0; }
+.role-options label:has(input:checked) { border-color: var(--blue); background: #eff6ff; color: var(--blue-dark); }
+.role-options label:has(input:focus-visible) { outline: 2px solid var(--blue); }
+.message { min-height: 1.3em; margin: 12px 0 0; font-size: .9rem; }
+.message.error { color: var(--bad); }
+.message.success { color: var(--ok); }
+.locked-note { margin: 16px 0 0; font-size: .85rem; color: var(--muted); }
+.fine-print { margin: 14px 0 0; font-size: .8rem; line-height: 1.45; color: var(--muted); }
+.fine-print a, .switch a { color: var(--blue); }
+.switch { margin: 18px 0 0; text-align: center; font-size: .9rem; }
+.hidden { display: none !important; }
+footer.site-footer { padding: 16px; text-align: center; font-size: .8rem; color: var(--muted); }
+footer.site-footer a { color: inherit; margin: 0 8px; }
+@media (max-width: 420px) {
+  .top-nav { padding-left: 16px; padding-right: 16px; }
+  .top-nav-title-sub { display: none; }
+  .card { padding: 20px 16px; }
+}

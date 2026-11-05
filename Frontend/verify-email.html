@@ -2,285 +2,47 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Verify Your Email – Flexago</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="stylesheet" href="css/auth.css" />
-
-  <style>
-    /* ============================================================
-       TOP NAV — PURE BLACK BANNER
-    ============================================================ */
-    .top-nav {
-      background: #000000;
-      color: white;
-      padding: 14px 24px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .top-nav-left {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
-
-    .flexago-logo-img {
-      height: 48px;
-      width: auto;
-      background: #000000;
-      padding: 4px;
-      border-radius: 6px;
-    }
-
-    .top-nav-title-main {
-      font-size: 1.2rem;
-      font-weight: 600;
-    }
-
-    .top-nav-title-sub {
-      font-size: 0.8rem;
-      opacity: 0.8;
-    }
-
-    .top-nav-links a {
-      color: white;
-      text-decoration: none;
-      margin-right: 16px;
-      font-size: 0.95rem;
-    }
-
-    .lang-select {
-      padding: 6px;
-      border-radius: 6px;
-      border: none;
-      font-size: 0.9rem;
-    }
-
-    /* ============================================================
-       PASSWORD SHOW/HIDE
-    ============================================================ */
-    .password-wrapper {
-      position: relative;
-      width: 100%;
-    }
-
-    .toggle-password {
-      position: absolute;
-      right: 12px;
-      top: 50%;
-      transform: translateY(-50%);
-      cursor: pointer;
-      font-size: 18px;
-      opacity: 0.7;
-    }
-
-    .toggle-password:hover {
-      opacity: 1;
-    }
-
-    /* ============================================================
-       UBER-STYLE FOOTER
-    ============================================================ */
-    .uber-footer {
-      background: #000;
-      color: #fff;
-      padding: 30px 40px;
-      text-align: center;
-      margin-top: 60px;
-    }
-
-    .uber-footer-row {
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-      margin-bottom: 12px;
-      font-size: 1rem;
-      font-weight: 600;
-    }
-
-    .uber-footer-links {
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-      margin-bottom: 12px;
-    }
-
-    .uber-footer-links a {
-      color: #fff;
-      opacity: 0.85;
-      text-decoration: none;
-      font-size: 0.95rem;
-      transition: opacity 0.3s ease;
-    }
-
-    .uber-footer-links a:hover {
-      opacity: 1;
-    }
-
-    .uber-footer-copy {
-      opacity: 0.8;
-      font-size: 0.9rem;
-    }
-
-    @media (max-width: 768px) {
-      .uber-footer-row,
-      .uber-footer-links {
-        flex-direction: column;
-        gap: 10px;
-      }
-    }
-  </style>
+  <title>Verify email – Flexago</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <link rel="stylesheet" href="css/onboarding.css" />
+  <link rel="icon" type="image/png" href="IMG/flexago-icon.png" />
 </head>
-
-<body>
-
-<!-- ========================================================= -->
-<!-- TOP NAVBAR — Unified FlexaGo Banner                       -->
-<!-- ========================================================= -->
+<body data-step="verify-email">
 <header class="top-nav">
   <div class="top-nav-left">
-    <div class="flexago-logo">
-      <img src="IMG/flexago-logo.JPG" alt="Flexago Logo" class="flexago-logo-img">
-    </div>
-
-    <div class="top-nav-title">
-      <div class="top-nav-title-main">Verify Your Email</div>
-      <div class="top-nav-title-sub">Logistics marketplace for travelers & senders</div>
+    <img src="IMG/flexago-logo.png" alt="Flexago" class="flexago-logo-img" />
+    <div>
+      <div class="top-nav-title-main">FlexaGo</div>
+      <div class="top-nav-title-sub" data-i18n="auth.tagline">Logistics marketplace for travelers &amp; senders</div>
     </div>
   </div>
-
-  <div class="top-nav-right">
-    <nav class="top-nav-links">
-      <a href="Sender.html" class="top-nav-link">Sender</a>
-      <a href="Traveler.html" class="top-nav-link">Traveler</a>
-      <a href="about.html" class="top-nav-link">About</a>
-    </nav>
-
-    <select class="lang-select" id="languageSelector">
-      <option value="en">EN</option>
-      <option value="es">ES</option>
-      <option value="fr">FR</option>
-      <option value="ht">HT</option>
-      <option value="zh">ZH</option>
-      <option value="pt">PT</option>
+  <select class="lang-select" id="languageSelector" aria-label="Language">
+      <option value="en">EN</option><option value="es">ES</option><option value="fr">FR</option>
+      <option value="ht">HT</option><option value="zh">ZH</option><option value="pt">PT</option>
     </select>
-  </div>
 </header>
-
-<main class="signup-container">
-  <h2>Verify Your Email</h2>
-
-  <div class="signup-form">
-
-    <!-- ENTER EMAIL -->
-    <label class="role-label">Enter Email</label>
-    <input id="verifyEmailInput" class="input-field" placeholder="you@example.com" />
-
-    <button id="getCodeBtn" class="blue-btn">Get Verification Code</button>
-
-    <!-- ENTER VERIFICATION CODE -->
-    <label class="role-label">Enter Verification Code</label>
-    <input id="verificationCode" class="input-field" placeholder="123456" />
-
-    <button id="verifyCodeBtn" class="blue-btn">Verify Email</button>
-
-    <!-- CREATE PASSWORD -->
-    <label class="role-label">Create Password</label>
-    <div class="password-wrapper">
-      <input id="password" class="input-field" type="password" placeholder="Enter password" disabled />
-      <span class="toggle-password" onclick="togglePassword('password')">👁️</span>
-    </div>
-
-    <!-- CONFIRM PASSWORD -->
-    <label class="role-label">Confirm Password</label>
-    <div class="password-wrapper">
-      <input id="confirmPassword" class="input-field" type="password" placeholder="Re-enter password" disabled />
-      <span class="toggle-password" onclick="togglePassword('confirmPassword')">👁️</span>
-    </div>
-
-    <button id="nextBtn" class="blue-btn" disabled>Next</button>
-
+<main>
+  <div class="card">
+    <div class="steps" aria-hidden="true"><span class="done"></span><span class="done"></span><span class=""></span><span class=""></span><span class=""></span></div>
+    <p class="step-label" data-i18n="auth.step2">Step 2 of 5</p>
+    <h1 data-i18n="auth.email_title">Verify your email</h1>
+    <p class="lead" data-i18n="auth.email_lead">We'll send a 6-digit code to confirm this email is yours.</p>
+    <label for="email" data-i18n="auth.email">Email</label>
+    <input id="email" class="input-field" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com" />
+    <button id="sendBtn" class="btn btn-secondary" type="button" data-i18n="auth.send_code">Send code</button>
+    <label for="code" data-i18n="auth.code">Verification code</label>
+    <input id="code" class="input-field" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="123456" />
+    <button id="verifyBtn" class="btn" type="button" data-i18n="auth.verify_continue">Verify and continue</button>
+    <p id="message" class="message" role="status" aria-live="polite"></p>
   </div>
 </main>
-
-<!-- ========================================================= -->
-<!-- UBER-STYLE FOOTER                                         -->
-<!-- ========================================================= -->
-<footer class="uber-footer">
-  <div class="uber-footer-row">
-    <span id="footerLanguage">English</span>
-    <span id="footerLocation">Detecting location…</span>
-  </div>
-
-  <div class="uber-footer-links">
-      <a href="https://www.flexagoo.com/privacy.html" target="_blank">Privacy Policy</a>
-      
-      <a href="https://www.flexagoo.com/terms.html" target="_blank">Terms of Service</a>.
-  </div>
-
-  <div class="uber-footer-copy">© 2026 FlexaGo</div>
+<footer class="site-footer">
+  <a href="https://www.flexagoo.com/privacy.html" target="_blank" rel="noopener" data-i18n="auth.privacy">Privacy Policy</a>
+  <a href="https://www.flexagoo.com/terms.html" target="_blank" rel="noopener" data-i18n="auth.terms">Terms of Service</a>
 </footer>
-
-<!-- ========================================================= -->
-<!-- PASSWORD TOGGLE SCRIPT                                    -->
-<!-- ========================================================= -->
-<script>
-function togglePassword(id) {
-  const field = document.getElementById(id);
-  if (field) {
-    field.type = field.type === "password" ? "text" : "password";
-  }
-}
-</script>
-
-<!-- ========================================================= -->
-<!-- LOCATION + LANGUAGE DETECTION                             -->
-<!-- ========================================================= -->
-<script>
-document.addEventListener("DOMContentLoaded", function() {
-
-  const languageMap = {
-    "United States": "en",
-    "Spain": "es",
-    "France": "fr",
-    "Haiti": "ht",
-    "China": "zh",
-    "Portugal": "pt"
-  };
-
-  const fullLanguageNames = {
-    en: "English",
-    es: "Español",
-    fr: "Français",
-    ht: "Kreyòl",
-    zh: "中文",
-    pt: "Português"
-  };
-
-  fetch("https://ipapi.co/json/")
-    .then(res => res.json())
-    .then(data => {
-      const city = data.city;
-      const country = data.country_name;
-
-      const locEl = document.getElementById("footerLocation");
-      if (locEl) locEl.innerText = city;
-
-      const lang = languageMap[country] || "en";
-
-      const selector = document.getElementById("languageSelector");
-      if (selector) selector.value = lang;
-
-      const langEl = document.getElementById("footerLanguage");
-      if (langEl) langEl.innerText = fullLanguageNames[lang];
-    })
-    .catch(err => console.error("Location detection failed:", err));
-
-});
-</script>
-
-<script src="verify-email.js"></script>
+<script src="js/app-core.js"></script>
+<script src="i18n.js"></script>
+<script src="i18n-extra.js"></script>
+<script src="onboarding.js"></script>
 </body>
 </html>
-

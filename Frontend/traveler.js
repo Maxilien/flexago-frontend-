@@ -41,12 +41,12 @@ const user = JSON.parse(localStorage.getItem("user"));
 
 // 1. Must be logged in
 if (!user) {
-  window.location.href = "login.html";
+  Flexago.go("login");
 }
 
 // 2. Must be a traveler
 if (user.role !== "traveler") {
-  window.location.href = "login.html";
+  Flexago.go("login");
 }
 
 // 3. Must have userId
@@ -54,14 +54,8 @@ window.userId = localStorage.getItem("userId");
 
 if (!window.userId) {
   console.warn("No userId found — redirecting to login");
-  window.location.href = "login.html";
+  Flexago.go("login");
 }
-
-// ⭐ REMOVE THIS (WRONG)
-// window.travelerId = user._id;
-
-// ⭐ ADD THIS (CORRECT)
-loadTravelerIdentity();
 
 /* ============================================================
    FLEXAGO TRAVELER — FINAL VERSION
@@ -635,9 +629,8 @@ async function loadAvailableJobs() {
       },
       route: Array.isArray(currentTravelerPolyline)
         ? currentTravelerPolyline
-        : [],
-      maxMiles: 999999
-    };
+        : []
+          };
 
     const res = await fetch(`${BASE_URL}/api/deliveries/search`, {
       method: "POST",
@@ -1006,6 +999,15 @@ function renderJobCard(job, status, listElement) {
    CARD HTML
 ============================================================ */
 
+const offRouteMiles = job._distance?.offRouteMiles;
+
+const routeNote =
+  offRouteMiles === undefined
+    ? ""
+    : offRouteMiles < 0.5
+      ? t("account.on_route")
+      : t("account.off_route").replace("{miles}", offRouteMiles.toFixed(1));
+
 card.innerHTML = `
   <div class="job-header">
     <span class="badge badge-${badgeColor}">
@@ -1019,6 +1021,8 @@ card.innerHTML = `
       View Details
     </button>
   </div>
+
+  ${routeNote ? `<p class="job-route-note">${routeNote}</p>` : ""}
 
   <div class="job-row">
     <div class="job-label">
@@ -1272,14 +1276,21 @@ function openProofOfDeliveryModal(job) {
   // ── Photo preview on file select ─────────────────────────
   if (photoInput) {
     photoInput.onchange = () => {
-      const file = photoInput.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        photoPreview.src = e.target.result;
-        photoPreview.style.display = "block";
-      };
-      reader.readAsDataURL(file);
+      const files = [...photoInput.files];
+
+      if (files.length > 5) {
+        alert("You can add up to 5 photos.");
+        photoInput.value = "";
+        return;
+      }
+
+      const urls = files.map((file) => URL.createObjectURL(file));
+
+      photoPreview.style.display = "none";
+      Flexago.showExtraPhotos(photoPreview, []);
+
+      const strip = photoPreview.nextElementSibling;
+      Flexago.renderPhotoStrip(strip, urls);
     };
   }
 
@@ -1407,6 +1418,7 @@ if (codeSection) {
   } else {
     photo.style.display = "none";
   }
+  Flexago.showExtraPhotos(photo, Flexago.packagePhotos(job));
 
   // STATUS BUTTONS
   panel.querySelector(".verify-code-btn").onclick = () => verifyPickup(job._id);
@@ -1536,8 +1548,7 @@ async function completeJob(deliveryId) {
         "Your session has expired. Please log in again."
       );
 
-      window.location.href =
-        "login.html";
+      Flexago.go("login");
 
       return;
     }
@@ -1578,13 +1589,12 @@ async function completeJob(deliveryId) {
         ".delivery-photo-input"
       );
 
-    const photoFile =
-      photoInput &&
-      photoInput.files.length > 0
-        ? photoInput.files[0]
-        : null;
+    const photoFiles =
+      photoInput
+        ? [...photoInput.files]
+        : [];
 
-    if (!photoFile) {
+    if (!photoFiles.length) {
       alert(
         "Please upload a delivery photo."
       );
@@ -1656,10 +1666,9 @@ async function completeJob(deliveryId) {
       signedBy
     );
 
-    formData.append(
-      "photo",
-      photoFile
-    );
+    photoFiles.slice(0, 5).forEach((file) => {
+      formData.append("photo", file);
+    });
 
     formData.append(
       "signature",
@@ -2000,7 +2009,8 @@ function connectTravelerSocket() {
 
   try {
     ws = new WebSocket(
-      WS_URL
+      WS_URL,
+      window.flexagoSocketProtocols()
     );
 
     ws.addEventListener(
@@ -4258,6 +4268,7 @@ let verificationState = {
 };
 
 function initVerificationPage() {
+  Flexago.renderVerification(document.getElementById("verificationChecklist"));
   safe(initVerificationUploads);
   safe(updateVerificationProgressBar);
   safe(updateVerificationStatusBadge);
@@ -4686,6 +4697,7 @@ if (distance) {
   } else {
     photoEl.style.display = "none";
   }
+  Flexago.showExtraPhotos(photoEl, Flexago.packagePhotos(job));
 
   // -------------------------------
   // BUTTON HANDLERS (UPDATED WORKFLOW)
@@ -4734,59 +4746,58 @@ async function loadTravelerIdentity() {
 
     console.log("Loading traveler for userId:", window.userId);
 
-    // ⭐ Correct route — list all travelers
-    const res = await fetch(`${BASE_URL}/api/traveler`);
+    const res = await fetch(`${BASE_URL}/api/users/me`);
     const json = await res.json();
 
-    if (!json.success || !Array.isArray(json.data)) {
-      console.error("Traveler API returned unexpected format:", json);
-      return;
-    }
-
-    // ⭐ Find traveler whose "user" matches the logged-in userId
-    const traveler = json.data.find(t => t.user === window.userId);
-
-    if (!traveler) {
+    if (!json.success || !json.data?.traveler) {
       console.error("No traveler profile found for user:", window.userId);
       return;
     }
 
-    // ⭐ Set travelerId correctly
-    window.travelerId = traveler._id;
-    console.log("Traveler ID loaded:", window.travelerId);
+    const profile = json.data;
 
-/* ============================================================
-   LOAD TRAVELER PROFILE INTO UI (NO FALLBACK "T")
-============================================================ */
+    window.travelerId = profile.traveler._id;
 
-// Full name
-const fullName = `${traveler.firstName || ""} ${traveler.lastName || ""}`.trim();
-if (fullName.length > 0) {
-  document.getElementById("travelerNameHeader").textContent = fullName;
-}
+    // Header
+    const fullName = `${profile.firstName || ""} ${profile.lastName || ""}`.trim();
+    document.getElementById("travelerNameHeader").textContent = fullName;
 
-// Identity fields (readonly)
-document.getElementById("travelerFirstName").value = traveler.firstName || "";
-document.getElementById("travelerLastName").value = traveler.lastName || "";
-document.getElementById("travelerEmail").value = traveler.email || "";
-document.getElementById("travelerPhone").value = traveler.phone || "";
+    document.getElementById("tripCount").textContent =
+      profile.totalDeliveries || 0;
 
-// DOB
-if (traveler.dob) {
-  document.getElementById("travelerDob").value = traveler.dob.split("T")[0];
-}
+    document.getElementById("joinedDateTraveler").textContent =
+      new Date(profile.createdAt).getFullYear();
 
-// Address fields (editable)
-document.getElementById("travelerAddress").value = traveler.address || "";
-document.getElementById("travelerCity").value = traveler.city || "";
-document.getElementById("travelerState").value = traveler.state || "";
-document.getElementById("travelerZipcode").value = traveler.zipcode || "";
-document.getElementById("travelerCountry").value = traveler.country || "";
+    Flexago.fillVerifiedBadges(profile, {
+      phone: "verifiedPhoneTraveler",
+      email: "verifiedEmailTraveler",
+      identity: "verifiedIdentityTraveler"
+    });
 
-// Photo
-if (traveler.photoUrl) {
-  document.getElementById("travelerProfilePhotoPreview").src = traveler.photoUrl;
-}
+    // Verified identity (locked)
+    document.getElementById("travelerFirstName").value = profile.firstName || "";
+    document.getElementById("travelerLastName").value = profile.lastName || "";
+    document.getElementById("travelerEmail").value = profile.email || "";
+    document.getElementById("travelerPhone").value = profile.phone || "";
+
+    if (profile.dob) {
+      document.getElementById("travelerDob").value = String(profile.dob).split("T")[0];
+    }
+
+    // Address (editable)
+    document.getElementById("travelerAddress").value = profile.address || "";
+    document.getElementById("travelerCity").value = profile.city || "";
+    document.getElementById("travelerState").value = profile.state || "";
+    document.getElementById("travelerZipcode").value = profile.zipcode || "";
+    document.getElementById("travelerCountry").value = profile.country || "";
+
+    if (profile.photoUrl) {
+      document.getElementById("travelerProfilePhotoPreview").src = profile.photoUrl;
+    }
+
+    Flexago.mountDeleteAccount(
+      document.getElementById("travelerNameHeader").closest(".panel, .account-page")
+    );
 
 /* ============================================================
        ⭐ LOAD JOBS ONLY AFTER travelerId EXISTS
@@ -4810,14 +4821,28 @@ function initTravelerPhotoUpload() {
 
   btn.addEventListener("click", () => input.click());
 
-  input.addEventListener("change", () => {
+  input.addEventListener("change", async () => {
     const file = input.files[0];
     if (!file) return;
 
-    preview.src = URL.createObjectURL(file);
-    console.log("Traveler photo selected:", file.name);
+    try {
+      const photo = await Flexago.compressImage(file, 512);
+      const res = await fetch(`${BASE_URL}/api/users/me/photo`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ photo })
+      });
+      const json = await res.json();
 
-    // TODO: Upload to backend
+      if (!json.success) {
+        alert(json.error || "Unable to save that photo");
+        return;
+      }
+
+      preview.src = json.data.photoUrl;
+    } catch (err) {
+      alert(err.message);
+    }
   });
 }
 
@@ -4835,9 +4860,24 @@ async function saveTravelerAccount() {
     country: document.getElementById("travelerCountry").value.trim(),
   };
 
-  console.log("Payload:", payload);
+  try {
+    const res = await fetch(`${BASE_URL}/api/users/me`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    const json = await res.json();
 
-  alert("Traveler account updated (placeholder).");
+    if (!json.success) {
+      alert(json.error || "Unable to save changes");
+      return;
+    }
+
+    alert("Account updated successfully!");
+  } catch (err) {
+    console.error("Error saving account:", err);
+    alert("An error occurred while saving changes.");
+  }
 }
 
 /* ============================================================

@@ -1,22 +1,22 @@
 ﻿
 
 /* ============================================================
-   AUTH GUARD â€” SENDER ONLY
+   AUTH GUARD — SENDER ONLY
    ============================================================ */
 
 const user = JSON.parse(localStorage.getItem("user"));
 
 // 1. Must be logged in
 if (!user) {
-  window.location.href = "login.html";
+  Flexago.go("login");
 }
 
 // 2. Must be a sender
 if (user.role !== "sender") {
-  window.location.href = "login.html";
+  Flexago.go("login");
 }
 
-// â­ CORRECT â€” load senderId from the actual user object
+// â­ CORRECT — load senderId from the actual user object
 window.senderId = user._id;
 window.senderEmail = user.email;
 
@@ -25,11 +25,11 @@ console.log("SenderId loaded:", window.senderId);
 // 3. Must have senderId
 if (!window.senderId) {
   alert("Error: Sender ID missing. Please log in again.");
-  window.location.href = "login.html";
+  Flexago.go("login");
 }
 
 /* ============================================================
-   FLEXAGO SENDER â€” GLOBAL STATE
+   FLEXAGO SENDER — GLOBAL STATE
    ============================================================ */
 
 let senderDirectionsService = null;
@@ -52,7 +52,8 @@ const DELIVERY_CHAT_WS_URL =
 
 const socket = io(WS_URL, {
   path: "/socket.io",
-  transports: ["websocket"]
+  transports: ["websocket"],
+  auth: { token: Flexago.token() }
 });
 
 /* ============================================================
@@ -616,6 +617,7 @@ function initSenderSidebar() {
 
         case "verification":
           showSenderView("verificationView");
+          Flexago.renderVerification(document.getElementById("verificationChecklist"));
           break;
 
         case "support":
@@ -676,10 +678,10 @@ async function loadSenderIdentity() {
   try {
     if (!window.userId) return;
 
-    const res = await fetch(`${BASE_URL}/api/sender/user/${window.userId}`);
+    const res = await fetch(`${BASE_URL}/api/users/me`);
     if (!res.ok) return;
 
-    const sender = await res.json();
+    const { data: sender } = await res.json();
     window.senderId = sender._id;
   } catch (err) {
     console.error("Error loading sender identity:", err);
@@ -1271,26 +1273,44 @@ function initSenderPhotoUpload() {
 
   if (!photoInput || !photoUploadBtn || !photoPreview) return;
 
+  const MAX_PHOTOS = 5;
+
+  window.uploadedPhotos = [];
+
+  const renderPhotos = () => {
+    Flexago.renderPhotoStrip(
+      photoPreview,
+      window.uploadedPhotos,
+      (index) => {
+        window.uploadedPhotos.splice(index, 1);
+        renderPhotos();
+      }
+    );
+  };
+
+  window.renderDeliveryPhotos = renderPhotos;
+
   photoUploadBtn.addEventListener("click", () => photoInput.click());
 
-  photoInput.addEventListener("change", () => {
-    const file = photoInput.files[0];
-    if (file) {
-      const reader = new FileReader();   // â­ REQUIRED
+  photoInput.addEventListener("change", async () => {
+    const files = [...photoInput.files];
+    const room = MAX_PHOTOS - window.uploadedPhotos.length;
 
-      reader.onload = e => {
-        const base64 = e.target.result;
+    photoInput.value = "";
 
-        // â­ Store globally so generateDelivery can access it
-        window.uploadedPhotoBase64 = base64;
-
-        // â­ Update preview
-        photoPreview.src = base64;
-        photoPreview.style.display = "block";
-      };
-
-      reader.readAsDataURL(file);
+    if (files.length > room) {
+      alert(`You can add up to ${MAX_PHOTOS} photos.`);
     }
+
+    for (const file of files.slice(0, Math.max(room, 0))) {
+      try {
+        window.uploadedPhotos.push(await Flexago.compressImage(file));
+      } catch (err) {
+        alert(err.message);
+      }
+    }
+
+    renderPhotos();
   });
 }
 
@@ -1310,15 +1330,28 @@ function initSenderAccountView() {
     fileInput.click();
   });
 
-  fileInput.addEventListener("change", () => {
+  fileInput.addEventListener("change", async () => {
     const file = fileInput.files[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      preview.src = e.target.result;
-    };
-    reader.readAsDataURL(file);
+    try {
+      const photo = await Flexago.compressImage(file, 512);
+      const res = await fetch(`${BASE_URL}/api/users/me/photo`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ photo })
+      });
+      const json = await res.json();
+
+      if (!json.success) {
+        alert(json.error || "Unable to save that photo");
+        return;
+      }
+
+      preview.src = json.data.photoUrl;
+    } catch (err) {
+      alert(err.message);
+    }
   });
 }
 
@@ -1484,8 +1517,8 @@ function initSenderGenerateDelivery() {
       return;
     }
 
-    const photoUrl =
-      window.uploadedPhotoBase64 || "";
+    const photos =
+      window.uploadedPhotos || [];
 
     const deliveryData = {
       senderId: window.senderId,
@@ -1535,7 +1568,7 @@ function initSenderGenerateDelivery() {
             document.getElementById("valueInput")?.value
           ) || 0,
 
-        photoUrl,
+        photos,
         insurance,
         deliveryType
       },
@@ -1665,7 +1698,7 @@ if (paymentSection) {
   });
 }
 /* ============================================================
-   LOAD SENDER DELIVERIES (FINAL â€” matches your backend)
+   LOAD SENDER DELIVERIES (FINAL — matches your backend)
 ============================================================ */
 async function loadSenderDeliveries() {
   try {
@@ -1685,7 +1718,7 @@ async function loadSenderDeliveries() {
     // â­ Your backend stores traveler under "traveler", NOT "travelerId"
     for (let d of mine) {
       if (d.traveler) {
-        // traveler is already a string ID â€” but backend does NOT expose traveler API
+        // traveler is already a string ID — but backend does NOT expose traveler API
         // so we cannot fetch traveler profile here
         // Instead, we attach the raw traveler ID
         d.travelerDetails = { id: d.traveler };
@@ -2032,14 +2065,17 @@ function renderMyDeliveries(list) {
        PHOTO PREVIEW
     ======================================================== */
 
-    if (delivery.package?.photoUrl) {
+    const packagePhotoUrls =
+      Flexago.packagePhotos(delivery);
+
+    if (packagePhotoUrls.length) {
       html += `
-        <div class="delivery-row">
-          <img
-            src="${delivery.package.photoUrl}"
-            alt="Package Photo"
-            class="delivery-photo-preview"
-          >
+        <div class="delivery-row photo-strip">
+          ${packagePhotoUrls.map((url, index) => `
+            <div class="photo-strip-item">
+              <img src="${url}" alt="Package photo ${index + 1}" class="delivery-photo-preview">
+            </div>
+          `).join("")}
         </div>
       `;
     }
@@ -3831,7 +3867,8 @@ function connectSenderChatSocket() {
   try {
     senderChatWs =
       new WebSocket(
-        DELIVERY_CHAT_WS_URL
+        DELIVERY_CHAT_WS_URL,
+        window.flexagoSocketProtocols()
       );
 
     senderChatWs.addEventListener(
@@ -5108,6 +5145,11 @@ async function openDeliveryStatus(delivery) {
      DELIVERY PHOTO
   ========================================================== */
 
+  Flexago.showExtraPhotos(
+    document.getElementById("trackingDeliveryPhoto"),
+    delivery.proofPhotos || []
+  );
+
   if (delivery.proofPhoto) {
     const photoContainer =
       document.createElement("div");
@@ -5279,7 +5321,7 @@ async function openDeliveryStatus(delivery) {
   );
 }
 /* ============================================================
-   LOGOUT â€” CLEAR AUTH + REDIRECT (OLD SYSTEM)
+   LOGOUT — CLEAR AUTH + REDIRECT (OLD SYSTEM)
    ============================================================ */
 function logout() {
   localStorage.removeItem("user");
@@ -5288,10 +5330,10 @@ function logout() {
   localStorage.removeItem("travelerId");
   localStorage.removeItem("senderEmail");
 
-  window.location.href = "login.html";
+  Flexago.go("login");
 }
 /* ============================================================
-   LOAD ACCOUNT & IDENTITY â€” FULL PROFILE POPULATION
+   LOAD ACCOUNT & IDENTITY — FULL PROFILE POPULATION
 ============================================================ */
 async function loadAccountAndIdentity() {
   try {
@@ -5301,13 +5343,13 @@ async function loadAccountAndIdentity() {
       return;
     }
 
-    const res = await fetch(`${BASE_URL}/api/users/${userId}`);
+    const res = await fetch(`${BASE_URL}/api/users/me`);
     if (!res.ok) {
       console.error("Failed to fetch user profile");
       return;
     }
 
-    const user = await res.json();
+    const { data: user } = await res.json();
 
     // ============================
     // HEADER SECTION
@@ -5321,17 +5363,18 @@ async function loadAccountAndIdentity() {
     document.getElementById("deliveryCount").innerText =
       user.totalDeliveries || 0;
 
+    if (user.photoUrl) {
+      document.getElementById("senderProfilePhotoPreview").src = user.photoUrl;
+    }
+
     // ============================
     // VERIFIED BADGES
     // ============================
-    document.getElementById("verifiedPhone").innerText =
-      user.phone ? "âœ“ Verified" : "Not Verified";
-
-    document.getElementById("verifiedEmail").innerText =
-      user.email ? "âœ“ Verified" : "Not Verified";
-
-    document.getElementById("verifiedIdentity").innerText =
-      user.kycVerified ? "âœ“ Verified" : "Pending";
+    Flexago.fillVerifiedBadges(user, {
+      phone: "verifiedPhone",
+      email: "verifiedEmail",
+      identity: "verifiedIdentity"
+    });
 
     // ============================
     // PERSONAL INFORMATION FIELDS
@@ -5348,13 +5391,18 @@ async function loadAccountAndIdentity() {
     document.getElementById("zipcode").value = user.zipcode || "";
     document.getElementById("country").value = user.country || "";
 
+    Flexago.mountDeleteAccount(
+      document.querySelector("#accountView .panel-body") ||
+      document.getElementById("senderNameHeader").closest(".panel")
+    );
+
   } catch (err) {
     console.error("Error loading account & identity:", err);
   }
 }
 
 /* ============================================================
-   SAVE ACCOUNT CHANGES â€” ADDRESS ONLY (IDENTITY LOCKED)
+   SAVE ACCOUNT CHANGES — ADDRESS ONLY (IDENTITY LOCKED)
 ============================================================ */
 async function saveSenderAccount() {
   try {
@@ -5373,7 +5421,7 @@ async function saveSenderAccount() {
       country: document.getElementById("country").value.trim(),
     };
 
-    const res = await fetch(`${BASE_URL}/api/users/${userId}`, {
+    const res = await fetch(`${BASE_URL}/api/users/me`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
@@ -5393,11 +5441,11 @@ async function saveSenderAccount() {
   }
 }
 /* ============================================================
-   PAYOUT VIEW INITIALIZER â€” SENDER VERSION
+   PAYOUT VIEW INITIALIZER — SENDER VERSION
 ============================================================ */
 function initSenderPayoutView() {
 
-  console.log("âœ… initSenderPayoutView initialized");
+  console.log("✅ initSenderPayoutView initialized");
 
   const cardTab = document.getElementById("senderPayoutCardTab");
   const bankTab = document.getElementById("senderPayoutBankTab");
@@ -5425,7 +5473,7 @@ function initSenderPayoutView() {
 
   const saveBtn = document.getElementById("saveSenderPayoutBtn");
 
-  console.log("âœ… Save Button Found:", saveBtn);
+  console.log("✅ Save Button Found:", saveBtn);
 
   if (!saveBtn) {
     console.error("âŒ saveSenderPayoutBtn not found");
@@ -5434,7 +5482,7 @@ function initSenderPayoutView() {
 
   saveBtn.addEventListener("click", async () => {
     try {
-      console.log("âœ… Save button clicked");
+      console.log("✅ Save button clicked");
 
       const activeTab = document.querySelector(
         "#paymentsView .toggle-btn.active"
@@ -5522,8 +5570,8 @@ function initSenderPayoutView() {
         throw new Error("Unsupported payout method.");
       }
 
-      console.log("âœ… Saving payout method:", payload);
-      console.log("âœ… Sender ID:", window.senderId);
+      console.log("✅ Saving payout method:", payload);
+      console.log("✅ Sender ID:", window.senderId);
 
       saveBtn.disabled = true;
       saveBtn.textContent = "Saving...";
@@ -5539,12 +5587,12 @@ function initSenderPayoutView() {
         }
       );
 
-      console.log("âœ… Response Status:", response.status);
-      console.log("âœ… Response OK:", response.ok);
+      console.log("✅ Response Status:", response.status);
+      console.log("✅ Response OK:", response.ok);
 
       const responseText = await response.text();
 
-      console.log("âœ… Raw Response:", responseText);
+      console.log("✅ Raw Response:", responseText);
 
       let result = {};
 
@@ -5592,7 +5640,7 @@ function initSenderPayoutView() {
         }
       }
 
-      console.log("âœ… Payout method saved:", result);
+      console.log("✅ Payout method saved:", result);
 
       alert("Payout method saved successfully.");
     } catch (err) {
@@ -5606,7 +5654,7 @@ function initSenderPayoutView() {
   });
 }
 /* ============================================================
-   FINAL DOM READY BOOTSTRAP â€” ACCOUNT DEFAULT
+   FINAL DOM READY BOOTSTRAP — ACCOUNT DEFAULT
 ============================================================ */
 document.addEventListener("DOMContentLoaded", () => {
   safe(initSenderIcons);

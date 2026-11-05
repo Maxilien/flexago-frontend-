@@ -76,14 +76,12 @@ async function login(email, password) {
 
     // Redirect based on role
     if (user.role === "sender") {
-      window.location.href =
-        "Sender.html";
+      Flexago.go("Sender");
 
     } else if (
       user.role === "traveler"
     ) {
-      window.location.href =
-        "Traveler.html";
+      Flexago.go("traveler");
 
     } else {
       alert("Unknown user role");

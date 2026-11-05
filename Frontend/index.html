@@ -1,10 +1,40 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Flexagoo</title>
+  <meta charset="UTF-8" />
+  <title>Flexago</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <link rel="stylesheet" href="css/onboarding.css" />
+  <link rel="icon" type="image/png" href="IMG/flexago-icon.png" />
 </head>
 <body>
-  <h1>Welcome to Flexagoo</h1>
-  <a href="/traveler.html">Go to Traveler</a>
+<header class="top-nav">
+  <div class="top-nav-left">
+    <img src="IMG/flexago-logo.png" alt="Flexago" class="flexago-logo-img" />
+    <div class="top-nav-title-main">FlexaGo</div>
+  </div>
+  <select class="lang-select" id="languageSelector" aria-label="Language">
+    <option value="en">EN</option><option value="es">ES</option><option value="fr">FR</option>
+    <option value="ht">HT</option><option value="zh">ZH</option><option value="pt">PT</option>
+  </select>
+</header>
+<main>
+  <div class="card">
+    <h1 data-i18n="auth.welcome_title">Send with travelers already going your way</h1>
+    <p class="lead" data-i18n="auth.tagline">Logistics marketplace for travelers &amp; senders</p>
+    <a href="login"><button class="btn" type="button" data-i18n="auth.login">Login</button></a>
+    <a href="signup"><button class="btn btn-secondary" type="button" data-i18n="auth.create_button">Create account</button></a>
+  </div>
+</main>
+<script src="js/app-core.js"></script>
+<script src="i18n.js"></script>
+<script src="i18n-extra.js"></script>
+<script>
+  // Logged-in people go straight to their workspace.
+  const savedUser = JSON.parse(localStorage.getItem("user") || "null");
+  if (savedUser && Flexago.token()) {
+    Flexago.go(savedUser.role === "traveler" ? "traveler" : "Sender");
+  }
+</script>
 </body>
 </html>

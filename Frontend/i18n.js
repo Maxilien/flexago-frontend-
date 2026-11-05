@@ -3,8 +3,8 @@
    Works for Sender, Traveler, Explorer
    ============================================================ */
 
-/* Supported languages (for now: English only) */
-const LANGUAGES = ["en"];
+/* Supported languages */
+const LANGUAGES = ["en", "es", "fr", "ht", "zh", "pt"];
 
 /* Active language (default English) */
 let activeLang = "en";
@@ -25,12 +25,11 @@ function resolveKey(obj, path) {
 function t(key) {
   if (!key) return "";
 
-  const langPack = translations[activeLang];
-  const value = resolveKey(langPack, key);
-  if (value !== undefined) return value;
+  const value =
+    resolveKey(translations[activeLang], key) ??
+    resolveKey(translations.en, key);
 
-  console.warn(`Missing translation: ${activeLang}.${key}`);
-  return key;
+  return typeof value === "string" ? value : "";
 }
 
 /* ============================================================
@@ -57,7 +56,7 @@ function applyTranslations() {
 }
 
 /* ============================================================
-   TRANSLATION DICTIONARY — ENGLISH ONLY (SENDER + TRAVELER)
+   TRANSLATION DICTIONARY (SENDER + TRAVELER)
    ============================================================ */
 const translations = {
   en: {

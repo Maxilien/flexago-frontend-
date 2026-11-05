@@ -1,0 +1,81 @@
+/* Phone layout and shared additions. Loaded last on both workspaces. */
+.env-pill { display: none; }
+
+/* New wide logo: fixed height keeps it inside the header. */
+.flexago-logo { display: flex; align-items: center; height: auto; width: auto; padding: 0; background: transparent; }
+.flexago-logo-img { display: block; height: 40px !important; width: auto !important; max-width: none; object-fit: contain; }
+
+.photo-strip { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.photo-strip-item { position: relative; width: 84px; height: 84px; }
+.photo-strip-item img { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; display: block; max-width: none; }
+.photo-strip-remove { position: absolute; top: -8px; right: -8px; width: 28px; height: 28px; padding: 0; border: 0; border-radius: 50%; background: #dc2626; color: #fff; font-size: 18px; line-height: 1; cursor: pointer; }
+
+.is-verified { color: #4ade80; }
+.job-route-note { margin: 6px 0 0; font-size: .85rem; color: #93c5fd; }
+.verification-list { list-style: none; margin: 0; padding: 0; }
+.verification-list li { display: flex; justify-content: space-between; gap: 12px; padding: 14px 0; border-bottom: 1px solid rgba(255,255,255,.1); }
+
+.danger-zone { margin-top: 32px; padding: 16px; border: 1px solid rgba(239,68,68,.5); border-radius: 12px; }
+.danger-zone h3 { margin: 0 0 6px; color: #fca5a5; font-size: 1rem; }
+.danger-zone p { margin: 0 0 10px; font-size: .85rem; line-height: 1.45; }
+.danger-zone-error { color: #fca5a5; min-height: 1em; }
+.danger-zone-btn { min-height: 44px; padding: 0 16px; border: 0; border-radius: 10px; background: #dc2626; color: #fff; font-weight: 600; cursor: pointer; }
+.danger-zone-btn:disabled { opacity: .5; }
+
+.sidebar-backdrop { display: none; }
+
+/* The sidebar is always visible on desktop, so no menu button there. */
+@media (min-width: 769px) {
+  .hamburger-btn { display: none !important; }
+}
+
+@media (max-width: 768px) {
+  html, body { max-width: 100%; overflow-x: hidden; }
+
+  /* iOS zooms into any field under 16px */
+  input, select, textarea { font-size: 16px !important; }
+
+  .top-nav { display: flex; flex-flow: row wrap; align-items: center; gap: 8px; height: auto; padding: calc(8px + env(safe-area-inset-top)) 12px 8px; }
+  .top-nav-left { display: flex; align-items: center; justify-content: flex-start; gap: 8px; flex: 1 1 0; width: auto !important; min-width: 0; }
+  .top-nav-right { display: flex; align-items: center; justify-content: flex-end; gap: 8px; flex: 0 0 auto; width: auto !important; margin-left: 0; }
+  .profile-photo-large { display: block; margin: 0 auto 10px; }
+  .top-nav-center { order: 3; flex: 1 0 100%; width: 100%; }
+  .top-nav-search { width: 100%; max-width: none; }
+  .top-nav-title-sub, .version-pill { display: none; }
+  .top-nav-title-main { font-size: .95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .flexago-logo-img { height: 34px !important; }
+  .top-nav .hamburger-btn { flex: none; width: 44px; height: 44px; min-height: 44px; padding: 0; display: inline-flex; align-items: center; justify-content: center; background: transparent; border: 0; box-shadow: none; color: #fff; }
+  .top-nav .hamburger-btn svg { color: #fff; stroke: #fff; }
+  .top-nav .logout-btn { width: auto; min-height: 40px; padding: 0 12px; font-size: .85rem; }
+  .top-nav .lang-select { width: auto; min-height: 40px; }
+
+  .main-layout { display: block; }
+  .content-area { width: 100%; margin-left: 0; padding: 12px; padding-bottom: calc(16px + env(safe-area-inset-bottom)); }
+  .panel { border-radius: 12px; }
+  .panel-body { padding: 14px; }
+
+  /* Slide-out menu */
+  .sidebar { display: block; position: fixed; top: 0; bottom: 0; left: 0; z-index: 1001; width: min(280px, 85vw); height: 100dvh; padding-top: calc(16px + env(safe-area-inset-top)); overflow-y: auto; transform: translateX(-100%); transition: transform 200ms ease; }
+  body.sidebar-open .sidebar { transform: none; }
+  body.sidebar-open .sidebar-backdrop { display: block; position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,.55); }
+  .sidebar-item { display: flex; align-items: center; justify-content: flex-start; gap: 12px; width: 100%; min-height: 48px; font-size: 1rem; }
+  .sidebar-item span, .sidebar-header, .sidebar-footer { display: revert; }
+  .sidebar-item .sidebar-item-icon { display: inline-flex; }
+
+  .form-grid { grid-template-columns: 1fr !important; }
+  .primary-btn { min-height: 44px; }
+
+  .chat-toggle-btn, .chat-bubble-btn, .chat-floating-btn { width: 56px !important; height: 56px; min-height: 56px; padding: 0; right: 16px; left: auto; border-radius: 50%; }
+  .chat-floating-btn { position: fixed; bottom: calc(16px + env(safe-area-inset-bottom)); z-index: 900; display: inline-flex; align-items: center; justify-content: center; }
+
+  .top-nav-title { display: none; }
+
+  canvas.signature-pad { max-width: 100%; }
+  table { display: block; overflow-x: auto; }
+  img { max-width: 100%; }
+  .photo-strip-item img { max-width: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sidebar { transition: none; }
+}

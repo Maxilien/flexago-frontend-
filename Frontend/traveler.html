@@ -2,15 +2,17 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <script src="js/app-core.js"></script>
   <title>Flexago Traveler</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <!-- Flexago + Traveler CSS -->
   <link rel="stylesheet" href="css/sender.css" />
   <link rel="stylesheet" href="css/traveler.css" />
+  <link rel="stylesheet" href="css/mobile.css" />
 
   <!-- Lucide Icons -->
-  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.js"></script>
 
   <style>
     :root {
@@ -26,6 +28,7 @@
       background-color: #fff !important;
     }
   </style>
+  <link rel="icon" type="image/png" href="IMG/flexago-icon.png" />
 </head>
 
 <body>
@@ -39,7 +42,7 @@
         </button>
     <!-- ⭐ REPLACE OLD LOGO WITH THIS -->
         <div class="flexago-logo">
-  <img src="IMG/flexago-logo.JPG" alt="Flexago Logo" class="flexago-logo-img">
+  <img src="IMG/flexago-logo.png" alt="Flexago Logo" class="flexago-logo-img">
 </div>
 
 
@@ -65,7 +68,6 @@
       </div>
 
 <div class="top-nav-right">
-  <div class="env-pill" data-i18n="traveler.nav.env">SANDBOX</div>
   <div class="version-pill" data-i18n="traveler.nav.version">v1.0.0</div>
 
   <!-- LOGOUT BUTTON -->
@@ -546,7 +548,7 @@
     </button>
   </div>
 
-  <input type="file" class="delivery-photo-input" accept="image/*" style="display:none;" />
+  <input type="file" class="delivery-photo-input" accept="image/*" multiple style="display:none;" />
   <img class="delivery-photo-preview" style="margin-top:0.4rem;max-width:120px;border-radius:6px;display:none;" />
 
   <!-- Signature -->
@@ -622,7 +624,7 @@
 
       <img id="travelerProfilePhotoPreview"
            class="profile-photo-large"
-           src="img/default-profile.png"
+           src="IMG/default-profile.svg"
            alt="Profile Photo" />
 
       <button id="travelerProfilePhotoUploadBtn"
@@ -730,60 +732,12 @@
   <header class="panel-header">
     <div>
       <div class="panel-title">Identity Verification</div>
-      <div class="panel-subtitle">Complete all 4 steps to verify your identity.</div>
-    </div>
-
-    <div id="verificationStatusBadge" class="status-badge pending">
-      Pending
+      <div class="panel-subtitle">Your verification status.</div>
     </div>
   </header>
 
   <div class="panel-body">
-
-    <div class="verification-progress">
-      <div id="verificationProgressFill"></div>
-    </div>
-
-    <div class="verification-step">
-      <div class="step-title">1. Upload ID (Front)</div>
-      <div class="upload-box" id="uploadBox1">
-        <span>Click to upload</span>
-        <input type="file" id="fileInput1" class="hidden" accept="image/*" />
-      </div>
-      <img id="preview1" class="upload-preview hidden" />
-    </div>
-
-    <div class="verification-step">
-      <div class="step-title">2. Upload ID (Back)</div>
-      <div class="upload-box" id="uploadBox2">
-        <span>Click to upload</span>
-        <input type="file" id="fileInput2" class="hidden" accept="image/*" />
-      </div>
-      <img id="preview2" class="upload-preview hidden" />
-    </div>
-
-    <div class="verification-step">
-      <div class="step-title">3. Upload Selfie</div>
-      <div class="upload-box" id="uploadBox3">
-        <span>Click to upload</span>
-        <input type="file" id="fileInput3" class="hidden" accept="image/*" />
-      </div>
-      <img id="preview3" class="upload-preview hidden" />
-    </div>
-
-    <div class="verification-step">
-      <div class="step-title">4. Upload Address Proof</div>
-      <div class="upload-box" id="uploadBox4">
-        <span>Click to upload</span>
-        <input type="file" id="fileInput4" class="hidden" accept="image/*" />
-      </div>
-      <img id="preview4" class="upload-preview hidden" />
-    </div>
-
-    <button class="primary-btn" id="submitVerificationBtn">
-      Submit Verification
-    </button>
-
+    <div id="verificationChecklist"></div>
   </div>
 </div>
 <!-- ================= VERIFICATION SUCCESS SCREEN ================= -->
@@ -1255,8 +1209,8 @@
       <input type="text" class="signed-by-input input-shell" placeholder="Recipient name" />
 
       <!-- Delivery Photo -->
-      <label class="form-label" style="margin-top:1rem;">Delivery Photo</label>
-      <input type="file" class="delivery-photo-input" accept="image/*" />
+      <label class="form-label" style="margin-top:1rem;">Delivery Photos (up to 5)</label>
+      <input type="file" class="delivery-photo-input" accept="image/*" multiple />
       <img class="delivery-photo-preview" style="display:none; max-width:140px; margin-top:0.5rem; border-radius:8px;" />
 
       <!-- Signature -->
@@ -1356,6 +1310,8 @@
 <script src="logout.js"></script>
 
 <!-- ⭐ Traveler.js (case‑sensitive on Render) -->
+<script src="i18n.js"></script>
+<script src="i18n-extra.js"></script>
 <script src="traveler.js"></script>
 
 <!-- ⭐⭐⭐ AUTO‑FILL VERIFIED TRAVELER INFO ⭐⭐⭐ -->

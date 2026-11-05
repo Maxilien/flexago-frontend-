@@ -2,16 +2,19 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <script src="js/app-core.js"></script>
   <title data-i18n="sender.nav.title">Flexago Delivery</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <!-- Flexago + Sender CSS -->
   <link rel="stylesheet" href="css/traveler.css" />
   <link rel="stylesheet" href="css/sender.css" />
+  <link rel="stylesheet" href="css/mobile.css" />
 
 <!-- Lucide Icons -->
-<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.js"></script>
 
+  <link rel="icon" type="image/png" href="IMG/flexago-icon.png" />
 </head>
 
 <body>
@@ -28,7 +31,7 @@
         </button>
 
         <div class="flexago-logo">
-  <img src="IMG/flexago-logo.JPG" alt="Flexago Logo" class="flexago-logo-img">
+  <img src="IMG/flexago-logo.png" alt="Flexago Logo" class="flexago-logo-img">
 </div>
 
 
@@ -54,7 +57,6 @@
       </div>
 
       <div class="top-nav-right">
-        <div class="env-pill" data-i18n="sender.nav.env">SANDBOX</div>
         <div class="version-pill" data-i18n="sender.nav.version">v1.0.0</div>
 
      <!-- LOGOUT BUTTON (same as Traveler) -->
@@ -145,7 +147,7 @@
 
       <img id="senderProfilePhotoPreview"
            class="profile-photo-large"
-           src="img/default-profile.png"
+           src="IMG/default-profile.svg"
            alt="Profile Photo" />
 
       <button id="senderProfilePhotoUploadBtn"
@@ -267,62 +269,7 @@
     </header>
 
     <div class="panel-body">
-
-      <div class="verification-status-badge" id="senderVerificationStatusBadge">
-        <span data-i18n="sender.verification.status_unverified">Unverified</span>
-      </div>
-
-      <section class="section-block">
-        <h2 class="section-title" data-i18n="sender.verification.id_front_title">
-          Upload ID (Front)
-        </h2>
-
-        <div class="upload-box" id="senderIdFrontBox">
-          <i data-lucide="upload"></i>
-          <span data-i18n="sender.verification.id_front_label">Upload front side of your ID</span>
-          <input type="file" id="senderIdFrontInput" accept="image/*" style="display:none;" />
-        </div>
-
-        <img id="senderIdFrontPreview" class="upload-preview hidden" />
-      </section>
-
-      <section class="section-block">
-        <h2 class="section-title" data-i18n="sender.verification.id_back_title">
-          Upload ID (Back)
-        </h2>
-
-        <div class="upload-box" id="senderIdBackBox">
-          <i data-lucide="upload"></i>
-          <span data-i18n="sender.verification.id_back_label">Upload back side of your ID</span>
-          <input type="file" id="senderIdBackInput" accept="image/*" style="display:none;" />
-        </div>
-
-        <img id="senderIdBackPreview" class="upload-preview hidden" />
-      </section>
-
-      <section class="section-block">
-        <h2 class="section-title" data-i18n="sender.verification.selfie_title">
-          Selfie for Verification
-        </h2>
-
-        <div class="upload-box" id="senderSelfieBox">
-          <i data-lucide="camera"></i>
-          <span data-i18n="sender.verification.selfie_label">Upload a selfie</span>
-          <input type="file" id="senderSelfieInput" accept="image/*" style="display:none;" />
-        </div>
-
-        <img id="senderSelfiePreview" class="upload-preview hidden" />
-      </section>
-
-      <section class="section-block">
-        <button id="submitSenderVerificationBtn"
-                class="primary-btn disabled"
-                disabled
-                data-i18n="sender.verification.submit">
-          Submit for Verification
-        </button>
-      </section>
-
+      <div id="verificationChecklist"></div>
     </div>
   </div>
 
@@ -1030,14 +977,14 @@
             <div class="input-shell" style="justify-content:space-between;">
               <div style="display:flex;align-items:center;gap:0.4rem;">
                 <i data-lucide="image" style="width:14px;height:14px;color:#9ca3af;"></i>
-                <span style="font-size:0.75rem;color:#9ca3af;">Add a reference photo</span>
+                <span style="font-size:0.75rem;color:#9ca3af;">Add up to 5 photos</span>
               </div>
               <button type="button" class="primary-btn" id="photoUploadBtn" style="padding:0.25rem 0.6rem;font-size:0.7rem;">
                 <i data-lucide="upload" style="width:14px;height:14px;"></i> Upload
               </button>
             </div>
-            <input type="file" id="photoInput" accept="image/*" style="display:none;" />
-            <img id="photoPreview" style="margin-top:0.4rem;max-width:120px;border-radius:6px;display:none;" />
+            <input type="file" id="photoInput" accept="image/*" multiple style="display:none;" />
+            <div id="photoPreview"></div>
           </div>
 
           <!-- ESTIMATE -->
@@ -1628,71 +1575,16 @@
 
 <!-- 3. i18n -->
 <script src="i18n.js"></script>
+<script src="i18n-extra.js"></script>
 
 <!-- 4. Socket.IO -->
 <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
 
 <!-- 5. Sender logic -->
-<script src="./sender.js?v=c04a77c"></script>
+<script src="./sender.js?v=app-prep-1"></script>
 
 <script>
   window.initSenderMap = window.initSenderMap || function(){};
-</script>
-
-<!-- ⭐⭐⭐ AUTO‑FILL VERIFIED USER INFO INTO ACCOUNT & IDENTITY ⭐⭐⭐ -->
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-  const user = JSON.parse(localStorage.getItem("flexagoUser"));
-
-  if (!user) {
-    console.warn("No user found in localStorage.");
-    return;
-  }
-
-  // Personal Information
-  if (document.getElementById("firstName")) {
-    document.getElementById("firstName").value = user.firstName || "";
-  }
-  if (document.getElementById("lastName")) {
-    document.getElementById("lastName").value = user.lastName || "";
-  }
-  if (document.getElementById("phoneNumber")) {
-    document.getElementById("phoneNumber").value = user.phone || "";
-  }
-  if (document.getElementById("emailAddress")) {
-    document.getElementById("emailAddress").value = user.email || "";
-  }
-
-  // Address fields (if present in Sender Identity)
-  if (document.getElementById("address")) {
-    document.getElementById("address").value = user.address || "";
-  }
-  if (document.getElementById("city")) {
-    document.getElementById("city").value = user.city || "";
-  }
-  if (document.getElementById("state")) {
-    document.getElementById("state").value = user.state || "";
-  }
-  if (document.getElementById("zipcode")) {
-    document.getElementById("zipcode").value = user.zipcode || "";
-  }
-  if (document.getElementById("country")) {
-    document.getElementById("country").value = user.country || "";
-  }
-
-  // Verification Badges
-  if (user.kycVerified) {
-    if (document.getElementById("phoneVerified")) {
-      document.getElementById("phoneVerified").innerText = "✓ Verified";
-    }
-    if (document.getElementById("emailVerified")) {
-      document.getElementById("emailVerified").innerText = "✓ Verified";
-    }
-    if (document.getElementById("identityVerified")) {
-      document.getElementById("identityVerified").innerText = "✓ Verified";
-    }
-  }
-});
 </script>
 
 <!-- 6. Google Maps -->

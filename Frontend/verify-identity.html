@@ -2,199 +2,42 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Verify Identity – Flexago</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-
-  <link rel="stylesheet" href="css/auth.css" />
-
-  <style>
-    body {
-      font-family: Inter, sans-serif;
-      background: #f9fafb;
-      margin: 0;
-      padding: 0;
-    }
-
-    .verify-container {
-      max-width: 480px;
-      margin: 60px auto;
-      background: white;
-      padding: 32px;
-      border-radius: 12px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-      text-align: center;
-    }
-
-    h1 {
-      margin-bottom: 10px;
-      font-size: 1.6rem;
-      font-weight: 600;
-    }
-
-    p {
-      color: #6b7280;
-      margin-bottom: 24px;
-      font-size: 0.95rem;
-    }
-
-    .primary-btn {
-      width: 100%;
-      padding: 12px;
-      background: #2563eb;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 1rem;
-      cursor: pointer;
-      margin-top: 12px;
-    }
-
-    .next-btn {
-      width: 100%;
-      padding: 12px;
-      background: #10b981;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 1rem;
-      cursor: pointer;
-      margin-top: 12px;
-      display: none;
-    }
-
-    .success {
-      color: #16a34a;
-      font-weight: 600;
-      margin-bottom: 20px;
-    }
-  </style>
+  <title>Verify identity – Flexago</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <link rel="stylesheet" href="css/onboarding.css" />
+  <link rel="icon" type="image/png" href="IMG/flexago-icon.png" />
 </head>
-
-<body>
-
-<!-- ========================================================= -->
-<!-- TOP NAVBAR — Unified FlexaGo Banner                       -->
-<!-- ========================================================= -->
+<body data-step="verify-identity">
 <header class="top-nav">
   <div class="top-nav-left">
-
-    <!-- ⭐ FLEXAGO LOGO -->
-    <div class="flexago-logo">
-      <img src="IMG/flexago-logo.JPG" alt="Flexago Logo" class="flexago-logo-img">
+    <img src="IMG/flexago-logo.png" alt="Flexago" class="flexago-logo-img" />
+    <div>
+      <div class="top-nav-title-main">FlexaGo</div>
+      <div class="top-nav-title-sub" data-i18n="auth.tagline">Logistics marketplace for travelers &amp; senders</div>
     </div>
-
-    <!-- Title (Verify Identity-specific) -->
-    <div class="top-nav-title">
-      <div class="top-nav-title-main">
-        Verify Your Identity
-      </div>
-      <div class="top-nav-title-sub">
-        Logistics marketplace for travelers & senders
-      </div>
-    </div>
-
   </div>
-
-  <div class="top-nav-right">
-
-    <!-- Navigation -->
-    <nav class="top-nav-links">
-      <a href="Sender.html" class="top-nav-link">Sender</a>
-      <a href="Traveler.html" class="top-nav-link">Traveler</a>
-      <a href="about.html" class="top-nav-link">About</a>
-    </nav>
-
-    <!-- Language Selector -->
-    <select class="lang-select" id="languageSelector">
-      <option value="en">EN</option>
-      <option value="es">ES</option>
-      <option value="fr">FR</option>
-      <option value="ht">HT</option>
-      <option value="zh">ZH</option>
-      <option value="pt">PT</option>
+  <select class="lang-select" id="languageSelector" aria-label="Language">
+      <option value="en">EN</option><option value="es">ES</option><option value="fr">FR</option>
+      <option value="ht">HT</option><option value="zh">ZH</option><option value="pt">PT</option>
     </select>
-
-  </div>
 </header>
-
-
-<div class="verify-container">
-
-  <h1>Verify Your Identity</h1>
-  <p>Click below to begin secure identity verification.</p>
-
-  <div id="statusArea"></div>
-
-  <button id="startVerificationBtn" class="primary-btn">
-    Start Identity Verification
-  </button>
-
-  <button id="continueBtn" class="next-btn">
-    Continue
-  </button>
-
-</div>
-
-<script>
-  /* ============================================================
-     1. START IDENTITY VERIFICATION (NO USER ID NEEDED)
-     ============================================================ */
-  document.getElementById("startVerificationBtn").onclick = async () => {
-    const res = await fetch("https://flexago-backend.onrender.com/api/verify/create-session", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({}) // No userId needed
-    });
-
-    const data = await res.json();
-
-    if (!data.success || !data.url) {
-      alert("Unable to start identity verification.");
-      return;
-    }
-
-    // Redirect to Stripe hosted verification
-    window.location.href = data.url;
-  };
-
-  /* ============================================================
-     2. CHECK VERIFICATION STATUS WHEN STRIPE RETURNS
-     ============================================================ */
-  const urlParams = new URLSearchParams(window.location.search);
-  const sessionId = urlParams.get("session_id");
-
-  if (sessionId) {
-    checkVerificationStatus(sessionId);
-  }
-
-  async function checkVerificationStatus(sessionId) {
-    const res = await fetch(
-      `https://flexago-backend.onrender.com/api/verify/check-session?sessionId=${sessionId}`
-    );
-
-    const data = await res.json();
-    const statusArea = document.getElementById("statusArea");
-    const continueBtn = document.getElementById("continueBtn");
-
-    if (data.verified) {
-      statusArea.innerHTML = `
-        <p class="success">🎉 Identity Verified</p>
-      `;
-      continueBtn.style.display = "block";
-    } else {
-      statusArea.innerHTML = `
-        <p>Your identity has not been verified yet.</p>
-      `;
-    }
-  }
-
-  /* ============================================================
-     3. CONTINUE TO ACCOUNT CREATION
-     ============================================================ */
-  document.getElementById("continueBtn").onclick = () => {
-    window.location.href = "/create-account.html";
-  };
-</script>
-
+<main>
+  <div class="card">
+    <div class="steps" aria-hidden="true"><span class="done"></span><span class="done"></span><span class="done"></span><span class="done"></span><span class=""></span></div>
+    <p class="step-label" data-i18n="auth.step4">Step 4 of 5</p>
+    <h1 data-i18n="auth.identity_title">Verify your identity</h1>
+    <p class="lead" data-i18n="auth.identity_lead">Have your government ID ready. You'll take a photo of it and a selfie. The name on your ID must match the name you entered.</p>
+    <button id="startBtn" class="btn" type="button" data-i18n="auth.identity_start">Start identity check</button>
+    <p id="message" class="message" role="status" aria-live="polite"></p>
+  </div>
+</main>
+<footer class="site-footer">
+  <a href="https://www.flexagoo.com/privacy.html" target="_blank" rel="noopener" data-i18n="auth.privacy">Privacy Policy</a>
+  <a href="https://www.flexagoo.com/terms.html" target="_blank" rel="noopener" data-i18n="auth.terms">Terms of Service</a>
+</footer>
+<script src="js/app-core.js"></script>
+<script src="i18n.js"></script>
+<script src="i18n-extra.js"></script>
+<script src="onboarding.js"></script>
 </body>
 </html>
