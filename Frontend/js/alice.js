@@ -68,7 +68,7 @@
         { label: "How does FlexaGo work?", k: "what is flexago explain about",
           answer: `1️⃣ A <strong>sender</strong> posts a delivery and pays<br>2️⃣ A <strong>traveler</strong> going that way accepts it<br>3️⃣ The traveler confirms pickup with a code<br>4️⃣ The traveler delivers it with photos and a signature, then gets paid ✅<br><br>${SIGNUP}` },
         { label: "How do I create an account?", k: "sign up signup register join start",
-          answer: `Signup takes 5 steps, and every step is checked:<br><br>1️⃣ Your legal name, and whether you'll send or carry<br>2️⃣ Email code<br>3️⃣ Text message code<br>4️⃣ ID photo and selfie<br>5️⃣ Date of birth and password<br><br>You must be 18 or older, and your name must match your ID.<br><br>${SIGNUP}` },
+          answer: `Signup takes 6 steps, and every step is checked:<br><br>1️⃣ Your legal name, and whether you'll send or carry<br>2️⃣ Email code<br>3️⃣ Text message code<br>4️⃣ ID photo and selfie<br>5️⃣ Date of birth and password<br>6️⃣ A background check, then you're in<br><br>You must be 18 or older, and your name must match your ID.<br><br>${SIGNUP}` },
         { label: "Why do you check my ID?", k: "identity verify verification selfie why stripe",
           answer: `So everyone knows who they're dealing with. 🔒 Your ID and selfie are checked by Stripe Identity, a trusted verification service. Your verified name, email and phone can't be changed afterward, which helps prevent fraud.` },
         { label: "Is there a mobile app?", k: "iphone ios android download phone app store",
@@ -105,7 +105,7 @@
         { label: "What's the pickup code?", k: "code handoff verify pickup",
           answer: `It's a code only you can see in your delivery details. Give it to your traveler in person at pickup. It proves the right person collected your package. 🔑 Don't share it before then.` },
         { label: "How many photos can I add?", k: "photo picture image upload",
-          answer: `Up to 5 photos per delivery. 📸 Clear photos help your traveler recognize the package.` },
+          answer: `Up to 5 photos per delivery. 📸 You can take them with your camera or choose them from your phone. Clear photos help your traveler recognize the package.` },
       ]
     },
 
@@ -150,9 +150,9 @@
     sender_safety: {
       message: `Safety comes first. What would you like to know?`,
       options: [
-        { label: "How are travelers checked?", k: "safe trust verified background check who",
-          answer: `Every traveler verifies their email, phone and government ID with a selfie. 🪪 They must also pass a background check before accepting their first job.` },
-        { label: "Is my package protected?", k: "insurance protection coverage covered lost damaged",
+        { label: "How are people checked?", k: "safe trust verified who travelers senders checked",
+          answer: `Every sender and traveler verifies their email, phone and government ID with a selfie. 🪪 Everyone must also pass a background check before they can use FlexaGo.` },
+        { label: "Is my package protected?", k: "insurance insured protection coverage covered claim",
           answer: `You can choose a protection option when you post. 🛡️ For coverage details or a claim, please contact our team: ${SUPPORT}` },
         { label: "Is my payment secure?", k: "secure payment safe card data",
           answer: `Yes. Payments are handled by Stripe. 🔒 Your card number is entered directly with Stripe, not stored by FlexaGo.` },
@@ -164,10 +164,12 @@
       options: [
         { label: "How do I report or block someone?", k: "report block abuse harassment scam",
           answer: `Open your delivery chat and tap <strong>Report</strong>. 🚩 Choose a reason, add details, and tick <strong>Also block this person</strong> if you'd like. Our team reviews every report.` },
-        { label: "I need a refund or to cancel", k: "refund cancel money back dispute charged wrong",
+        { label: "How do I cancel, and what do I get back?", k: "refund cancel cancellation money back fee charged delivery order package",
+          answer: `Open <strong>My Deliveries</strong> and tap <strong>Cancel delivery</strong>. You'll see your refund before you confirm. 💳<br><br>✅ Before a traveler accepts: 100%<br>✅ Within 5 minutes of them accepting: 100%<br>🕐 After that: 85%<br>📍 Once they've arrived, or if you don't show up: 50%<br>🚫 If the item is illegal or not as described: 50%, after our team reviews it<br>✅ If your traveler cancels or doesn't show up: 100%<br><br>Refunds usually reach your card in 5 to 10 business days.` },
+        { label: "Something went wrong with a charge", k: "dispute charged wrong twice billing refund failed",
           answer: `Please contact our team and include your delivery details, and they'll review it for you: ${SUPPORT}` },
         { label: "My package is late, lost or damaged", k: "late lost damaged missing broken wrong address no show",
-          answer: `First message your traveler in the delivery chat. If that doesn't solve it, open <strong>Support</strong> in your account, or email us with your delivery details: ${SUPPORT}` },
+          answer: `First message your traveler in the delivery chat. If that doesn't solve it, open <strong>Support</strong> in your account, or email us with your delivery details: ${SUPPORT}<br><br>If a package is lost, damaged or never delivered after pickup, our team reviews it and you get a full refund.` },
         { label: "How do I delete my account?", k: "delete close remove account",
           answer: `Go to <strong>Account & Identity</strong>, scroll to <strong>Delete account</strong> and confirm your password. You'll need to finish any active deliveries first.` },
       ]
@@ -189,11 +191,11 @@
       message: `Here's how to get going. What would you like to know?`,
       options: [
         { label: "What do I need to start?", k: "become traveler requirements start begin earn join",
-          answer: `1️⃣ Create an account and verify your email, phone and ID<br>2️⃣ Add your address<br>3️⃣ Complete a background check<br>4️⃣ Connect Stripe to get paid<br><br>Then you're ready to take jobs. 🎉<br><br>${SIGNUP}` },
+          answer: `1️⃣ Create an account and verify your email, phone and ID<br>2️⃣ Pass your background check<br>3️⃣ Connect Stripe to get paid<br><br>Then you're ready to take jobs. 🎉<br><br>${SIGNUP}` },
         { label: "Why is a background check required?", k: "background check checkr criminal",
-          answer: `People trust travelers with their packages, so every traveler needs a clear background check before accepting a first job. 🛡️ Start it from the <strong>Verification</strong> tab. Our partner Checkr handles your consent and details securely.` },
-        { label: "My background check needs review", k: "consider review pending suspended result",
-          answer: `Some results need a person to review them, and you can't accept jobs until that's done. Please contact our team: ${SUPPORT}` },
+          answer: `Senders and travelers trust each other with packages, so everyone needs a clear background check. 🛡️ It's the last step after you create your account. Our partner Checkr handles your consent and details securely, and the app opens for you once you're cleared.` },
+        { label: "My background check needs review", k: "consider review pending suspended result done finished waiting cleared status",
+          answer: `You can't use FlexaGo until your background check clears. Checks can take from a few minutes to a few days. If yours didn't clear, Checkr will contact you about your report, or you can reach our team: ${SUPPORT}` },
       ]
     },
 
@@ -227,8 +229,8 @@
       message: `What part of a delivery can I help with?`,
       options: [
         { label: "How does pickup work?", k: "pickup collect code",
-          answer: `Meet the sender and ask for their <strong>pickup code</strong>. Enter it in the app to confirm you've got the package. 🔑` },
-        { label: "How do I complete a delivery?", k: "complete deliver drop proof signature photo finish",
+          answer: `Tap <strong>I've arrived</strong> when you get there. Then ask the sender for their <strong>pickup code</strong> and enter it in the app. 🔑 Check the package before you take it.` },
+        { label: "How do I complete a delivery?", k: "complete drop proof signature photo finish",
           answer: `At drop-off, open the job and add up to 5 delivery photos, the recipient's name and their signature, then submit. ✍️ That completes the job and starts your payment.` },
         { label: "Can I message the sender?", k: "chat contact message sender",
           answer: `Yes. Use the chat on your job once you've accepted it. 💬` },
@@ -241,7 +243,11 @@
         { label: "How do I report or block someone?", k: "report block abuse harassment unsafe",
           answer: `Open the delivery chat and tap <strong>Report</strong>. 🚩 Choose a reason, add details, and tick <strong>Also block this person</strong> if you'd like. If you're ever in danger, call emergency services first.` },
         { label: "What if I suspect a prohibited item?", k: "suspicious illegal refuse package drugs",
-          answer: `Don't accept the package. 🚫 Report it in the delivery chat, then contact our team: ${SUPPORT}` },
+          answer: `Don't take the package. 🚫 Tap <strong>I've arrived</strong>, then <strong>Problem with the item</strong> and tell us what's wrong. Our team reviews it, and if it's upheld you keep 40% of the delivery price. If you're ever in danger, call emergency services first.` },
+        { label: "Can I cancel a job?", k: "cancel cancellation job quit drop",
+          answer: `Yes, before pickup. Open the job and tap <strong>Cancel job</strong>. The sender gets a full refund, you aren't paid, and it counts against your account. Please only accept jobs you can do. 🙏` },
+        { label: "What if the sender doesn't show up?", k: "no show sender missing waiting late didn't come",
+          answer: `Tap <strong>I've arrived</strong> when you get there. After 10 minutes, tap <strong>Sender didn't show up</strong>. The job is cancelled and you get 40% of the delivery price for your time. ⏱️ If the sender cancels before you arrive, you may get 10%.` },
         { label: "I have a problem with a job or payout", k: "problem issue missing payment payout late support",
           answer: `Open <strong>Support</strong> in your account, or email us with your delivery details: ${SUPPORT}` },
         { label: "How do I delete my account?", k: "delete close remove account",
