@@ -168,8 +168,47 @@ function initTravelerMap() {
 /* ============================================================
    TRAVELER ROUTE DRAWING
    ============================================================ */
+let travelerFlightLine = null;
+let travelerIsInternational = false;
+let travelerAirports = null;
+
+function clearTravelerRoute() {
+  if (travelerFlightLine) travelerFlightLine.setMap(null);
+  travelerDirectionsRenderer.set("directions", null);
+  currentTravelerPolyline = null;
+}
+
+// International trips are flights, so there is no road to follow.
+function drawTravelerFlightLine() {
+  clearTravelerRoute();
+
+  travelerFlightLine = new google.maps.Polyline({
+    path: [currentTravelerStart, currentTravelerDest],
+    geodesic: true,
+    map: travelerMap,
+    strokeColor: "#3b82f6",
+    strokeOpacity: 0.9,
+    strokeWeight: 4
+  });
+
+  const bounds = new google.maps.LatLngBounds();
+  bounds.extend(currentTravelerStart);
+  bounds.extend(currentTravelerDest);
+  travelerMap.fitBounds(bounds);
+
+  currentTravelerPolyline = [
+    [currentTravelerStart.lng, currentTravelerStart.lat],
+    [currentTravelerDest.lng, currentTravelerDest.lat]
+  ];
+}
+
 function updateTravelerRoute() {
   if (!currentTravelerStart || !currentTravelerDest) return;
+
+  if (travelerIsInternational) {
+    drawTravelerFlightLine();
+    return;
+  }
 
   travelerDirections.route(
     {
@@ -178,8 +217,12 @@ function updateTravelerRoute() {
       travelMode: google.maps.TravelMode.DRIVING
     },
     (result, status) => {
-      if (status !== "OK") return;
+      if (status !== "OK") {
+        drawTravelerFlightLine();
+        return;
+      }
 
+      if (travelerFlightLine) travelerFlightLine.setMap(null);
       travelerDirectionsRenderer.setDirections(result);
 
       const path = result.routes[0].overview_path;
@@ -191,6 +234,50 @@ function updateTravelerRoute() {
    AUTOCOMPLETE INIT (REQUIRED)
    ============================================================ */
 function initTravelerAutocomplete() {
+  const pickupInput = document.getElementById("pickupInput");
+  const dropoffInput = document.getElementById("dropoffInput");
+
+  if (pickupInput && dropoffInput && !travelerAirports) {
+    travelerAirports = FlexagoAirports.createController({
+      inputs: { start: pickupInput, dest: dropoffInput },
+
+      apply(end, { lat, lng }) {
+        const coords = { lat, lng };
+        const field = end === "start" ? "pickup" : "dropoff";
+
+        if (end === "start") currentTravelerStart = coords;
+        else currentTravelerDest = coords;
+
+        document.getElementById(`${field}-lat`).value = lat;
+        document.getElementById(`${field}-lng`).value = lng;
+        setTravelerMarker(field, coords);
+      },
+
+      clear(end) {
+        const field = end === "start" ? "pickup" : "dropoff";
+        const marker = end === "start" ? travelerPickupMarker : travelerDropoffMarker;
+
+        if (end === "start") currentTravelerStart = null;
+        else currentTravelerDest = null;
+
+        document.getElementById(`${field}-lat`).value = "";
+        document.getElementById(`${field}-lng`).value = "";
+
+        if (marker) marker.setMap(null);
+        clearTravelerRoute();
+      },
+
+      changed(international) {
+        travelerIsInternational = international;
+        FlexagoAirports.lockDeliveryType(
+          document.getElementById("deliveryType"),
+          international
+        );
+        updateTravelerRoute();
+      }
+    });
+  }
+
   initTravelerAutocompleteField("pickupInput", "start");
   initTravelerAutocompleteField("dropoffInput", "dest");
 }
@@ -200,12 +287,17 @@ function initTravelerAutocomplete() {
    ============================================================ */
 function initTravelerAutocompleteField(inputId, type) {
   const input = document.getElementById(inputId);
-  if (!input) return;
+
+  // This runs more than once as the screen loads, and each run would add
+  // another suggestion list on top of the last.
+  if (!input || input.dataset.autocompleteReady) return;
 
   const autocomplete = new google.maps.places.Autocomplete(input, {
-    fields: ["geometry", "formatted_address"],
-    types: ["geocode"]
+    fields: ["geometry", "formatted_address", "address_components", "types"]
   });
+
+  // Marked only now: the first run can come before Google has loaded.
+  input.dataset.autocompleteReady = "true";
 
   autocomplete.addListener("place_changed", () => {
     const place = autocomplete.getPlace();
@@ -215,28 +307,13 @@ function initTravelerAutocompleteField(inputId, type) {
       return;
     }
 
-    const coords = {
+    travelerAirports.set(type, {
+      address: input.value,
       lat: place.geometry.location.lat(),
-      lng: place.geometry.location.lng()
-    };
-
-    // ⭐ FIX: Write coordinates to global state + hidden inputs
-    if (type === "start") {
-      currentTravelerStart = coords;
-      document.getElementById("pickup-lat").value = coords.lat;
-      document.getElementById("pickup-lng").value = coords.lng;
-      setTravelerMarker("pickup", coords);
-    }
-
-    if (type === "dest") {
-      currentTravelerDest = coords;
-      document.getElementById("dropoff-lat").value = coords.lat;
-      document.getElementById("dropoff-lng").value = coords.lng;
-      setTravelerMarker("dropoff", coords);
-    }
-
-    // ⭐ Now the route can draw correctly
-    updateTravelerRoute();
+      lng: place.geometry.location.lng(),
+      isAirport: (place.types || []).includes("airport"),
+      ...FlexagoAirports.countryOf(place.address_components)
+    });
   });
 }
 
@@ -337,7 +414,7 @@ async function acceptJob(jobId) {
     const dropoffAddress = job.dropoffAddress || job.dropoff?.address;
 
     try {
-      job.realMiles = await computeMiles(pickupAddress, dropoffAddress);
+      job.realMiles = await computeMiles(pickupAddress, dropoffAddress) || flightMiles(job);
     } catch (mileErr) {
       console.error("Error computing miles:", mileErr);
       job.realMiles = 0; // fallback
@@ -610,6 +687,19 @@ async function computeMiles(pickupAddress, dropoffAddress) {
   });
 }
 
+// Google has no driving distance across an ocean.
+function flightMiles(job) {
+  const [pickupLng, pickupLat] = job.pickup?.location?.coordinates || [];
+  const [dropoffLng, dropoffLat] = job.dropoff?.location?.coordinates || [];
+
+  if (!Number.isFinite(pickupLat) || !Number.isFinite(dropoffLat)) return 0;
+
+  return FlexagoAirports.straightMiles(
+    { lat: pickupLat, lng: pickupLng },
+    { lat: dropoffLat, lng: dropoffLng }
+  );
+}
+
 let isSearching = false;
 
 // Load available jobs
@@ -657,7 +747,7 @@ async function loadAvailableJobs() {
         const pickupAddress = job.pickupAddress || job.pickup?.address;
         const dropoffAddress = job.dropoffAddress || job.dropoff?.address;
 
-        job.realMiles = await computeMiles(pickupAddress, dropoffAddress);
+        job.realMiles = await computeMiles(pickupAddress, dropoffAddress) || flightMiles(job);
         job.payoutAmount = job.payoutAmount ?? job.payout ?? job.price ?? 0;
       })
     );

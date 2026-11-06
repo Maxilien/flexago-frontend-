@@ -721,6 +721,8 @@ function initSenderMap() {
   }
 }
 
+let senderFlightLine = null;
+
 function drawSenderRoute() {
   const pickupLat = parseFloat(document.getElementById("pickup-lat").value);
   const pickupLng = parseFloat(document.getElementById("pickup-lng").value);
@@ -742,16 +744,46 @@ function drawSenderRoute() {
     travelMode: google.maps.TravelMode.DRIVING
   };
 
+  // Packages cross borders by plane, so there is no road to follow.
+  if (document.getElementById("deliveryType")?.value === "international") {
+    drawSenderFlightLine(request.origin, request.destination);
+    return;
+  }
+
   senderDirectionsService.route(request, (result, status) => {
     if (status === "OK" && result.routes && result.routes[0] && result.routes[0].legs[0]) {
+      if (senderFlightLine) senderFlightLine.setMap(null);
       senderDirectionsRenderer.setDirections(result);
 
       const distanceMeters = result.routes[0].legs[0].distance.value;
       const distanceMiles = distanceMeters / 1609.34;
 
       updateEstimateUI(distanceMiles);
+    } else {
+      drawSenderFlightLine(request.origin, request.destination);
     }
   });
+}
+
+function drawSenderFlightLine(origin, destination) {
+  senderDirectionsRenderer.set("directions", null);
+  if (senderFlightLine) senderFlightLine.setMap(null);
+
+  senderFlightLine = new google.maps.Polyline({
+    path: [origin, destination],
+    geodesic: true,
+    map: senderMap,
+    strokeColor: "#3b82f6",
+    strokeOpacity: 0.9,
+    strokeWeight: 4
+  });
+
+  const bounds = new google.maps.LatLngBounds();
+  bounds.extend(origin);
+  bounds.extend(destination);
+  senderMap.fitBounds(bounds);
+
+  updateEstimateUI(FlexagoAirports.straightMiles(origin, destination));
 }
 
 /* ============================================================
@@ -767,10 +799,85 @@ function initSenderAutocomplete(map) {
   if (!pickupInput || !dropoffInput || !pickupDropdown || !dropoffDropdown) return;
   if (!window.google || !google.maps || !google.maps.places) return;
 
+  // This can run more than once as the screen loads.
+  if (pickupInput.dataset.autocompleteReady) return;
+  pickupInput.dataset.autocompleteReady = "true";
+
   const service = new google.maps.places.AutocompleteService();
   const geocoder = new google.maps.Geocoder();
 
-  function attachAutocomplete(input, dropdown, latField, lngField, isPickup) {
+  function setSenderPin(isPickup, loc) {
+    const previous = isPickup ? pickupMarker : dropoffMarker;
+    if (previous) previous.setMap(null);
+
+    // Custom markers: Pickup = red P, Dropoff = blue D
+    const marker = new google.maps.Marker({
+      position: loc,
+      map,
+      label: {
+        text: isPickup ? "P" : "D",
+        color: "white",
+        fontWeight: "bold"
+      },
+      icon: {
+        path: google.maps.SymbolPath.CIRCLE,
+        scale: 10,
+        fillColor: isPickup ? "#ef4444" : "#3b82f6",
+        fillOpacity: 1,
+        strokeWeight: 2,
+        strokeColor: "white"
+      }
+    });
+
+    if (isPickup) pickupMarker = marker;
+    else dropoffMarker = marker;
+  }
+
+  const deliveryTypeEl = document.getElementById("deliveryType");
+
+  const airports = FlexagoAirports.createController({
+    inputs: { pickup: pickupInput, dropoff: dropoffInput },
+
+    apply(end, place) {
+      const isPickup = end === "pickup";
+      const { address, lat, lng } = place;
+
+      document.getElementById(`${end}-lat`).value = lat;
+      document.getElementById(`${end}-lng`).value = lng;
+
+      if (isPickup) window.pickupData = { address, lat, lng };
+      else window.dropoffData = { address, lat, lng };
+
+      map.setCenter({ lat, lng });
+      map.setZoom(13);
+      setSenderPin(isPickup, { lat, lng });
+    },
+
+    clear(end) {
+      const isPickup = end === "pickup";
+      const marker = isPickup ? pickupMarker : dropoffMarker;
+
+      document.getElementById(`${end}-lat`).value = "";
+      document.getElementById(`${end}-lng`).value = "";
+
+      if (isPickup) window.pickupData = null;
+      else window.dropoffData = null;
+
+      if (marker) marker.setMap(null);
+      if (senderFlightLine) senderFlightLine.setMap(null);
+      senderDirectionsRenderer.set("directions", null);
+    },
+
+    changed(international) {
+      FlexagoAirports.lockDeliveryType(deliveryTypeEl, international);
+      updateEstimateUI();
+      drawSenderRoute();
+    }
+  });
+
+  window.isWaitingForAirport = airports.isWaiting;
+
+  function attachAutocomplete(input, dropdown, end) {
     input.addEventListener("input", () => {
       const query = input.value.trim();
       if (query.length < 3) {
@@ -780,7 +887,7 @@ function initSenderAutocomplete(map) {
       }
 
       service.getPlacePredictions(
-        { input: query, types: ["address"] },
+        { input: query },
         (predictions, status) => {
           if (status !== google.maps.places.PlacesServiceStatus.OK || !predictions) {
             dropdown.classList.add("hidden");
@@ -805,63 +912,13 @@ function initSenderAutocomplete(map) {
                 if (status === "OK" && results[0]) {
                   const loc = results[0].geometry.location;
 
-                  const lat = loc.lat();
-                  const lng = loc.lng();
-
-                  document.getElementById(latField).value = lat;
-                  document.getElementById(lngField).value = lng;
-
-                  if (isPickup) {
-                    window.pickupData = { address: input.value, lat, lng };
-                  } else {
-                    window.dropoffData = { address: input.value, lat, lng };
-                  }
-
-                  map.setCenter(loc);
-                  map.setZoom(13);
-
-                  // Custom markers: Pickup = red P, Dropoff = blue D
-                  if (isPickup) {
-                    if (pickupMarker) pickupMarker.setMap(null);
-                    pickupMarker = new google.maps.Marker({
-                      position: loc,
-                      map,
-                      label: {
-                        text: "P",
-                        color: "white",
-                        fontWeight: "bold"
-                      },
-                      icon: {
-                        path: google.maps.SymbolPath.CIRCLE,
-                        scale: 10,
-                        fillColor: "#ef4444", // red
-                        fillOpacity: 1,
-                        strokeWeight: 2,
-                        strokeColor: "white"
-                      }
-                    });
-                  } else {
-                    if (dropoffMarker) dropoffMarker.setMap(null);
-                    dropoffMarker = new google.maps.Marker({
-                      position: loc,
-                      map,
-                      label: {
-                        text: "D",
-                        color: "white",
-                        fontWeight: "bold"
-                      },
-                      icon: {
-                        path: google.maps.SymbolPath.CIRCLE,
-                        scale: 10,
-                        fillColor: "#3b82f6", // blue
-                        fillOpacity: 1,
-                        strokeWeight: 2,
-                        strokeColor: "white"
-                      }
-                    });
-                  }
-
-                  drawSenderRoute();
+                  airports.set(end, {
+                    address: input.value,
+                    lat: loc.lat(),
+                    lng: loc.lng(),
+                    isAirport: (pred.types || []).includes("airport"),
+                    ...FlexagoAirports.countryOf(results[0].address_components)
+                  });
                 }
               });
             });
@@ -873,8 +930,8 @@ function initSenderAutocomplete(map) {
     });
   }
 
-  attachAutocomplete(pickupInput, pickupDropdown, "pickup-lat", "pickup-lng", true);
-  attachAutocomplete(dropoffInput, dropoffDropdown, "dropoff-lat", "dropoff-lng", false);
+  attachAutocomplete(pickupInput, pickupDropdown, "pickup");
+  attachAutocomplete(dropoffInput, dropoffDropdown, "dropoff");
 }
 // ============================================================
 // FLEXAGO PRICING ENGINE
@@ -1379,6 +1436,11 @@ function initSenderGenerateDelivery() {
 
   btn.addEventListener("click", async () => {
     console.log("Generate button clicked");
+
+    if (window.isWaitingForAirport?.()) {
+      alert("Please choose an airport for this international delivery.");
+      return;
+    }
 
     const pickupLat = Number(
       document.getElementById("pickup-lat")?.value

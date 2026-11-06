@@ -96,3 +96,12 @@
 @media (prefers-reduced-motion: reduce) {
   .sidebar { transition: none; }
 }
+
+/* Airport choices for international addresses */
+.airport-choices:empty { display: none; }
+.airport-choices { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+.airport-note { margin: 0; font-size: .85rem; line-height: 1.4; color: #93c5fd; }
+.airport-choice { display: flex; flex-direction: column; gap: 2px; width: 100%; min-height: 44px; padding: 10px 12px; border: 1px solid rgba(147,197,253,.45); border-radius: 10px; background: rgba(37,99,235,.14); color: #fff; font: inherit; text-align: left; cursor: pointer; }
+.airport-choice:hover, .airport-choice:focus-visible { border-color: #93c5fd; background: rgba(37,99,235,.28); }
+.airport-choice strong { font-size: .92rem; font-weight: 600; }
+.airport-choice span { font-size: .8rem; color: #cbd5e1; }
