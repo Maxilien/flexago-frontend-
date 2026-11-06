@@ -1,0 +1,265 @@
+/* Alice inside the app. Styled to match her on the website. */
+#alice-widget { font-family: 'Inter', Arial, sans-serif; }
+
+#alice-window {
+  width: 340px;
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 16px 56px rgba(0,0,0,0.18);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  max-height: 520px;
+  opacity: 1;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+#alice-window.alice-hidden { display: none; }
+
+#alice-window.alice-closing {
+  opacity: 0;
+  transform: translateY(16px);
+}
+
+/* ── HEADER ─────────────────────────────────────────────── */
+#alice-header {
+  background: linear-gradient(135deg, #0a1628 0%, #00A3FF 100%);
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.alice-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.alice-avatar {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  flex-shrink: 0;
+}
+
+.alice-online-dot {
+  position: absolute;
+  bottom: 1px;
+  right: 1px;
+  width: 10px;
+  height: 10px;
+  background: #22c55e;
+  border-radius: 50%;
+  border: 2px solid #0a1628;
+}
+
+.alice-header-info strong {
+  display: block;
+  color: #fff;
+  font-size: 0.95rem;
+}
+
+.alice-header-info span {
+  color: rgba(255,255,255,0.75);
+  font-size: 0.72rem;
+}
+
+#alice-close {
+  background: rgba(255,255,255,0.12);
+  border: none;
+  color: #fff;
+  font-size: 0.9rem;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+
+#alice-close:hover { background: rgba(255,255,255,0.25); }
+
+/* ── MESSAGES ───────────────────────────────────────────── */
+#alice-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  scroll-behavior: smooth;
+  max-height: 280px;
+}
+
+.alice-msg {
+  max-width: 82%;
+  padding: 10px 14px;
+  border-radius: 16px;
+  font-size: 0.88rem;
+  line-height: 1.55;
+  animation: aliceFadeIn 0.2s ease;
+}
+
+@keyframes aliceFadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.alice-msg.bot {
+  background: #f0f5ff;
+  color: #0a1628;
+  align-self: flex-start;
+  border-bottom-left-radius: 4px;
+}
+
+.alice-msg.user {
+  background: #00A3FF;
+  color: #fff;
+  align-self: flex-end;
+  border-bottom-right-radius: 4px;
+}
+
+.alice-msg a { color: #00A3FF; font-weight: 600; text-decoration: none; }
+.alice-msg.user a { color: #fff; text-decoration: underline; }
+
+/* ── TYPING INDICATOR ───────────────────────────────────── */
+.alice-typing {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  padding: 12px 16px;
+  background: #f0f5ff;
+  border-radius: 16px;
+  border-bottom-left-radius: 4px;
+  align-self: flex-start;
+  animation: aliceFadeIn 0.2s ease;
+}
+
+.alice-typing span {
+  width: 7px;
+  height: 7px;
+  background: #00A3FF;
+  border-radius: 50%;
+  animation: aliceBounce 1.2s infinite ease-in-out;
+}
+
+.alice-typing span:nth-child(2) { animation-delay: 0.2s; }
+.alice-typing span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes aliceBounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
+  30%            { transform: translateY(-6px); opacity: 1; }
+}
+
+/* ── QUICK REPLIES ──────────────────────────────────────── */
+#alice-quick-replies {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 8px 14px;
+  border-top: 1px solid #eef2f7;
+  flex-shrink: 0;
+}
+
+.alice-qr {
+  background: #eef2ff;
+  color: #0a1628;
+  border: 1px solid #dde3f0;
+  border-radius: 20px;
+  padding: 5px 12px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+  white-space: nowrap;
+  font-family: 'Inter', Arial, sans-serif;
+}
+
+.alice-qr:hover {
+  background: #00A3FF;
+  color: #fff;
+  border-color: #00A3FF;
+}
+
+.alice-nav-btn {
+  background: #f4f6fa;
+  color: #555;
+  border-color: #ddd;
+}
+
+/* ── INPUT ROW ──────────────────────────────────────────── */
+#alice-input-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-top: 1px solid #eef2f7;
+  flex-shrink: 0;
+}
+
+#alice-input {
+  flex: 1;
+  padding: 9px 14px;
+  border: 1.5px solid #dde3ee;
+  border-radius: 20px;
+  font-size: 0.88rem;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  color: #0a1628;
+  font-family: 'Inter', Arial, sans-serif;
+}
+
+#alice-input:focus {
+  border-color: #00A3FF;
+  box-shadow: 0 0 0 3px rgba(0,163,255,0.12);
+}
+
+#alice-send {
+  width: 36px;
+  height: 36px;
+  background: #00A3FF;
+  border: none;
+  border-radius: 50%;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.2s, transform 0.15s;
+}
+
+#alice-send:hover {
+  background: #0082cc;
+  transform: scale(1.08);
+}
+
+
+/* The sender screen's chat button, which had no place of its own on computers. */
+.chat-floating-btn { position: fixed; right: 24px; bottom: 24px; z-index: 900; display: inline-flex; align-items: center; justify-content: center; width: 52px; height: 52px; padding: 0; border: 0; border-radius: 50%; background: #2563eb; color: #fff; cursor: pointer; box-shadow: 0 4px 14px rgba(37,99,235,.45); }
+
+/* Sits above the chat button on computers. */
+#alice-window { position: fixed; right: 24px; bottom: 88px; z-index: 1500; }
+
+/* Full screen on phones, clear of the notch and home bar. */
+@media (max-width: 768px) {
+  #alice-window { top: 0; right: 0; bottom: auto; left: 0; width: 100%; height: 100dvh; max-height: none; border-radius: 0; }
+  #alice-header { padding-top: calc(14px + env(safe-area-inset-top)); }
+  #alice-messages { flex: 1; max-height: none; }
+  #alice-input-row { padding-bottom: calc(12px + env(safe-area-inset-bottom)); }
+  #alice-input { font-size: 16px !important; }
+  /* The keyboard takes half the screen, so give the conversation the rest. */
+  #alice-window:has(#alice-input:focus) #alice-quick-replies { display: none; }
+  body.alice-open .chat-toggle-btn, body.alice-open .chat-floating-btn { display: none !important; }
+}

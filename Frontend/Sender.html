@@ -9,6 +9,7 @@
   <!-- Flexago + Sender CSS -->
   <link rel="stylesheet" href="css/traveler.css" />
   <link rel="stylesheet" href="css/sender.css" />
+  <link rel="stylesheet" href="css/alice.css" />
   <link rel="stylesheet" href="css/mobile.css" />
 
 <!-- Lucide Icons -->
@@ -625,6 +626,10 @@
       </section>
 
       <section class="section-block">
+        <button type="button" class="primary-btn" data-open-alice style="margin-bottom:0.75rem;">
+          Ask Alice
+        </button>
+
         <button id="openSenderSupportTicketBtn"
                 class="primary-btn"
                 data-i18n="sender.support.open_ticket">
@@ -1360,29 +1365,7 @@
 <!-- ========================================================= -->
 <!-- SUPPORT CHAT WIDGET                                       -->
 <!-- ========================================================= -->
-<div id="chatWidget" class="chat-widget hidden">
-  <div class="chat-header">
-    <span data-i18n="sender.chat.header">Support Chat</span>
-    <button id="closeChatBtn"><i data-lucide="x"></i></button>
-  </div>
-
-  <div class="chat-body" id="chatMessages">
-    <div class="chat-message bot">
-      <span data-i18n="sender.chat.intro">
-        Hi! Tell us about your delivery and we’ll help you choose the best traveler.
-      </span>
-    </div>
-  </div>
-
-  <div class="chat-input-row">
-    <input id="chatInput"
-           placeholder="Type a message..."
-           data-i18n-placeholder="sender.chat.placeholder" />
-    <button id="sendChatBtn" data-i18n="sender.chat.send">Send</button>
-  </div>
-</div>
-
-<button id="openChatBtn" class="chat-floating-btn">
+<button id="openChatBtn" class="chat-floating-btn" aria-label="Ask Alice">
   <i data-lucide="message-circle"></i>
 </button>
 </div>
@@ -1598,6 +1581,7 @@
 <!-- 5. Sender logic -->
 <script src="js/airports.js"></script>
 <script src="./sender.js?v=app-prep-1"></script>
+<script src="js/alice.js" data-start="sender_l1"></script>
 
 <script>
   window.initSenderMap = window.initSenderMap || function(){};

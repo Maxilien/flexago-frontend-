@@ -4077,113 +4077,6 @@ function initTravelerSupportTickets() {
     submitTravelerSupportTicket
   );
 }
-// ============================================================
-// SUPPORT CHAT WIDGET
-// ============================================================
-
-function initChatWidget() {
-  const toggleBtn = document.getElementById(
-    "chatToggleBtn"
-  );
-
-  const bubble = document.getElementById(
-    "chatBubble"
-  );
-
-  const closeBtn = document.getElementById(
-    "chatCloseBtn"
-  );
-
-  const sendBtn = document.getElementById(
-    "chatSendBtn"
-  );
-
-  const input = document.getElementById(
-    "chatInput"
-  );
-
-  const body = document.getElementById(
-    "chatBody"
-  );
-
-  if (
-    !toggleBtn ||
-    !bubble ||
-    !closeBtn ||
-    !sendBtn ||
-    !input ||
-    !body
-  ) {
-    return;
-  }
-
-  toggleBtn.addEventListener(
-    "click",
-    () => {
-      bubble.classList.toggle("open");
-    }
-  );
-
-  closeBtn.addEventListener(
-    "click",
-    () => {
-      bubble.classList.remove("open");
-    }
-  );
-
-  sendBtn.addEventListener(
-    "click",
-    () => {
-      const text = input.value.trim();
-
-      if (!text) {
-        return;
-      }
-
-      appendChatMessage(
-        body,
-        text,
-        "user"
-      );
-
-      input.value = "";
-
-      appendChatMessage(
-        body,
-        "Thanks! A support agent will review your delivery details shortly.",
-        "system"
-      );
-    }
-  );
-}
-
-function appendChatMessage(
-  container,
-  text,
-  type
-) {
-  const div = document.createElement(
-    "div"
-  );
-
-  div.style.marginBottom =
-    "0.35rem";
-
-  div.style.fontSize =
-    "0.75rem";
-
-  div.style.color =
-    type === "user"
-      ? "#e5e7eb"
-      : "#9ca3af";
-
-  div.textContent = text;
-
-  container.appendChild(div);
-
-  container.scrollTop =
-    container.scrollHeight;
-}
 /* ============================================================
    JOB TABS
    ============================================================ */
@@ -6446,7 +6339,6 @@ document.addEventListener("DOMContentLoaded", () => {
   safe(initTravelerMap);
   safe(initDeliveryChatPanel);
   safe(initTravelerSupportTickets);
-  safe(initChatWidget);
   safe(initJobDetailsModal);
   safe(initRoutePlanner);
   safe(initTravelerAccountLayout);
