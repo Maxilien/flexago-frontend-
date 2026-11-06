@@ -1442,6 +1442,11 @@ function initSenderGenerateDelivery() {
       return;
     }
 
+    if (!document.getElementById("itemConfirm")?.checked) {
+      alert("Please confirm your item is allowed.");
+      return;
+    }
+
     const pickupLat = Number(
       document.getElementById("pickup-lat")?.value
     );
@@ -1645,6 +1650,7 @@ function initSenderGenerateDelivery() {
       },
 
       notes: notes || "",
+      itemConfirmed: true,
       distanceMiles: window.currentDistanceMiles,
       insuranceType: document.getElementById("insuranceType")?.value
     };
@@ -4952,6 +4958,39 @@ window.addEventListener(
    OPEN DELIVERY STATUS VIEW
 ============================================================ */
 
+const PROGRESS_STEPS = ["Paid", "Accepted", "Picked up", "Delivered"];
+
+function progressStep(delivery) {
+  if (delivery.status === "in_transit") return 3;
+  if (delivery.status === "accepted") return 2;
+  if (["delivered", "payout_pending", "payout_completed"].includes(delivery.status)) return 4;
+  return delivery.paymentStatus === "paid" ? 1 : 0;
+}
+
+function buildDeliveryProgress(delivery) {
+  const list = document.createElement("ol");
+  const reached = progressStep(delivery);
+
+  list.className = "delivery-progress";
+
+  if (delivery.status === "cancelled" || delivery.status === "under_review") {
+    const note = document.createElement("p");
+    note.className = "delivery-progress-note";
+    note.textContent = delivery.status === "cancelled" ? "This delivery was cancelled." : "Our team is reviewing this delivery.";
+    return note;
+  }
+
+  PROGRESS_STEPS.forEach((label, index) => {
+    const step = document.createElement("li");
+    step.textContent = label;
+    step.classList.toggle("done", index < reached);
+    step.classList.toggle("current", index === reached - 1);
+    list.append(step);
+  });
+
+  return list;
+}
+
 async function openDeliveryStatus(delivery) {
   const container =
     document.getElementById(
@@ -4967,6 +5006,7 @@ async function openDeliveryStatus(delivery) {
   }
 
   container.innerHTML = "";
+  container.appendChild(buildDeliveryProgress(delivery));
 
   /* ==========================================================
      TEXT ROW HELPER
@@ -5434,6 +5474,20 @@ async function openDeliveryStatus(delivery) {
 /* ============================================================
    LOAD ACCOUNT & IDENTITY — FULL PROFILE POPULATION
 ============================================================ */
+// The sender's own details are already known, so they don't retype them.
+function fillSenderDetails(user) {
+  const details = {
+    senderName: `${user.firstName || ""} ${user.lastName || ""}`.trim(),
+    senderPhone: user.phone,
+    senderEmail: user.email
+  };
+
+  Object.entries(details).forEach(([id, value]) => {
+    const field = document.getElementById(id);
+    if (field && !field.value) field.value = value || "";
+  });
+}
+
 async function loadAccountAndIdentity() {
   try {
     const userId = window.senderId;
@@ -5456,6 +5510,8 @@ async function loadAccountAndIdentity() {
     }
 
     if (Flexago.needsBackgroundCheck(user)) return;
+
+    fillSenderDetails(user);
 
     // ============================
     // HEADER SECTION

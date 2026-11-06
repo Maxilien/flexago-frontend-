@@ -468,7 +468,9 @@ function addPickupProblemButtons(card, job, jobId) {
     actions.append(button);
   };
 
-  if (!job.arrivedAt) {
+  if (job.pickupVerified) {
+    // The handoff is under way, so there's nothing to report here.
+  } else if (!job.arrivedAt) {
     addButton("I've arrived", () => sendJobAction(jobId, "arrived"));
   } else {
     addButton("Sender didn't show up", () => {
@@ -512,45 +514,67 @@ async function declineJob(jobId) {
 /* ============================================================
    VERIFY PICKUP (Traveler enters pickup code)
 ============================================================ */
-async function verifyPickup(jobId) {
-  try {
-    // Ask traveler to enter the pickup code
-    const code = prompt("Enter the pickup verification code:");
+// Asks for the sender's code on a real screen, and keeps it open after a wrong try.
+function verifyPickup(jobId) {
+  const dialog = document.createElement("dialog");
+  dialog.className = "safety-dialog pickup-code-dialog";
+  dialog.innerHTML = `
+    <form method="dialog">
+      <h3>Enter pickup code</h3>
+      <p>Ask the sender for their code. They give it to you in person.</p>
+      <input class="input-field pickup-code-input" inputmode="numeric" autocomplete="one-time-code" maxlength="6" aria-label="Pickup code" />
+      <p class="pickup-code-error" role="alert"></p>
+      <div class="safety-dialog-actions">
+        <button type="button" class="safety-cancel">Cancel</button>
+        <button type="submit" class="primary-btn">Verify code</button>
+      </div>
+    </form>
+  `;
+
+  const input = dialog.querySelector("input");
+  const error = dialog.querySelector(".pickup-code-error");
+
+  dialog.querySelector(".safety-cancel").addEventListener("click", () => dialog.close());
+  dialog.addEventListener("close", () => dialog.remove());
+
+  dialog.querySelector("form").addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const code = input.value.trim();
 
     if (!code) {
-      alert("Pickup code is required.");
+      error.textContent = "Pickup code is required.";
       return;
     }
 
-    const res = await fetch(`${BASE_URL}/api/deliveries/${jobId}/verifyPickup`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ code })
-    });
+    try {
+      const res = await fetch(`${BASE_URL}/api/deliveries/${jobId}/verifyPickup`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code })
+      });
 
-    const json = await res.json();
+      const json = await res.json();
 
-    if (!res.ok || json.success === false) {
-      alert(json.error || "Invalid pickup code");
-      return;
+      if (!res.ok || json.success === false) {
+        error.textContent = json.error || "Invalid pickup code";
+        return;
+      }
+
+      const idx = acceptedJobs.findIndex(j => j._id === jobId);
+      if (idx !== -1) acceptedJobs[idx] = json.data;
+
+      dialog.close();
+      refreshJobs();
+    } catch (err) {
+      console.error("Pickup verification error:", err);
+      error.textContent = "Error verifying pickup";
     }
+  });
 
-    // Update local job state
-    const updatedJob = json.data;
-
-    // Replace the job in acceptedJobs
-    const idx = acceptedJobs.findIndex(j => j._id === jobId);
-    if (idx !== -1) {
-      acceptedJobs[idx] = updatedJob;
-    }
-
-    alert("Pickup verified successfully!");
-    refreshJobs();
-
-  } catch (err) {
-    console.error("Pickup verification error:", err);
-    alert("Error verifying pickup");
-  }
+  document.body.append(dialog);
+  dialog.showModal();
+  input.focus();
 }
 
 /* ============================================================
