@@ -223,6 +223,14 @@
     return Boolean(user.emailVerified && user.phoneVerified && user.identityVerified);
   }
 
+  // Nobody uses the app until Checkr clears them.
+  function needsBackgroundCheck(user) {
+    if (user.background_status === "clear") return false;
+
+    go("background-check");
+    return true;
+  }
+
   async function startReverification() {
     const response = await fetch(`${API}/api/onboarding/reverify/start`, {
       method: "POST",
@@ -271,7 +279,8 @@
     const rows = [
       ["Email", flags.email],
       ["Phone number", flags.phone],
-      ["Identity check", flags.identity]
+      ["Identity check", flags.identity],
+      ["Background check", user.background_status === "clear"]
     ];
 
     const list = document.createElement("ul");
@@ -290,75 +299,6 @@
     });
 
     container.replaceChildren(list);
-
-    if (user.role === "traveler") {
-      renderBackgroundCheck(container, list, user.traveler);
-    }
-  }
-
-  function renderBackgroundCheck(container, list, traveler) {
-    const status = traveler?.background_status;
-    const clear = status === "clear";
-
-    const label = clear
-      ? "✓ Verified"
-      : ["consider", "suspended"].includes(status)
-        ? "Under review"
-        : traveler?.checkr_report_id
-          ? "In progress"
-          : "Not started";
-
-    const item = document.createElement("li");
-    const name = document.createElement("span");
-    const state = document.createElement("strong");
-
-    name.textContent = "Background check";
-    state.textContent = label;
-    state.classList.toggle("is-verified", clear);
-    item.append(name, state);
-    list.append(item);
-
-    if (label !== "Not started") return;
-
-    const note = document.createElement("p");
-    const button = document.createElement("button");
-    const error = document.createElement("p");
-
-    note.className = "verification-note";
-    note.textContent = "Required before you can accept your first job.";
-    button.type = "button";
-    button.className = "primary-btn";
-    button.textContent = "Start background check";
-    error.className = "danger-zone-error";
-    error.setAttribute("role", "alert");
-
-    button.addEventListener("click", async () => {
-      button.disabled = true;
-      error.textContent = "";
-
-      try {
-        const response = await fetch(`${API}/api/traveler/background-check/start`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: "{}"
-        });
-        const result = await response.json();
-
-        if (result.url) {
-          await openExternal(result.url, () => renderVerification(container));
-          button.disabled = false;
-          return;
-        }
-
-        error.textContent = result.error || "Unable to start your background check.";
-      } catch (e) {
-        error.textContent = "Unable to start your background check.";
-      }
-
-      button.disabled = false;
-    });
-
-    container.append(note, button, error);
   }
 
   /* ---------- account deletion (App Store requirement) ---------- */
@@ -596,6 +536,7 @@
     fillVerifiedBadges,
     openExternal,
     isFullyVerified,
+    needsBackgroundCheck,
     startReverification,
     renderVerification,
     mountDeleteAccount

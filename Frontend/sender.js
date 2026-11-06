@@ -1763,6 +1763,36 @@ if (paymentSection) {
 /* ============================================================
    LOAD SENDER DELIVERIES (FINAL — matches your backend)
 ============================================================ */
+// Shows the refund first, so the sender decides with the real number.
+async function cancelSenderDelivery(deliveryId) {
+  const preview = await fetch(`${BASE_URL}/api/deliveries/${deliveryId}/cancel-preview`).then((res) => res.json());
+
+  if (!preview.success) {
+    alert(preview.error || "Unable to cancel this delivery.");
+    return;
+  }
+
+  const { refundAmount, price } = preview.data;
+  const ok = confirm(`You'll get back $${refundAmount.toFixed(2)} of $${Number(price).toFixed(2)}. Cancel this delivery?`);
+
+  if (!ok) return;
+
+  const result = await fetch(`${BASE_URL}/api/deliveries/${deliveryId}/cancel`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: "{}"
+  }).then((res) => res.json());
+
+  if (!result.success) alert(result.error || "Unable to cancel this delivery.");
+
+  loadSenderDeliveries();
+}
+
+document.addEventListener("click", (event) => {
+  const button = event.target.closest(".cancel-delivery-btn");
+  if (button) cancelSenderDelivery(button.dataset.deliveryId);
+});
+
 async function loadSenderDeliveries() {
   try {
     const res = await fetch(`${BASE_URL}/api/deliveries`);
@@ -2123,6 +2153,23 @@ function renderMyDeliveries(list) {
         </span>
       </div>
     `;
+
+    if (delivery.status === "cancelled") {
+      html += `
+        <div class="delivery-row">
+          <span><strong>Refund:</strong></span>
+          <span>$${Number(delivery.refundAmount || 0).toFixed(2)}</span>
+        </div>
+      `;
+    }
+
+    if (["available", "accepted"].includes(delivery.status)) {
+      html += `
+        <button type="button" class="danger-zone-btn cancel-delivery-btn" data-delivery-id="${delivery._id}">
+          Cancel delivery
+        </button>
+      `;
+    }
 
     /* ========================================================
        PHOTO PREVIEW
@@ -5407,6 +5454,8 @@ async function loadAccountAndIdentity() {
       await Flexago.startReverification();
       return;
     }
+
+    if (Flexago.needsBackgroundCheck(user)) return;
 
     // ============================
     // HEADER SECTION

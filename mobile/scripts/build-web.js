@@ -9,7 +9,7 @@ const output = path.join(root, "www");
 
 const PAGES = [
   "index", "login", "signup", "verify-email", "verify-phone",
-  "verify-identity", "verify-stripe", "create-account", "Sender", "traveler"
+  "verify-identity", "verify-stripe", "create-account", "background-check", "Sender", "traveler"
 ];
 
 const SCRIPTS = [

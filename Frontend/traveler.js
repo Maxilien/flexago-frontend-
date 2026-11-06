@@ -442,6 +442,51 @@ async function acceptJob(jobId) {
   }
 }
 
+async function sendJobAction(jobId, action, body = {}) {
+  const res = await fetch(`${BASE_URL}/api/deliveries/${jobId}/${action}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body)
+  });
+  const json = await res.json();
+
+  if (!json.success) alert(json.error || "Something went wrong. Please try again.");
+
+  await loadJobs();
+}
+
+function addPickupProblemButtons(card, job, jobId) {
+  const actions = document.createElement("div");
+  actions.className = "job-pickup-actions";
+
+  const addButton = (label, onClick) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "chat-report-btn";
+    button.textContent = label;
+    button.addEventListener("click", onClick);
+    actions.append(button);
+  };
+
+  if (!job.arrivedAt) {
+    addButton("I've arrived", () => sendJobAction(jobId, "arrived"));
+  } else {
+    addButton("Sender didn't show up", () => {
+      if (confirm("Report that the sender didn't show up? This cancels the job.")) sendJobAction(jobId, "no-show");
+    });
+    addButton("Problem with the item", () => {
+      const details = prompt("What's wrong with the item? Don't take anything illegal. Our team will review this.");
+      if (details) sendJobAction(jobId, "item-problem", { details });
+    });
+  }
+
+  addButton("Cancel job", () => {
+    if (confirm("Cancel this job? The sender gets a full refund, and it counts against your account.")) sendJobAction(jobId, "cancel");
+  });
+
+  card.append(actions);
+}
+
 async function declineJob(jobId) {
   try {
     const res = await fetch(`${BASE_URL}/api/deliveries/${jobId}/decline`, {
@@ -1304,6 +1349,8 @@ if (status === "accepted") {
 
   // ⭐ Wire pick up button
   pickupBtn.addEventListener("click", () => pickupJob(deliveryId));
+
+  addPickupProblemButtons(card, job, deliveryId);
 }
 
 
@@ -4751,6 +4798,8 @@ async function loadTravelerIdentity() {
       await Flexago.startReverification();
       return;
     }
+
+    if (Flexago.needsBackgroundCheck(profile)) return;
 
     window.travelerId = profile.traveler._id;
 

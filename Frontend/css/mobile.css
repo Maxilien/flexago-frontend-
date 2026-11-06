@@ -122,3 +122,8 @@ select.input-shell option { color: #111827; }
   .input-shell { z-index: 1; }
   .input-shell:focus-within { z-index: 10; }
 }
+
+/* Cancelling and problems at pickup */
+.job-pickup-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.job-pickup-actions .chat-report-btn { min-height: 44px; margin: 0; flex: 1 1 auto; }
+.cancel-delivery-btn { width: 100%; margin-top: 12px; }
