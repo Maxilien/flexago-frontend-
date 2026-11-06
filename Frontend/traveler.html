@@ -635,6 +635,14 @@
         Change Photo
       </button>
 
+      <button type="button"
+              class="primary-btn"
+              data-photo-for="#travelerProfilePhotoInput"
+              data-camera="user"
+              style="width:auto; padding:6px 14px; margin-top:0.75rem;">
+        Take Photo
+      </button>
+
       <input id="travelerProfilePhotoInput"
              type="file"
              accept="image/*"
@@ -1212,7 +1220,11 @@
 
       <!-- Delivery Photo -->
       <label class="form-label" style="margin-top:1rem;">Delivery Photos (up to 5)</label>
-      <input type="file" class="delivery-photo-input" accept="image/*" multiple />
+      <div class="photo-actions">
+        <button type="button" class="primary-btn" data-photo-for=".delivery-photo-input" data-camera="environment">Take Photo</button>
+        <button type="button" class="primary-btn" data-photo-for=".delivery-photo-input">Choose Photo</button>
+      </div>
+      <input type="file" class="delivery-photo-input" accept="image/*" multiple style="display:none;" />
       <img class="delivery-photo-preview" style="display:none; max-width:140px; margin-top:0.5rem; border-radius:8px;" />
 
       <!-- Signature -->

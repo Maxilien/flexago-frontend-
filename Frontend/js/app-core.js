@@ -545,6 +545,42 @@
 
   document.addEventListener("DOMContentLoaded", initMenu);
 
+  // Opens the camera or photo library for a file input. Each pick joins the
+  // photos already in that input, then its own change handler takes over.
+  function pickPhotoFor(target, camera) {
+    const picker = document.createElement("input");
+
+    picker.type = "file";
+    picker.accept = "image/*";
+    picker.hidden = true;
+    picker.multiple = target.multiple && !camera;
+    if (camera) picker.setAttribute("capture", camera);
+
+    picker.addEventListener("cancel", () => picker.remove());
+    picker.addEventListener("change", () => {
+      const photos = new DataTransfer();
+      const kept = target.multiple ? [...target.files] : [];
+
+      [...kept, ...picker.files].forEach((file) => photos.items.add(file));
+      target.files = photos.files;
+      picker.remove();
+      target.dispatchEvent(new Event("change", { bubbles: true }));
+    });
+
+    document.body.append(picker);
+    picker.click();
+  }
+
+  document.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-photo-for]");
+    if (!button) return;
+
+    const area = button.closest(".modal-body") || document;
+    const target = area.querySelector(button.dataset.photoFor);
+
+    if (target) pickPhotoFor(target, button.dataset.camera);
+  });
+
   window.Flexago = {
     API,
     isNative,

@@ -105,3 +105,16 @@
 .airport-choice:hover, .airport-choice:focus-visible { border-color: #93c5fd; background: rgba(37,99,235,.28); }
 .airport-choice strong { font-size: .92rem; font-weight: 600; }
 .airport-choice span { font-size: .8rem; color: #cbd5e1; }
+
+/* Take a photo or choose one */
+.photo-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+@media (hover: hover) and (pointer: fine) {
+  [data-camera] { display: none !important; }
+}
+
+/* Fields stay under the top bar when the page scrolls. The active one
+   sits above its neighbors so its suggestion list isn't covered. */
+@media (max-width: 768px) {
+  .input-shell { z-index: 1; }
+  .input-shell:focus-within { z-index: 10; }
+}

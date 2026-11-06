@@ -1371,12 +1371,14 @@ function openProofOfDeliveryModal(job) {
   // ── Photo preview on file select ─────────────────────────
   if (photoInput) {
     photoInput.onchange = () => {
-      const files = [...photoInput.files];
+      const files = [...photoInput.files].slice(0, 5);
 
-      if (files.length > 5) {
+      if (photoInput.files.length > 5) {
         alert("You can add up to 5 photos.");
-        photoInput.value = "";
-        return;
+
+        const kept = new DataTransfer();
+        files.forEach((file) => kept.items.add(file));
+        photoInput.files = kept.files;
       }
 
       const urls = files.map((file) => URL.createObjectURL(file));

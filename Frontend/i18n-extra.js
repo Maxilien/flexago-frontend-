@@ -78,6 +78,8 @@ const PHRASES = {
   "Save Changes": ["Guardar cambios", "Enregistrer", "Anrejistre chanjman yo", "保存更改", "Salvar alterações"],
   "Save": ["Guardar", "Enregistrer", "Anrejistre", "保存", "Salvar"],
   "Saving...": ["Guardando...", "Enregistrement...", "N ap anrejistre...", "正在保存...", "Salvando..."],
+  "Take Photo": ["Tomar foto", "Prendre une photo", "Pran foto", "拍照", "Tirar foto"],
+  "Choose Photo": ["Elegir foto", "Choisir une photo", "Chwazi foto", "选择照片", "Escolher foto"],
   "Change Photo": ["Cambiar foto", "Changer la photo", "Chanje foto", "更换照片", "Alterar foto"],
   "Identity Check": ["Verificación de identidad", "Vérification d'identité", "Verifikasyon idantite", "身份验证", "Verificação de identidade"],
   "Identity Verification": ["Verificación de identidad", "Vérification d'identité", "Verifikasyon idantite", "身份验证", "Verificação de identidade"],

@@ -158,6 +158,14 @@
         Change Photo
       </button>
 
+      <button type="button"
+              class="primary-btn"
+              data-photo-for="#senderProfilePhotoInput"
+              data-camera="user"
+              style="width:auto; padding:6px 14px; margin-top:0.75rem;">
+        Take Photo
+      </button>
+
       <input id="senderProfilePhotoInput"
              type="file"
              accept="image/*"
@@ -981,9 +989,14 @@
                 <i data-lucide="image" style="width:14px;height:14px;color:#9ca3af;"></i>
                 <span style="font-size:0.75rem;color:#9ca3af;">Add up to 5 photos</span>
               </div>
-              <button type="button" class="primary-btn" id="photoUploadBtn" style="padding:0.25rem 0.6rem;font-size:0.7rem;">
-                <i data-lucide="upload" style="width:14px;height:14px;"></i> Upload
-              </button>
+              <div class="photo-actions">
+                <button type="button" class="primary-btn" data-photo-for="#photoInput" data-camera="environment" style="padding:0.25rem 0.6rem;font-size:0.7rem;">
+                  <i data-lucide="camera" style="width:14px;height:14px;"></i> Take Photo
+                </button>
+                <button type="button" class="primary-btn" id="photoUploadBtn" style="padding:0.25rem 0.6rem;font-size:0.7rem;">
+                  <i data-lucide="image" style="width:14px;height:14px;"></i> Choose Photo
+                </button>
+              </div>
             </div>
             <input type="file" id="photoInput" accept="image/*" multiple style="display:none;" />
             <div id="photoPreview"></div>
