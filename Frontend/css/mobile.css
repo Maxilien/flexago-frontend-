@@ -1,6 +1,10 @@
 /* Phone layout and shared additions. Loaded last on both workspaces. */
 .env-pill { display: none; }
 
+/* Typed text was black on the dark form fields. */
+input.input-shell, select.input-shell, textarea.input-shell { color: #e5e7eb; }
+select.input-shell option { color: #111827; }
+
 .photo-strip { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
 .photo-strip-item { position: relative; width: 84px; height: 84px; }
 .photo-strip-item img { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; display: block; max-width: none; }

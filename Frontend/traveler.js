@@ -1490,8 +1490,8 @@ const codeValue = panel.querySelector(".pickup-code-value");
 const codeVerified = panel.querySelector(".pickup-code-verified");
 
 if (codeSection) {
-  // Show the pickup code
-  codeValue.textContent = job.pickupCode || "—";
+  // Travelers ask the sender for the code, so only its status shows here.
+  codeValue.textContent = "";
 
   // Show verified status
   if (job.pickupVerified) {
