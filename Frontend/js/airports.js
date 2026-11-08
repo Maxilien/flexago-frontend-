@@ -47,9 +47,14 @@
       part.types.includes("country")
     );
 
+    const state = (addressComponents || []).find((part) =>
+      part.types.includes("administrative_area_level_1")
+    );
+
     return {
       country: country?.short_name || "",
-      countryName: country?.long_name || ""
+      countryName: country?.long_name || "",
+      state: state?.short_name || ""
     };
   }
 

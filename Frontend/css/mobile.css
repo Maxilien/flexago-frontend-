@@ -267,3 +267,9 @@ textarea.input-shell:focus,
 .form-field > p.form-label { margin: 6px 0 8px; font-size: .85rem; font-weight: 600; letter-spacing: .02em; text-transform: uppercase; color: #93c5fd; }
 .top-nav-search input::placeholder { color: var(--field-hint); opacity: 1; }
 .top-nav-search input { color: var(--field-text); }
+
+/* Texas-only notes under addresses and the delivery type */
+.area-note { margin: 6px 0 0; font-size: .85rem; line-height: 1.4; }
+.area-note[hidden] { display: none; }
+.area-note.bad { color: #fca5a5; }
+.area-note.info { color: #93c5fd; }

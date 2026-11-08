@@ -44,6 +44,8 @@
   // Returns what's missing on this step, if anything.
   function problem() {
     if (current === 1) {
+      const area = window.FlexagoServiceArea?.problem();
+      if (area) return area;
       if (window.isWaitingForAirport?.()) return "Please choose an airport for this international delivery.";
       if (!value("pickup-lat") || !value("dropoff-lat")) return "Choose your pickup and drop-off from the suggestions.";
     }

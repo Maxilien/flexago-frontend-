@@ -307,12 +307,17 @@ function initTravelerAutocompleteField(inputId, type) {
       return;
     }
 
+    const parts = FlexagoAirports.countryOf(place.address_components);
+
+    // Travelers can start or end outside Texas; they're told which jobs they'll see.
+    window.FlexagoServiceArea?.checkTravelerPlace(input, parts);
+
     travelerAirports.set(type, {
       address: input.value,
       lat: place.geometry.location.lat(),
       lng: place.geometry.location.lng(),
       isAirport: (place.types || []).includes("airport"),
-      ...FlexagoAirports.countryOf(place.address_components)
+      ...parts
     });
   });
 }

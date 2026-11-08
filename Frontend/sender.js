@@ -845,13 +845,13 @@ function initSenderAutocomplete(map) {
 
     apply(end, place) {
       const isPickup = end === "pickup";
-      const { address, lat, lng } = place;
+      const { address, lat, lng, state = "", country = "" } = place;
 
       document.getElementById(`${end}-lat`).value = lat;
       document.getElementById(`${end}-lng`).value = lng;
 
-      if (isPickup) window.pickupData = { address, lat, lng };
-      else window.dropoffData = { address, lat, lng };
+      if (isPickup) window.pickupData = { address, lat, lng, state, country };
+      else window.dropoffData = { address, lat, lng, state, country };
 
       map.setCenter({ lat, lng });
       map.setZoom(13);
@@ -916,6 +916,16 @@ function initSenderAutocomplete(map) {
               geocoder.geocode({ placeId: pred.place_id }, (results, status) => {
                 if (status === "OK" && results[0]) {
                   const loc = results[0].geometry.location;
+                  const parts = FlexagoAirports.countryOf(results[0].address_components);
+
+                  // Texas only at launch: stop here and say so under the field.
+                  if (window.FlexagoServiceArea && !FlexagoServiceArea.checkSenderPlace(end, input, parts)) {
+                    document.getElementById(`${end}-lat`).value = "";
+                    document.getElementById(`${end}-lng`).value = "";
+                    if (end === "pickup") window.pickupData = null;
+                    else window.dropoffData = null;
+                    return;
+                  }
 
                   airports.set(end, {
                     address: input.value,
@@ -1603,6 +1613,8 @@ function initSenderGenerateDelivery() {
 
       pickup: {
         address: pickup.address,
+        state: pickup.state || "",
+        country: pickup.country || "",
 
         location: {
           type: "Point",
@@ -1615,6 +1627,8 @@ function initSenderGenerateDelivery() {
 
       dropoff: {
         address: dropoff.address,
+        state: dropoff.state || "",
+        country: dropoff.country || "",
 
         location: {
           type: "Point",
