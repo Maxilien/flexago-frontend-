@@ -169,3 +169,28 @@ select.input-shell { background: #1b2b4a !important; border: 1px solid #2c3e5e; 
   .panel-body:has(> #earningsSummary) > #earningsSummary { order: 5; margin-top: 16px; }
   .jobs-tabs { display: grid !important; grid-template-columns: 1fr 1fr; gap: 8px; }
 }
+
+/* Invite & rewards */
+.rewards-code { font: 700 clamp(1.3rem, 7vw, 2rem)/1.2 ui-monospace, Menlo, monospace; letter-spacing: .08em; white-space: nowrap; padding: 14px 16px; border: 1px dashed rgba(255,255,255,.35); border-radius: 12px; text-align: center; margin: 8px 0 12px; overflow-wrap: anywhere; }
+.rewards-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.rewards-actions .primary-btn { flex: 1 1 160px; min-height: 44px; }
+.secondary-btn { flex: 1 1 120px; min-height: 44px; padding: 0 16px; font-size: .9rem; border: 1px solid rgba(255,255,255,.3); border-radius: 10px; background: transparent; color: inherit; cursor: pointer; }
+.rewards-note { min-height: 1.2em; margin: 8px 0 0; font-size: .9rem; opacity: .85; }
+.rewards-steps { margin: 0; padding-left: 1.2rem; line-height: 1.55; }
+.rewards-steps li + li { margin-top: 6px; }
+.rewards-bonus { margin: 12px 0 0; padding: 10px 12px; border-radius: 10px; background: rgba(47,134,246,.15); }
+.rewards-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; }
+.rewards-stat { padding: 12px; border: 1px solid rgba(255,255,255,.15); border-radius: 12px; }
+.rewards-stat strong { display: block; font-size: 1.4rem; }
+.rewards-stat span, .rewards-item span { font-size: .85rem; opacity: .75; }
+.rewards-list { list-style: none; margin: 0; padding: 0; }
+.rewards-item { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,.1); }
+.rewards-item strong, .rewards-item span { display: block; }
+.rewards-amount { color: #3ccf8e; white-space: nowrap; }
+.promo-row { display: flex; gap: 8px; margin-top: 6px; min-width: 0; }
+.promo-row .input-field { flex: 1 1 0; width: 0; min-width: 0; text-transform: uppercase; }
+.promo-row .secondary-btn { flex: 0 0 auto; width: auto; min-width: 88px; margin: 0; }
+.promo-note { margin: 4px 0 0; font-size: .8rem; opacity: .7; }
+.promo-message { min-height: 1.2em; margin: 6px 0 0; font-size: .9rem; }
+.promo-message.ok { color: #3ccf8e; }
+.promo-message.bad { color: #ff7a7a; }

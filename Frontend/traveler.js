@@ -5165,6 +5165,23 @@ else if (view === "support") {
   window.scrollTo(0, 0);
 }
   /* ==========================================================
+     INVITE & REWARDS VIEW
+  ========================================================== */
+
+  else if (view === "rewards") {
+    if (supportView) {
+      supportView.classList.add("hidden");
+    }
+
+    dynamic.innerHTML =
+      '<div id="travelerRewardsMount"></div>';
+
+    window.FlexagoRewards?.render(
+      document.getElementById("travelerRewardsMount")
+    );
+  }
+
+  /* ==========================================================
      UNKNOWN VIEW
   ========================================================== */
 

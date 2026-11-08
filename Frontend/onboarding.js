@@ -189,6 +189,11 @@
 
   const steps = {
     signup() {
+      // A shared link like signup?ref=IVY7K3P fills in the invite code.
+      const codeInput = document.getElementById("referralCode");
+      const linked = new URLSearchParams(location.search).get("ref");
+      if (codeInput && linked) codeInput.value = linked.toUpperCase().slice(0, 20);
+
       document.getElementById("startForm").addEventListener("submit", (event) => {
         event.preventDefault();
         const button = event.target.querySelector("button");
@@ -202,7 +207,8 @@
             body: {
               firstName: document.getElementById("firstName").value,
               lastName: document.getElementById("lastName").value,
-              role
+              role,
+              referralCode: codeInput?.value.trim().toUpperCase() || undefined
             }
           });
 

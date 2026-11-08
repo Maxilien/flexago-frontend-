@@ -615,6 +615,11 @@ function initSenderSidebar() {
           showSenderView("paymentsView");
           break;
 
+        case "rewards":
+          showSenderView("rewardsView");
+          window.FlexagoRewards?.render(document.getElementById("senderRewardsMount"));
+          break;
+
         case "verification":
           showSenderView("verificationView");
           Flexago.renderVerification(document.getElementById("verificationChecklist"));
@@ -1650,6 +1655,8 @@ function initSenderGenerateDelivery() {
       },
 
       notes: notes || "",
+      promoCode:
+        document.getElementById("promoCodeInput")?.value.trim().toUpperCase() || undefined,
       itemConfirmed: true,
       distanceMiles: window.currentDistanceMiles,
       insuranceType: document.getElementById("insuranceType")?.value
@@ -1716,6 +1723,8 @@ function initSenderGenerateDelivery() {
         paymentAmountDisplay.textContent =
           `$${Number(result.data.price).toFixed(2)}`;
       }
+
+      showPaymentSavings(result.data);
 
 if (paymentSection) {
   paymentSection.classList.remove("hidden");
@@ -5880,3 +5889,64 @@ function initPaymentFormatting() {
     });
   }
 }
+
+/* ============================================================
+   PROMO CODE AND SAVINGS
+============================================================ */
+function showPaymentSavings(delivery) {
+  const savings = document.getElementById("paymentSavingsDisplay");
+  if (!savings) return;
+
+  const discount = Number(delivery?.discount) || 0;
+  savings.hidden = discount <= 0;
+  if (discount <= 0) return;
+
+  const parts = [];
+  if (delivery.promoAmount > 0) parts.push(`code ${delivery.promoCode}`);
+  if (delivery.creditUsed > 0) parts.push("your credit");
+  savings.textContent =
+    `You save $${discount.toFixed(2)} (${parts.join(" and ")}). ` +
+    `Original price $${Number(delivery.listPrice).toFixed(2)}.`;
+}
+
+(function initPromoCode() {
+  const input = document.getElementById("promoCodeInput");
+  const button = document.getElementById("promoApplyBtn");
+  const message = document.getElementById("promoMessage");
+  if (!input || !button || !message) return;
+
+  const say = (text, kind) => {
+    message.textContent = text;
+    message.className = `promo-message ${kind || ""}`;
+  };
+
+  input.addEventListener("input", () => say(""));
+
+  button.addEventListener("click", async () => {
+    const code = input.value.trim().toUpperCase();
+    if (!code) {
+      say("Enter a promo code first.", "bad");
+      return;
+    }
+
+    button.disabled = true;
+    try {
+      const res = await fetch(`${BASE_URL}/api/rewards/check-promo`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code })
+      });
+      const json = await res.json();
+      if (!res.ok || !json.success) {
+        say(json.error || "That promo code isn't valid.", "bad");
+        return;
+      }
+      input.value = json.data.code;
+      say(json.data.message, "ok");
+    } catch (error) {
+      say("Couldn't check the code. Try again.", "bad");
+    } finally {
+      button.disabled = false;
+    }
+  });
+})();

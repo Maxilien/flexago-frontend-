@@ -10,7 +10,7 @@
     { name: "Route", fields: ["pickupInput", "dropoffInput", "deliveryType"] },
     { name: "Package", fields: ["sizePills", "valueInput", "packageType", "weightInput", "itemDescription", "insuranceType", "notesInput", "photoInput"] },
     { name: "People", fields: ["senderName", "receiverName"] },
-    { name: "Review", fields: ["estimateShell", "itemConfirm"] }
+    { name: "Review", fields: ["estimateShell", "promoCodeInput", "itemConfirm"] }
   ];
 
   const form = grid.parentElement;
