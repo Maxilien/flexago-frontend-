@@ -49,6 +49,7 @@
 
   const SIGNUP = "";
   const SUPPORT = `📧 <a href="mailto:support@flexagoo.com">support@flexagoo.com</a>`;
+  const WAITLIST = `Join the waitlist at the bottom of <a href="https://www.flexagoo.com/#siteFooter">flexagoo.com</a> and we'll tell you when we reach your city. 📬`;
 
   const flow = {
 
@@ -73,6 +74,8 @@
           answer: `So everyone knows who they're dealing with. 🔒 Your ID and selfie are checked by Stripe Identity, a trusted verification service. Your verified name, email and phone can't be changed afterward, which helps prevent fraud.` },
         { label: "Is there a mobile app?", k: "iphone ios android download phone app store",
           answer: `You're using it now! 📱 FlexaGo also works in your phone's browser.` },
+        { label: "Where is FlexaGo available?", k: "where area areas city cities location available texas tx my city near me waitlist launch serve dallas houston austin san antonio el paso fort worth waco",
+          answer: `We're launching in <strong>Texas</strong> first. 🤠 For now, the pickup and drop-off both need to be in Texas, anywhere from El Paso to Houston. Travelers can start or end a trip outside Texas, but they'll only see Texas deliveries.<br><br>Not in Texas? ${WAITLIST}` },
         { label: "What languages do you support?", k: "language spanish french creole haitian chinese portuguese",
           answer: `FlexaGo is available in English, Spanish, French, Haitian Creole, Chinese and Portuguese. Use the language menu at the top of the page. 🌍` },
         { label: "📦 I want to send something", next: "sender_l1"   },
@@ -89,6 +92,7 @@
         { label: "📋 What can I send?",          next: "sender_items"   },
         { label: "📍 Tracking my delivery",      next: "sender_track"   },
         { label: "🔒 Safety and protection",     next: "sender_safety"  },
+        { label: "🎁 Promo codes and invites",   next: "sender_rewards" },
         { label: "🆘 Help with a delivery",      next: "sender_help"    },
       ]
     },
@@ -113,7 +117,7 @@
       message: `Here's how pricing works. What would you like to know?`,
       options: [
         { label: "How is the price calculated?", k: "price cost fee how much rate estimate quote",
-          answer: `FlexaGo calculates your price automatically. It's based on:<br><br>📏 Distance and delivery type (local, nationwide or international)<br>⚖️ Weight and size<br>📦 Item type<br>💎 Declared value<br>🛡️ Any protection you add<br><br>You'll see the full price before you pay. ✅` },
+          answer: `FlexaGo calculates your price automatically. It's based on:<br><br>📏 Distance<br>⚖️ Weight and size<br>📦 Item type<br>💎 Declared value<br>🛡️ Any protection you add<br><br>You'll see the full price before you pay. ✅` },
         { label: "When do I pay?", k: "charge pay when upfront billing",
           answer: `You pay when you post, and your delivery is published once payment goes through. 💳 It only reaches travelers after that.` },
         { label: "How do I pay?", k: "card credit debit payment method cash stripe",
@@ -128,8 +132,8 @@
           answer: `Delivery types include envelopes, documents, small to large boxes, bags, electronics and fragile items. 📦 Choose the closest type when you post.` },
         { label: "What items are NOT allowed?", k: "prohibited banned illegal weapon weapons gun guns firearm knife ammo ammunition drugs marijuana alcohol animal animals pet pets dog dogs cat cats dangerous restricted",
           answer: `❌ Weapons or ammunition<br>❌ Illegal substances<br>❌ Hazardous materials<br>❌ Live animals<br>❌ Counterfeit goods<br><br>Please see our <a href="terms.html">Terms</a> or ask support if you're unsure.` },
-        { label: "Can I send internationally?", k: "international abroad country overseas customs",
-          answer: `Yes. ✈️ International handoffs happen at airports, for both pickup and drop-off. Enter a city or address and we'll show the closest airports to choose from. You're responsible for following customs rules for what you send. ${SUPPORT}` },
+        { label: "Can I send to another state or country?", k: "international abroad country overseas customs nationwide another state states out of state outside texas ship shipping mail california florida york oklahoma louisiana arkansas new mexico arizona colorado georgia illinois",
+          answer: `Not yet. 🤠 FlexaGo is launching in <strong>Texas only</strong>, so the pickup and the drop-off both need to be in Texas. We'll add more states, and then international deliveries, as we grow. ${WAITLIST}` },
       ]
     },
 
@@ -153,9 +157,21 @@
         { label: "How are people checked?", k: "safe trust verified who travelers senders checked",
           answer: `Every sender and traveler verifies their email, phone and government ID with a selfie. 🪪 Everyone must also pass a background check before they can use FlexaGo.` },
         { label: "Is my package protected?", k: "insurance insured protection coverage covered claim",
-          answer: `You can choose a protection option when you post. 🛡️ For coverage details or a claim, please contact our team: ${SUPPORT}` },
+          answer: `When you post, you can add <strong>Delivery Protection</strong>: 🛡️<br><br>• <strong>Basic</strong>: up to $100<br>• <strong>Premium</strong>: up to $1,000<br><br>It pays back your proven loss, up to the item's declared value. It's a FlexaGo program, not insurance.<br><br>If something is lost or damaged, contact support <strong>within 48 hours</strong> with photos and a receipt, and keep the item and packaging. Prohibited or misdescribed items aren't covered. ${SUPPORT}` },
         { label: "Is my payment secure?", k: "secure payment safe card data",
           answer: `Yes. Payments are handled by Stripe. 🔒 Your card number is entered directly with Stripe, not stored by FlexaGo.` },
+      ]
+    },
+
+    sender_rewards: {
+      message: `Here's how to save on deliveries. 🎁`,
+      options: [
+        { label: "How do I use a promo code?", k: "promo code coupon discount voucher apply",
+          answer: `On the last step of <strong>Create Delivery</strong>, type the code in <strong>Promo code</strong> and tap <strong>Apply</strong>. ✅ You'll see what it takes off before you pay.<br><br>Each person can use a code once, many codes are for your first delivery only, and some have an end date or a limited number of uses.` },
+        { label: "How do invites work?", k: "invite referral refer friend code share earn",
+          answer: `Open <strong>Invite &amp; Rewards</strong> to find your invite code, then tap <strong>Share invite</strong>. 💌<br><br>When a friend signs up with your code and finishes their first delivery, you <strong>both get $10</strong>. As a sender, yours comes as credit. You can earn rewards for up to 20 friends.` },
+        { label: "Where's my credit, and how do I use it?", k: "credit credits balance reward rewards use spend apply automatically where my",
+          answer: `You don't need to do anything. 💳 Your credit comes off your next delivery automatically, and you'll see the savings before you pay. Your balance is on the <strong>Invite &amp; Rewards</strong> page. Credit can't be cashed out.` },
       ]
     },
 
@@ -183,6 +199,7 @@
         { label: "🗺️ Finding jobs",           next: "traveler_jobs"  },
         { label: "💵 Earnings and payouts",   next: "traveler_money" },
         { label: "📦 Doing a delivery",       next: "traveler_job"   },
+        { label: "🎁 Bonuses and invites",    next: "traveler_rewards" },
         { label: "🆘 Help and safety",        next: "traveler_help"  },
       ]
     },
@@ -234,6 +251,18 @@
           answer: `At drop-off, open the job and add up to 5 delivery photos, the recipient's name and their signature, then submit. ✍️ That completes the job and starts your payment.` },
         { label: "Can I message the sender?", k: "chat contact message sender",
           answer: `Yes. Use the chat on your job once you've accepted it. 💬` },
+      ]
+    },
+
+    traveler_rewards: {
+      message: `Here's how to earn a little extra. 🎁`,
+      options: [
+        { label: "Is there a first-trip bonus?", k: "bonus first trip new traveler extra welcome",
+          answer: `Yes! 🎉 New travelers get a <strong>$15 bonus</strong> after their first completed delivery. It's paid to your payout account, so connect Stripe in <strong>Payouts</strong> first.` },
+        { label: "How do invites work?", k: "invite referral refer friend code share earn",
+          answer: `Open <strong>Invite &amp; Rewards</strong> to find your invite code, then tap <strong>Share invite</strong>. 💌<br><br>When a friend signs up with your code and finishes their first delivery, you <strong>both get $10</strong>. As a traveler, yours is paid in cash to your payout account. You can earn rewards for up to 20 friends.` },
+        { label: "When is my reward paid?", k: "reward paid when payout bonus missing owed",
+          answer: `Right after the delivery that earns it is completed. 💵 If you haven't connected a payout account yet, your reward waits for you, so connect Stripe in <strong>Payouts</strong> and our team will send it.` },
       ]
     },
 
