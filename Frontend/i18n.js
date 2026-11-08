@@ -215,7 +215,7 @@ const translations = {
       traveler_matches_subtitle: "Ranked by trust, proximity, and price.",
       no_matches: "No matches yet — waiting for travelers…",
       generate_matches: "Generate traveler matches",
-      protection_notice: "Protected by Flexago escrow and verified travelers.",
+      protection_notice: "Payment is released to the traveler only after delivery. Every traveler is verified.",
       track: {
         title: "Delivery tracking",
         subtitle: "Real‑time updates from your traveler."
@@ -512,7 +512,7 @@ const translations = {
     traveler_matches_subtitle: "Clasificados por confianza, proximidad y precio.",
     no_matches: "Aún no hay coincidencias — esperando viajeros…",
     generate_matches: "Generar coincidencias",
-    protection_notice: "Protegido por el fideicomiso de Flexago y viajeros verificados.",
+    protection_notice: "El pago se entrega al viajero solo después de la entrega. Todos los viajeros están verificados.",
     track: {
       title: "Seguimiento del envío",
       subtitle: "Actualizaciones en tiempo real de tu viajero."
@@ -808,7 +808,7 @@ fr: {
     traveler_matches_subtitle: "Classés par confiance, proximité et prix.",
     no_matches: "Aucune correspondance pour le moment — en attente de voyageurs…",
     generate_matches: "Générer des correspondances",
-    protection_notice: "Protégé par l'entiercement Flexago et des voyageurs vérifiés.",
+    protection_notice: "Le paiement n'est versé au voyageur qu'après la livraison. Chaque voyageur est vérifié.",
     track: {
       title: "Suivi de livraison",
       subtitle: "Mises à jour en temps réel de votre voyageur."
@@ -1104,7 +1104,7 @@ fr: {
     traveler_matches_subtitle: "Klasman selon konfyans, pwoksimite ak pri.",
     no_matches: "Pa gen korespondans ankò — annatandan vwayajè yo…",
     generate_matches: "Jenere korespondans",
-    protection_notice: "Pwoteje pa escrow Flexago ak vwayajè verifye.",
+    protection_notice: "Vwayajè a resevwa peman an sèlman apre livrezon an. Chak vwayajè verifye.",
     track: {
       title: "Swiv livrezon",
       subtitle: "Mizajou an tan reyèl nan men vwayajè a."
@@ -1399,7 +1399,7 @@ zh: {
     traveler_matches_subtitle: "按可信度、距离和价格排序。",
     no_matches: "暂无匹配 — 正在等待旅客…",
     generate_matches: "生成匹配",
-    protection_notice: "由 Flexago 托管与认证旅客保障。",
+    protection_notice: "仅在送达后才向旅行者付款。每位旅行者都经过验证。",
     track: {
       title: "递送追踪",
       subtitle: "来自旅客的实时更新。"
@@ -1694,7 +1694,7 @@ pt: {
     traveler_matches_subtitle: "Classificados por confiança, proximidade e preço.",
     no_matches: "Nenhuma correspondência ainda — aguardando viajantes…",
     generate_matches: "Gerar correspondências",
-    protection_notice: "Protegido pelo escrow Flexago e viajantes verificados.",
+    protection_notice: "O pagamento só é liberado ao viajante após a entrega. Todo viajante é verificado.",
     track: {
       title: "Rastreamento da entrega",
       subtitle: "Atualizações em tempo real do seu viajante."

@@ -194,3 +194,76 @@ select.input-shell { background: #1b2b4a !important; border: 1px solid #2c3e5e; 
 .promo-message { min-height: 1.2em; margin: 6px 0 0; font-size: .9rem; }
 .promo-message.ok { color: #3ccf8e; }
 .promo-message.bad { color: #ff7a7a; }
+
+/* ============================================================
+   FORM FIELDS - every field has a clear edge, readable hint
+   text, one font and a visible focus ring. Edges are about
+   3.6:1 against the card, hints about 5:1 against the field.
+============================================================ */
+:root {
+  --field-bg: #1b2b4a;
+  --field-edge: #64799f;
+  --field-hint: #93a5c4;
+  --field-text: #f1f5f9;
+  --field-focus: #4da3ff;
+}
+
+.input-shell,
+input.input-shell,
+select.input-shell,
+textarea.input-shell,
+.input-field {
+  background-color: var(--field-bg) !important;
+  border: 1px solid var(--field-edge) !important;
+  color: var(--field-text) !important;
+  font-family: inherit !important;
+  border-radius: 10px;
+}
+
+input.input-shell,
+select.input-shell,
+textarea.input-shell,
+.input-field { min-height: 46px; box-sizing: border-box; }
+
+textarea.input-shell,
+textarea.input-field { min-height: 88px; padding-top: 12px; resize: vertical; line-height: 1.4; }
+
+.input-shell input,
+.input-shell textarea,
+.input-shell select { color: var(--field-text) !important; font-family: inherit; }
+
+.input-shell::placeholder,
+.input-shell input::placeholder,
+.input-shell textarea::placeholder,
+.input-field::placeholder { color: var(--field-hint) !important; opacity: 1; }
+
+.input-shell:focus-within,
+input.input-shell:focus,
+select.input-shell:focus,
+textarea.input-shell:focus,
+.input-field:focus {
+  border-color: var(--field-focus) !important;
+  box-shadow: 0 0 0 3px rgba(77, 163, 255, .35);
+  outline: none;
+}
+
+/* Stacked fields (sender and receiver details) get room between them. */
+.form-field > .input-shell + .field-sublabel { margin-top: 10px; }
+.field-sublabel { display: block; margin: 0 0 4px; font-size: .8rem; color: #c7d2e4; }
+
+/* The promo box looks like the other fields; the button matches its height. */
+.promo-row { align-items: stretch; }
+.promo-row .input-field { margin: 0; text-transform: uppercase; }
+.promo-row .input-field::placeholder { text-transform: none; }
+.promo-row .secondary-btn { min-height: 46px; height: auto; align-self: stretch; }
+
+/* The confirmation checkbox stands out on the dark card. */
+.item-confirm input { accent-color: var(--field-focus); }
+
+/* Step buttons share the row evenly. */
+@media (max-width: 768px) {
+  .post-steps-nav > button { flex: 1 1 0; width: auto; min-width: 0; min-height: 48px; margin: 0; }
+}
+.form-field > p.form-label { margin: 6px 0 8px; font-size: .85rem; font-weight: 600; letter-spacing: .02em; text-transform: uppercase; color: #93c5fd; }
+.top-nav-search input::placeholder { color: var(--field-hint); opacity: 1; }
+.top-nav-search input { color: var(--field-text); }

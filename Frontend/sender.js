@@ -2084,7 +2084,7 @@ function renderMyDeliveries(list) {
       </div>
 
       <div class="delivery-row">
-        <span>Insurance:</span>
+        <span>Delivery protection:</span>
 
         <span>
           ${delivery.package?.insurance ? "Yes" : "No"}

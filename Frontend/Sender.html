@@ -933,20 +933,28 @@
 
           <!-- SENDER DETAILS -->
           <div class="form-field full-width">
-            <label class="form-label">Sender details</label>
-            <input id="senderName" class="input-shell" placeholder="Full name" />
-            <input id="senderPhone" class="input-shell" placeholder="Phone number" />
-            <input id="senderEmail" class="input-shell" placeholder="Email address" />
+            <p class="form-label">Sender details</p>
+            <label class="field-sublabel" for="senderName">Full name</label>
+            <input id="senderName" class="input-shell" autocomplete="name" placeholder="Full name" />
+            <label class="field-sublabel" for="senderPhone">Phone number</label>
+            <input id="senderPhone" class="input-shell" type="tel" autocomplete="tel" placeholder="Phone number" />
+            <label class="field-sublabel" for="senderEmail">Email address</label>
+            <input id="senderEmail" class="input-shell" type="email" autocomplete="email" placeholder="Email address" />
           </div>
 
           <!-- RECEIVER DETAILS -->
           <div class="form-field full-width">
-            <label class="form-label">Receiver details</label>
-            <input id="receiverName" class="input-shell" placeholder="Full name" />
-            <input id="receiverPhone" class="input-shell" placeholder="Phone number" />
-            <input id="receiverEmail" class="input-shell" placeholder="Email address" />
-            <input id="receiverAddress" class="input-shell" placeholder="Delivery address" />
-            <textarea id="receiverInstructions" class="input-shell" placeholder="Special instructions (optional)"></textarea>
+            <p class="form-label">Receiver details</p>
+            <label class="field-sublabel" for="receiverName">Full name</label>
+            <input id="receiverName" class="input-shell" autocomplete="off" placeholder="Who will receive it" />
+            <label class="field-sublabel" for="receiverPhone">Phone number</label>
+            <input id="receiverPhone" class="input-shell" type="tel" autocomplete="off" placeholder="Phone number" />
+            <label class="field-sublabel" for="receiverEmail">Email address</label>
+            <input id="receiverEmail" class="input-shell" type="email" autocomplete="off" placeholder="Email address" />
+            <label class="field-sublabel" for="receiverAddress">Delivery address</label>
+            <input id="receiverAddress" class="input-shell" autocomplete="off" placeholder="Street, city, state" />
+            <label class="field-sublabel" for="receiverInstructions">Special instructions (optional)</label>
+            <textarea id="receiverInstructions" class="input-shell" placeholder="Gate code, apartment, best time"></textarea>
           </div>
 
           <!-- PACKAGE TYPE -->
@@ -977,13 +985,13 @@
             <input id="itemDescription" class="input-shell" placeholder="Describe the item" />
           </div>
 
-          <!-- NOTES -->    <!-- INSURANCE -->
+          <!-- DELIVERY PROTECTION (a FlexaGo reimbursement program, not insurance) -->
           <div class="form-field">
-            <label class="form-label">Insurance</label>
+            <label class="form-label" for="insuranceType">Delivery protection</label>
             <select id="insuranceType" class="input-shell">
-              <option value="waive">No Protection</option>
+              <option value="waive">No protection</option>
               <option value="basic">Basic Protection (up to $100)</option>
-              <option value="premium">Premium Protection</option>
+              <option value="premium">Premium Protection (up to $1,000)</option>
             </select>
           </div>
 
@@ -1055,7 +1063,7 @@
           </button>
 
           <div class="protection-text" data-i18n="sender.protection_notice">
-            Protected by Flexago escrow and verified travelers.
+            Payment is released to the traveler only after delivery. Every traveler is verified.
           </div>
         </div>
 <!-- ========================================================= -->
