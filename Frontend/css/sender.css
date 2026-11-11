@@ -1348,6 +1348,8 @@ section[id$="View"]:not(.hidden) {
 ============================================================ */
 
 .sender-support-ticket-modal
+.modal-close-btn,
+.sender-rating-modal
 .modal-close-btn {
   width: 36px;
   height: 36px;
@@ -1373,6 +1375,8 @@ section[id$="View"]:not(.hidden) {
 }
 
 .sender-support-ticket-modal
+.modal-close-btn:hover,
+.sender-rating-modal
 .modal-close-btn:hover {
   color: #ffffff;
 
@@ -1383,6 +1387,10 @@ section[id$="View"]:not(.hidden) {
 .sender-support-ticket-modal
 .modal-close-btn i,
 .sender-support-ticket-modal
+.modal-close-btn svg,
+.sender-rating-modal
+.modal-close-btn i,
+.sender-rating-modal
 .modal-close-btn svg {
   width: 18px;
   height: 18px;
@@ -1776,4 +1784,17 @@ textarea.input-field {
   .sender-rating-star {
     font-size: 34px;
   }
+}
+
+.delivery-status-empty {
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+/* Keep the rating window's close button at the top right on phones too. */
+#senderRatingModal .modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
 }

@@ -2559,3 +2559,49 @@ textarea.input-field {
     min-height: 46px;
   }
 }
+/* ============================================================
+   PICKUP PHOTO (required before Pick Up)
+============================================================ */
+.pickup-photo-help {
+  margin: 0 0 14px;
+  color: var(--text-muted, #a9b6cc);
+  line-height: 1.45;
+}
+
+#pickupPhotoModal .photo-actions {
+  display: flex;
+  gap: 10px;
+}
+
+#pickupPhotoModal .photo-actions .primary-btn {
+  flex: 1;
+}
+
+.pickup-photo-previews {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.pickup-photo-previews img {
+  width: 96px;
+  height: 96px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.pickup-photo-message {
+  min-height: 1.2em;
+  margin: 10px 0 0;
+  color: #f87171;
+}
+
+.pickup-confirm-btn {
+  width: 100%;
+  margin-top: 12px;
+}
+
+.pickup-confirm-btn:disabled {
+  opacity: 0.5;
+}

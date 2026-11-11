@@ -609,6 +609,7 @@ function initSenderSidebar() {
 
         case "deliveryStatus":
           showSenderView("deliveryStatusView");
+          openLatestDeliveryStatus();
           break;
 
         case "payments":
@@ -645,6 +646,10 @@ function showSenderView(viewId) {
   const views = document.querySelectorAll("section[id$='View']");
   views.forEach(v => v.classList.add("hidden"));
 
+  // "Matching travelers" is shown after payment; leave it behind on other screens.
+  const waiting = document.getElementById("waiting-section");
+  if (waiting) waiting.style.display = "none";
+
   // show selected view
   const target = document.getElementById(viewId);
   if (target) target.classList.remove("hidden");
@@ -665,6 +670,9 @@ function showSenderView(viewId) {
 function hideAllPanels() {
   const panels = document.querySelectorAll('section[id$="View"]');
   panels.forEach(p => p.classList.add("hidden"));
+
+  const waiting = document.getElementById("waiting-section");
+  if (waiting) waiting.style.display = "none";
 }
 
 /* ============================================================
@@ -1781,7 +1789,7 @@ if (paymentSection) {
     } finally {
       btn.disabled = false;
       btn.textContent =
-        "Generate traveler matches";
+        "Continue to payment";
 
       if (window.lucide) {
         window.lucide.createIcons();
@@ -1855,6 +1863,36 @@ async function loadSenderDeliveries() {
 /* ============================================================
  Delivery Status
 ============================================================ */
+
+// From the menu: show the most recent delivery that's still moving, or the latest one.
+async function openLatestDeliveryStatus() {
+  const container = document.getElementById("deliveryStatusContent");
+  if (!container) return;
+
+  try {
+    const res = await fetch(`${BASE_URL}/api/deliveries`);
+    const json = await res.json();
+    const mine = (json.data || [])
+      .filter((d) => d.senderId === window.senderId && !["payment_pending", "payment_failed", "created"].includes(d.status))
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+    const active = mine.find((d) => ["available", "accepted", "in_transit"].includes(d.status));
+    const latest = active || mine[0];
+
+    if (latest) {
+      openDeliveryStatus(latest);
+    } else {
+      container.innerHTML = "";
+      const empty = document.createElement("p");
+      empty.className = "delivery-status-empty";
+      empty.textContent = "No deliveries to track yet. Create a delivery, and you can follow it here.";
+      container.append(empty);
+    }
+  } catch (err) {
+    console.error("Error loading delivery status:", err);
+  }
+}
+
 function formatDeliveryStatus(status) {
   switch (status) {
     case "created":
@@ -2758,6 +2796,9 @@ function initSenderRating() {
           submitBtn.textContent =
             "Already Rated";
 
+          // Done: the window can be closed again.
+          ratingSubmitting = false;
+
           window.dispatchEvent(
             new CustomEvent(
               "flexago:sender-rating-submitted",
@@ -2792,6 +2833,9 @@ function initSenderRating() {
 
       submitBtn.textContent =
         "Rating Submitted";
+
+      // Done: the window can be closed again.
+      ratingSubmitting = false;
 
       window.dispatchEvent(
         new CustomEvent(
@@ -5314,6 +5358,32 @@ async function openDeliveryStatus(delivery) {
         ).toLocaleString()
       : "N/A"
   );
+
+  /* ==========================================================
+     PICKUP PHOTO (taken by the traveler before leaving)
+  ========================================================== */
+
+  if (delivery.pickupPhotos?.length) {
+    const pickupContainer = document.createElement("div");
+    pickupContainer.style.marginTop = "1rem";
+
+    const pickupLabel = document.createElement("strong");
+    pickupLabel.textContent = "Photo at pickup:";
+    pickupContainer.append(pickupLabel, document.createElement("br"));
+
+    delivery.pickupPhotos.forEach((url) => {
+      const img = document.createElement("img");
+      img.src = url;
+      img.alt = "Item at pickup";
+      img.style.maxWidth = "220px";
+      img.style.borderRadius = "8px";
+      img.style.marginTop = "8px";
+      img.style.marginRight = "8px";
+      pickupContainer.append(img);
+    });
+
+    container.appendChild(pickupContainer);
+  }
 
   /* ==========================================================
      DELIVERY PHOTO

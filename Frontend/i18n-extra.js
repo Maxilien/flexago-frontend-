@@ -183,7 +183,7 @@ const PHRASES = {
   "Complete Payment": ["Completar pago", "Finaliser le paiement", "Fini peman", "完成付款", "Concluir pagamento"],
   "Confirm payment to publish your delivery.": ["Confirma el pago para publicar tu entrega.", "Confirmez le paiement pour publier votre livraison.", "Konfime peman an pou pibliye livrezon ou.", "确认付款以发布您的配送。", "Confirme o pagamento para publicar sua entrega."],
   "Pay & Publish Delivery": ["Pagar y publicar entrega", "Payer et publier", "Peye epi pibliye", "付款并发布", "Pagar e publicar"],
-  "Generate traveler matches": ["Buscar viajeros", "Trouver des voyageurs", "Jwenn vwayajè", "匹配旅行者", "Encontrar viajantes"],
+  "Continue to payment": ["Continuar al pago", "Continuer vers le paiement", "Kontinye pou peye", "继续付款", "Continuar para o pagamento"],
   "Matching travelers…": ["Buscando viajeros…", "Recherche de voyageurs…", "N ap chèche vwayajè…", "正在匹配旅行者…", "Buscando viajantes…"],
   "Waiting for traveler…": ["Esperando al viajero…", "En attente du voyageur…", "N ap tann vwayajè a…", "正在等待旅行者…", "Aguardando viajante…"],
   "This usually takes less than a minute.": ["Esto suele tardar menos de un minuto.", "Cela prend généralement moins d'une minute.", "Sa pran mwens pase yon minit anjeneral.", "通常不到一分钟。", "Isso geralmente leva menos de um minuto."],

@@ -1,37 +1,6 @@
 /* ============================================================
    GOOGLE MAPS — DISTANCE MATRIX (ADDRESS-BASED)
 ============================================================ */
-async function computeMiles(pickupAddress, dropoffAddress) {
-  return new Promise(resolve => {
-    const service = new google.maps.DistanceMatrixService();
-
-    service.getDistanceMatrix(
-      {
-        origins: [pickupAddress],
-        destinations: [dropoffAddress],
-        travelMode: google.maps.TravelMode.DRIVING,
-        unitSystem: google.maps.UnitSystem.IMPERIAL
-      },
-      (response, status) => {
-        if (status !== "OK") {
-          console.warn("DistanceMatrix failed:", status);
-          return resolve(0);
-        }
-
-        const element = response.rows[0].elements[0];
-
-        if (!element || element.status !== "OK") {
-          return resolve(0);
-        }
-
-        const meters = element.distance.value;
-        const miles = meters / 1609.34;
-
-        resolve(miles);
-      }
-    );
-  });
-}
 
 /* ============================================================
    AUTH GUARD — TRAVELER ONLY
@@ -420,6 +389,7 @@ async function acceptJob(jobId) {
 
     try {
       job.realMiles = await computeMiles(pickupAddress, dropoffAddress) || flightMiles(job);
+      job.realMinutes = driveMinutes.get(`${pickupAddress}|${dropoffAddress}`) || null;
     } catch (mileErr) {
       console.error("Error computing miles:", mileErr);
       job.realMiles = 0; // fallback
@@ -440,6 +410,10 @@ async function acceptJob(jobId) {
 
     // ⭐ Refresh UI so pickupCode + pickupVerified appear
     refreshJobs();
+    refreshEarnings();
+
+    // Show the job where it now lives.
+    document.querySelector('.jobs-tab[data-tab="accepted"]')?.click();
 
   } catch (err) {
     console.error("Error accepting job:", err);
@@ -456,6 +430,7 @@ async function sendJobAction(jobId, action, body = {}) {
   const json = await res.json();
 
   if (!json.success) alert(json.error || "Something went wrong. Please try again.");
+  else if (json.data?.released) alert("Job cancelled. It's back on the list for other travelers.");
 
   await loadJobs();
 }
@@ -473,47 +448,28 @@ function addPickupProblemButtons(card, job, jobId) {
     actions.append(button);
   };
 
+  const reportItem = () => addButton("Problem with the item", () => {
+    const details = prompt("What's wrong with the item? Don't take anything illegal. Our team will review this.");
+    if (details) sendJobAction(jobId, "item-problem", { details });
+  });
+
   if (job.pickupVerified) {
-    // The handoff is under way, so there's nothing to report here.
+    // Code done; the traveler can still refuse an item that's wrong before taking it.
+    reportItem();
   } else if (!job.arrivedAt) {
     addButton("I've arrived", () => sendJobAction(jobId, "arrived"));
   } else {
     addButton("Sender didn't show up", () => {
       if (confirm("Report that the sender didn't show up? This cancels the job.")) sendJobAction(jobId, "no-show");
     });
-    addButton("Problem with the item", () => {
-      const details = prompt("What's wrong with the item? Don't take anything illegal. Our team will review this.");
-      if (details) sendJobAction(jobId, "item-problem", { details });
-    });
+    reportItem();
   }
 
   addButton("Cancel job", () => {
-    if (confirm("Cancel this job? The sender gets a full refund, and it counts against your account.")) sendJobAction(jobId, "cancel");
+    if (confirm("Cancel this job? It goes back to other travelers on this route, you won't see it again, and it counts against your account.")) sendJobAction(jobId, "cancel");
   });
 
   card.append(actions);
-}
-
-async function declineJob(jobId) {
-  try {
-    const res = await fetch(`${BASE_URL}/api/deliveries/${jobId}/decline`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" }
-    });
-
-    if (!res.ok) {
-      console.error("Decline failed:", await res.text());
-      return;
-    }
-
-    availableJobs = availableJobs.filter(j => j._id !== jobId);
-
-    closeJobDetailsModal();
-    refreshJobs();
-
-  } catch (err) {
-    console.error("Error declining job:", err);
-  }
 }
 
 /* ============================================================
@@ -542,8 +498,15 @@ function verifyPickup(jobId) {
   dialog.querySelector(".safety-cancel").addEventListener("click", () => dialog.close());
   dialog.addEventListener("close", () => dialog.remove());
 
+  let verified = false;
+
   dialog.querySelector("form").addEventListener("submit", async (event) => {
     event.preventDefault();
+
+    if (verified) {
+      dialog.close();
+      return;
+    }
 
     const code = input.value.trim();
 
@@ -569,8 +532,18 @@ function verifyPickup(jobId) {
       const idx = acceptedJobs.findIndex(j => j._id === jobId);
       if (idx !== -1) acceptedJobs[idx] = json.data;
 
-      dialog.close();
       refreshJobs();
+      document.querySelector('.jobs-tab[data-tab="accepted"]')?.click();
+
+      // Say it worked, and what comes next.
+      verified = true;
+      dialog.querySelector("form").innerHTML = `
+        <h3>Code accepted</h3>
+        <p>Check the item matches the description, then tap Pick Up and take a photo of it.</p>
+        <div class="safety-dialog-actions">
+          <button type="submit" class="primary-btn">OK</button>
+        </div>
+      `;
     } catch (err) {
       console.error("Pickup verification error:", err);
       error.textContent = "Error verifying pickup";
@@ -728,6 +701,9 @@ window.initMap = function () {
    JOB FETCHING (CLEAN + GUARDED + OPTIMIZED)
 ============================================================ */
 
+// Driving time from Google, by "pickup|dropoff", for the job details ETA.
+const driveMinutes = new Map();
+
 // Compute real driving miles using addresses (NOT lat/lng)
 async function computeMiles(pickupAddress, dropoffAddress) {
   return new Promise(resolve => {
@@ -754,6 +730,10 @@ async function computeMiles(pickupAddress, dropoffAddress) {
 
         const meters = element.distance.value;
         const miles = meters / 1609.34;
+
+        if (element.duration?.value) {
+          driveMinutes.set(`${pickupAddress}|${dropoffAddress}`, Math.round(element.duration.value / 60));
+        }
 
         resolve(miles);
       }
@@ -822,6 +802,7 @@ async function loadAvailableJobs() {
         const dropoffAddress = job.dropoffAddress || job.dropoff?.address;
 
         job.realMiles = await computeMiles(pickupAddress, dropoffAddress) || flightMiles(job);
+      job.realMinutes = driveMinutes.get(`${pickupAddress}|${dropoffAddress}`) || null;
         job.payoutAmount = job.payoutAmount ?? job.payout ?? job.price ?? 0;
       })
     );
@@ -988,6 +969,12 @@ if (
 
   pendingEl.textContent =
     `$${pendingTotal.toFixed(2)}`;
+
+  // The Payouts page shows the same amount, so the two pages agree.
+  // (The Payouts screen is copied when opened, so fill every copy.)
+  document.querySelectorAll('[id="earnedAwaitingPayout"]').forEach((el) => {
+    el.textContent = `$${pendingTotal.toFixed(2)}`;
+  });
 
   pipelineEl.textContent =
     `$${pipelineTotal.toFixed(2)}`;
@@ -1235,13 +1222,6 @@ card.innerHTML = `
       >
         Accept
       </button>
-
-      <button
-        class="secondary-btn decline-btn"
-        data-id="${deliveryId}"
-      >
-        Decline
-      </button>
     ` : ""}
 
     ${status === "accepted" ? `
@@ -1356,7 +1336,6 @@ listElement.appendChild(card);
 
   if (status === "available") {
     card.querySelector(".accept-btn").addEventListener("click", () => acceptJob(deliveryId));
-    card.querySelector(".decline-btn").addEventListener("click", () => declineJob(deliveryId));
   }
 
 if (status === "accepted") {
@@ -1675,30 +1654,80 @@ function openJobDetailsModal(job) {
 /* ============================================================
    PICKUP JOB (UPDATED FOR 4‑STEP WORKFLOW)
    ============================================================ */
-async function pickupJob(jobId) {
-  try {
-    const res = await fetch(`${BASE_URL}/api/deliveries/${jobId}/pickup`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ travelerId: window.travelerId })
+// Pick Up asks for a photo of the item first; the server won't accept a pickup without one.
+function pickupJob(jobId) {
+  const modal = document.getElementById("pickupPhotoModal");
+  const input = modal.querySelector(".pickup-photo-input");
+  const previews = modal.querySelector(".pickup-photo-previews");
+  const message = modal.querySelector(".pickup-photo-message");
+  const confirmBtn = modal.querySelector(".pickup-confirm-btn");
+
+  input.value = "";
+  previews.innerHTML = "";
+  message.textContent = "";
+  confirmBtn.disabled = true;
+  confirmBtn.textContent = "Confirm pickup";
+
+  input.onchange = () => {
+    previews.innerHTML = "";
+    [...input.files].slice(0, 3).forEach((file) => {
+      const img = document.createElement("img");
+      img.src = URL.createObjectURL(file);
+      img.alt = "Item photo";
+      previews.append(img);
     });
+    confirmBtn.disabled = input.files.length === 0;
+  };
 
-    const json = await res.json();
+  const close = () => modal.classList.add("hidden");
+  modal.querySelector(".pickup-photo-close").onclick = close;
 
-    if (!json.success) {
-      alert("Pickup failed: " + json.error);
-      return;
+  confirmBtn.onclick = async () => {
+    confirmBtn.disabled = true;
+    confirmBtn.textContent = "Saving...";
+
+    try {
+      const formData = new FormData();
+
+      for (const file of [...input.files].slice(0, 3)) {
+        // compressImage gives back a data URL; turn it into a file to upload.
+        const small = await Flexago.compressImage(file, 1280).catch(() => null);
+        const photo = small ? await (await fetch(small)).blob() : file;
+        formData.append("photo", photo, "pickup.jpg");
+      }
+
+      const res = await fetch(`${BASE_URL}/api/deliveries/${jobId}/pickup`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${localStorage.getItem("authToken") || ""}` },
+        body: formData
+      });
+      const json = await res.json();
+
+      if (!json.success) {
+        message.textContent = json.error || "Pickup failed. Please try again.";
+        confirmBtn.disabled = false;
+        confirmBtn.textContent = "Confirm pickup";
+        return;
+      }
+
+      close();
+
+      // ⭐ MOVE JOB FROM ACCEPTED → PICKED UP
+      pickedUpJobs.push(json.data);
+      acceptedJobs = acceptedJobs.filter(j => j._id !== jobId);
+
+      refreshJobs();
+      refreshEarnings();
+      document.querySelector('.jobs-tab[data-tab="picked_up"]')?.click();
+    } catch (err) {
+      console.error("Pickup error:", err);
+      message.textContent = "Can't reach FlexaGo. Check your connection and try again.";
+      confirmBtn.disabled = false;
+      confirmBtn.textContent = "Confirm pickup";
     }
+  };
 
-    // ⭐ MOVE JOB FROM ACCEPTED → PICKED UP
-    pickedUpJobs.push(json.data);
-    acceptedJobs = acceptedJobs.filter(j => j._id !== jobId);
-
-    refreshJobs();   // ⭐ instant UI update
-
-  } catch (err) {
-    console.error("Pickup error:", err);
-  }
+  modal.classList.remove("hidden");
 }
 
 /* ============================================================
@@ -4653,7 +4682,7 @@ modal.querySelector(".receiverInstructions").textContent =
 // DELIVERY NOTES
 // -------------------------------
 modal.querySelector(".deliveryNotes").textContent =
-  job.proofOfDelivery?.notes || "No notes provided";
+  job.notes || "No notes provided";
 
 
 // -------------------------------
@@ -4684,7 +4713,12 @@ try {
       Math.sin(dLon / 2) ** 2;
 
     distance = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  }
 
+  // Same driving distance as the job card; straight-line only if Google had none.
+  if (Number(job.realMiles) > 0) distance = Number(job.realMiles);
+
+  if (distance) {
     modal.querySelector(".miles").textContent = distance.toFixed(1) + " mi";
   } else {
     modal.querySelector(".miles").textContent = "—";
@@ -4698,11 +4732,12 @@ try {
 // ETA (ESTIMATED TRAVEL TIME)
 // -------------------------------
 if (distance) {
-  const avgSpeed = 30; // mph
-  const etaHours = distance / avgSpeed;
-  const etaMinutes = Math.round(etaHours * 60);
+  // Google's driving time when we have it; otherwise about 50 mph.
+  const etaMinutes = Number(job.realMinutes) > 0 ? Number(job.realMinutes) : Math.round(distance / 50 * 60);
+  const hours = Math.floor(etaMinutes / 60);
 
-  modal.querySelector(".eta").textContent = etaMinutes + " min";
+  modal.querySelector(".eta").textContent =
+    hours ? `${hours} h ${etaMinutes % 60} min` : `${etaMinutes} min`;
 } else {
   modal.querySelector(".eta").textContent = "—";
 }
@@ -4710,8 +4745,9 @@ if (distance) {
   // -------------------------------
   // PAYOUT
   // -------------------------------
+  // Same amount as the job card.
   modal.querySelector(".payout").textContent =
-    "$" + (job.payout != null ? Number(job.payout).toFixed(2) : "0.00");
+    "$" + Number(job.payoutAmount ?? job.payout ?? 0).toFixed(2);
 
 
   // -------------------------------
@@ -4770,12 +4806,10 @@ if (distance) {
   // BUTTON HANDLERS (UPDATED WORKFLOW)
   // -------------------------------
   const acceptBtn = modal.querySelector(".modal-accept");
-  const declineBtn = modal.querySelector(".modal-decline");
   const completeBtn = modal.querySelector(".modal-complete");     // opens Proof of Delivery modal
   const deliveredBtn = modal.querySelector(".modal-delivered");   // submits final delivery
 
   if (acceptBtn) acceptBtn.onclick = () => acceptJob(deliveryId);
-  if (declineBtn) declineBtn.onclick = () => declineJob(deliveryId);
 
   // ⭐ COMPLETE DELIVERY → OPEN PROOF OF DELIVERY MODAL
   if (completeBtn) {
@@ -5127,6 +5161,7 @@ const supportView =
     setTimeout(() => {
       safe(initTravelerPayoutView);
       safe(initTravelerPaymentFormatting);
+      safe(refreshEarnings);
 
       if (window.lucide) {
         window.lucide.createIcons();

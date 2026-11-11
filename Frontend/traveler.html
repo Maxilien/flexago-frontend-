@@ -471,7 +471,6 @@
           </div>
           <div class="job-actions">
             <button class="accept-btn">Accept</button>
-            <button class="decline-btn">Decline</button>
           </div>
         </div>
       </template>
@@ -933,6 +932,18 @@
           <div class="payout-method-display">
             <div>
               <div>
+                Earned, waiting for payout
+              </div>
+
+              <strong id="earnedAwaitingPayout">
+                $0.00
+              </strong>
+            </div>
+          </div>
+
+          <div class="payout-method-display">
+            <div>
+              <div>
                 Standard Available
               </div>
 
@@ -945,7 +956,7 @@
           <div class="payout-method-display">
             <div>
               <div>
-                Pending
+                On its way to your bank
               </div>
 
               <strong id="stripePendingBalance">
@@ -1184,12 +1195,39 @@
 
       <div class="modal-actions">
         <button class="accept-btn modal-accept">Accept</button>
-        <button class="decline-btn modal-decline">Decline</button>
       </div>
 
     </div>
   </div>
 </div>
+<!-- ================= PICKUP PHOTO MODAL ================= -->
+<div id="pickupPhotoModal" class="modal hidden">
+  <div class="modal-content">
+
+    <button type="button" class="modal-close pickup-photo-close" aria-label="Close">×</button>
+
+    <h2 class="modal-title">Photo of the item</h2>
+
+    <div class="modal-body">
+      <p class="pickup-photo-help">
+        Check that the item matches the sender's description and photo, then take a photo of it.
+        If it doesn't match, or it could be illegal, don't take it. Close this and tap "Problem with the item".
+      </p>
+
+      <div class="photo-actions">
+        <button type="button" class="primary-btn" data-photo-for=".pickup-photo-input" data-camera="environment">Take Photo</button>
+        <button type="button" class="primary-btn" data-photo-for=".pickup-photo-input">Choose Photo</button>
+      </div>
+      <input type="file" class="pickup-photo-input" accept="image/*" multiple style="display:none;" />
+      <div class="pickup-photo-previews"></div>
+
+      <p class="pickup-photo-message" role="status"></p>
+
+      <button type="button" class="primary-btn pickup-confirm-btn" disabled>Confirm pickup</button>
+    </div>
+  </div>
+</div>
+
 <!-- ================= PROOF OF DELIVERY MODAL ================= -->
 <div id="proofOfDeliveryModal" class="modal hidden">
   <div class="modal-content">
