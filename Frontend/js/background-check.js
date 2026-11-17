@@ -22,6 +22,19 @@
       title: "We're checking your background",
       text: "This can take from a few minutes to a few days. You can close the app. It will open for you once you're cleared."
     },
+    canceled: {
+      title: "Start your background check again",
+      text: "Your last background check was canceled before it finished, so it has no result. Start a new one to use FlexaGo.",
+      button: "Start background check"
+    },
+    disputed: {
+      title: "Your dispute is being reviewed",
+      text: "Checkr is looking into the information you disputed. We'll open the app for you if your check clears. Questions: support@flexagoo.com."
+    },
+    pre_adverse_action: {
+      title: "We can't give you access right now",
+      text: "Checkr has sent you a notice with a copy of your report and your rights. You have time to dispute anything that's wrong with Checkr before a final decision is made."
+    },
     blocked: {
       title: "We can't give you access right now",
       text: "Your background check didn't clear. Checkr will contact you about your report, or you can email support@flexagoo.com."
