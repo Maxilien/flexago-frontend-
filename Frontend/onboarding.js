@@ -187,6 +187,56 @@
     document.getElementById("phone").blur();
   }
 
+  // US and Canada numbers read as 555-555-5555. Other countries keep
+  // what the user typed.
+  function formatNanp(value) {
+    let digits = value.replace(/\D/g, "");
+    if (digits.length > 10 && digits[0] === "1") digits = digits.slice(1);
+    digits = digits.slice(0, 10);
+
+    if (digits.length <= 3) return digits;
+    if (digits.length <= 6) return `${digits.slice(0, 3)}-${digits.slice(3)}`;
+    return `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`;
+  }
+
+  function displayPhone(phone) {
+    const match = /^\+1(\d{10})$/.exec(phone || "");
+    return match ? `+1 ${formatNanp(match[1])}` : phone || "";
+  }
+
+  function initPhoneFormat() {
+    const input = document.getElementById("phone");
+    const code = document.getElementById("countryCode");
+    const isNanp = () => code.value === "+1";
+
+    const apply = () => {
+      if (!isNanp()) {
+        input.placeholder = "555 123 4567";
+        return;
+      }
+
+      input.placeholder = "555-555-5555";
+
+      // Keep the cursor after the same digit once dashes move around.
+      const caret = input.selectionStart ?? input.value.length;
+      const digitsBefore = input.value.slice(0, caret).replace(/\D/g, "").length;
+      const formatted = formatNanp(input.value);
+
+      if (formatted === input.value) return;
+      input.value = formatted;
+
+      let position = 0;
+      for (let seen = 0; position < formatted.length && seen < digitsBefore; position++) {
+        if (/\d/.test(formatted[position])) seen++;
+      }
+      if (document.activeElement === input) input.setSelectionRange(position, position);
+    };
+
+    input.addEventListener("input", apply);
+    document.getElementById("countryList").addEventListener("click", apply);
+    apply();
+  }
+
   const steps = {
     signup() {
       // A shared link like signup?ref=IVY7K3P fills in the invite code.
@@ -234,6 +284,7 @@
     "verify-phone"() {
       guarded(null, loadState);
       initCountryPicker();
+      initPhoneFormat();
 
       codeStep("phone", () => {
         const code = document.getElementById("countryCode").value;
@@ -311,7 +362,7 @@
         const state = await loadState();
         document.getElementById("fullName").value = `${state.firstName} ${state.lastName}`;
         document.getElementById("email").value = state.email;
-        document.getElementById("phone").value = state.phone;
+        document.getElementById("phone").value = displayPhone(state.phone);
 
         if (state.reverify) {
           reverifying = true;
