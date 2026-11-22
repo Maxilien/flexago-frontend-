@@ -5304,7 +5304,7 @@ async function loadTravelerStripeStatus() {
   if (statusDisplay) {
     statusDisplay.innerHTML = `
       <i data-lucide="loader-circle"></i>
-      <span>Checking Stripe status...</span>
+      <span>Checking payout account...</span>
     `;
   }
 
@@ -5340,7 +5340,7 @@ const response = await fetch(
       result = JSON.parse(responseText);
     } catch (parseError) {
       throw new Error(
-        `Stripe status returned an invalid response. Status: ${response.status}`
+        `Payout status returned an invalid response. Status: ${response.status}`
       );
     }
   }
@@ -5348,7 +5348,7 @@ const response = await fetch(
   if (!response.ok || !result.success) {
     throw new Error(
       result.error ||
-      `Unable to retrieve Stripe status. Status: ${response.status}`
+      `Unable to check your payout account. Status: ${response.status}`
     );
   }
 
@@ -5367,12 +5367,12 @@ const response = await fetch(
 
     if (detailsDisplay) {
       detailsDisplay.textContent =
-        "Connect Stripe to receive delivery payouts.";
+        "Connect your account to receive delivery payouts.";
     }
 
     if (connectBtn) {
       connectBtn.textContent =
-        "Connect Stripe Account";
+        "Connect Account";
 
       connectBtn.disabled = false;
     }
@@ -5387,9 +5387,6 @@ const response = await fetch(
     if (detailsDisplay) {
       detailsDisplay.innerHTML = `
         <div>
-          Stripe account: ${result.accountId}
-        </div>
-        <div>
           Payouts enabled: Yes
         </div>
       `;
@@ -5397,7 +5394,7 @@ const response = await fetch(
 
     if (connectBtn) {
       connectBtn.textContent =
-        "Stripe Connected";
+        "Account Connected";
 
       connectBtn.disabled = true;
     }
@@ -5405,7 +5402,7 @@ const response = await fetch(
     if (statusDisplay) {
       statusDisplay.innerHTML = `
         <i data-lucide="clock"></i>
-        <span>Onboarding Incomplete</span>
+        <span>Setup Incomplete</span>
       `;
     }
 
@@ -5417,9 +5414,6 @@ const response = await fetch(
 
       detailsDisplay.innerHTML = `
         <div>
-          Stripe account: ${result.accountId}
-        </div>
-        <div>
           Remaining requirements: ${requiredItems}
         </div>
       `;
@@ -5427,7 +5421,7 @@ const response = await fetch(
 
     if (connectBtn) {
       connectBtn.textContent =
-        "Continue Stripe Onboarding";
+        "Finish Account Setup";
 
       connectBtn.disabled = false;
     }
@@ -5485,7 +5479,7 @@ async function loadTravelerStripeBalance() {
         );
     } catch (parseError) {
       throw new Error(
-        `Stripe balance returned an invalid response. Status: ${response.status}`
+        `Balance returned an invalid response. Status: ${response.status}`
       );
     }
   }
@@ -5496,7 +5490,7 @@ async function loadTravelerStripeBalance() {
   ) {
     throw new Error(
       result.error ||
-      `Unable to retrieve Stripe balance. Status: ${response.status}`
+      `Unable to retrieve your balance. Status: ${response.status}`
     );
   }
 
@@ -5650,7 +5644,7 @@ async function createTravelerInstantPayout() {
 
   const confirmed =
     window.confirm(
-      `Withdraw $${instantAvailable.toFixed(2)} instantly to your Stripe payout account?`
+      `Withdraw $${instantAvailable.toFixed(2)} instantly to your payout account?`
     );
 
   if (!confirmed) {
@@ -5665,7 +5659,7 @@ async function createTravelerInstantPayout() {
 
   if (instantWithdrawMessage) {
     instantWithdrawMessage.textContent =
-      "Stripe is processing your instant withdrawal.";
+      "Your instant withdrawal is processing.";
   }
 const requestId =
   crypto.randomUUID();
@@ -5795,13 +5789,13 @@ async function startTravelerStripeOnboarding() {
 
   const originalButtonText =
     connectBtn?.textContent ||
-    "Connect Stripe Account";
+    "Connect Account";
 
   try {
     if (connectBtn) {
       connectBtn.disabled = true;
       connectBtn.textContent =
-        "Preparing Stripe...";
+        "Preparing...";
     }
 
     const accountResponse = await fetch(
@@ -5834,7 +5828,7 @@ async function startTravelerStripeOnboarding() {
           JSON.parse(accountResponseText);
       } catch (parseError) {
         throw new Error(
-          `Stripe account endpoint returned an invalid response. Status: ${accountResponse.status}`
+          `Account setup returned an invalid response. Status: ${accountResponse.status}`
         );
       }
     }
@@ -5845,7 +5839,7 @@ async function startTravelerStripeOnboarding() {
     ) {
       throw new Error(
         accountResult.error ||
-        `Unable to create Stripe account. Status: ${accountResponse.status}`
+        `Unable to set up your payout account. Status: ${accountResponse.status}`
       );
     }
 
@@ -5856,7 +5850,7 @@ async function startTravelerStripeOnboarding() {
 
     if (connectBtn) {
       connectBtn.textContent =
-        "Opening Stripe...";
+        "Opening account setup...";
     }
 
     const linkResponse = await fetch(
@@ -5888,7 +5882,7 @@ headers: {
           JSON.parse(linkResponseText);
       } catch (parseError) {
         throw new Error(
-          `Stripe onboarding endpoint returned an invalid response. Status: ${linkResponse.status}`
+          `Account setup returned an invalid response. Status: ${linkResponse.status}`
         );
       }
     }
@@ -5899,13 +5893,13 @@ headers: {
     ) {
       throw new Error(
         linkResult.error ||
-        `Unable to create Stripe onboarding link. Status: ${linkResponse.status}`
+        `Unable to open account setup. Status: ${linkResponse.status}`
       );
     }
 
     if (!linkResult.onboardingUrl) {
       throw new Error(
-        "Stripe did not return an onboarding URL."
+        "Account setup is unavailable right now. Please try again."
       );
     }
 
@@ -5921,7 +5915,7 @@ headers: {
 
     alert(
       error.message ||
-      "Unable to start Stripe onboarding."
+      "Unable to start account setup."
     );
 
     if (connectBtn) {
@@ -5990,7 +5984,7 @@ function initTravelerPayoutView() {
 
           alert(
             error.message ||
-            "Unable to refresh Stripe status."
+            "Unable to refresh your account status."
           );
         } finally {
           refreshStripeStatusBtn.disabled =
