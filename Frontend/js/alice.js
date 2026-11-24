@@ -69,7 +69,7 @@
         { label: "How does FlexaGo work?", k: "what is flexago explain about",
           answer: `1️⃣ A <strong>sender</strong> posts a delivery and pays<br>2️⃣ A <strong>traveler</strong> going that way accepts it<br>3️⃣ The traveler confirms pickup with a code<br>4️⃣ The traveler delivers it with photos and a signature, then gets paid ✅<br><br>${SIGNUP}` },
         { label: "How do I create an account?", k: "sign up signup register join start",
-          answer: `Signup takes 6 steps, and every step is checked:<br><br>1️⃣ Your legal name, and whether you'll send or carry<br>2️⃣ Email code<br>3️⃣ Text message code<br>4️⃣ ID photo and selfie<br>5️⃣ Date of birth and password<br>6️⃣ A background check, then you're in<br><br>You must be 18 or older, and your name must match your ID.<br><br>${SIGNUP}` },
+          answer: `Signup takes 6 steps, and every step is checked:<br><br>1️⃣ Your legal name, and whether you'll send or carry<br>2️⃣ Email code<br>3️⃣ Text message code<br>4️⃣ ID photo and selfie<br>5️⃣ Date of birth and password, then you're in<br><br>Travelers also pass a background check before their first job<br><br>You must be 18 or older, and your name must match your ID.<br><br>${SIGNUP}` },
         { label: "Why do you check my ID?", k: "identity verify verification selfie why stripe",
           answer: `So everyone knows who they're dealing with. 🔒 Your ID and selfie are checked by Stripe Identity, a trusted verification service. Your verified name, email and phone can't be changed afterward, which helps prevent fraud.` },
         { label: "Is there a mobile app?", k: "iphone ios android download phone app store",
@@ -155,7 +155,7 @@
       message: `Safety comes first. What would you like to know?`,
       options: [
         { label: "How are people checked?", k: "safe trust verified who travelers senders checked",
-          answer: `Every sender and traveler verifies their email, phone and government ID with a selfie. 🪪 Everyone must also pass a background check before they can use FlexaGo.` },
+          answer: `Every sender and traveler verifies their email, phone and government ID with a selfie. 🪪 Travelers must also pass a background check before they can take any job.` },
         { label: "Is my package protected?", k: "insurance insured protection coverage covered claim",
           answer: `When you post, you can add <strong>Delivery Protection</strong>: 🛡️<br><br>• <strong>Basic</strong>: up to $100<br>• <strong>Premium</strong>: up to $1,000<br><br>It pays back your proven loss, up to the item's declared value. It's a FlexaGo program, not insurance.<br><br>If something is lost or damaged, contact support <strong>within 48 hours</strong> with photos and a receipt, and keep the item and packaging. Prohibited or misdescribed items aren't covered. ${SUPPORT}` },
         { label: "Is my payment secure?", k: "secure payment safe card data",
@@ -210,9 +210,9 @@
         { label: "What do I need to start?", k: "become traveler requirements start begin earn join",
           answer: `1️⃣ Create an account and verify your email, phone and ID<br>2️⃣ Pass your background check<br>3️⃣ Connect Stripe to get paid<br><br>Then you're ready to take jobs. 🎉<br><br>${SIGNUP}` },
         { label: "Why is a background check required?", k: "background check checkr criminal",
-          answer: `Senders and travelers trust each other with packages, so everyone needs a clear background check. 🛡️ It's the last step after you create your account. Our partner Checkr handles your consent and details securely, and the app opens for you once you're cleared.` },
+          answer: `Senders trust travelers with their packages, so every traveler needs a clear background check. 🛡️ It's the last step after you create your account. Our partner Checkr handles your consent and details securely, and the app opens for you once you're cleared.` },
         { label: "My background check needs review", k: "consider review pending suspended result done finished waiting cleared status",
-          answer: `You can't use FlexaGo until your background check clears. Checks can take from a few minutes to a few days. If yours didn't clear, Checkr will contact you about your report, or you can reach our team: ${SUPPORT}` },
+          answer: `You can't take jobs until your background check clears. Checks can take from a few minutes to a few days. If yours didn't clear, Checkr will contact you about your report, or you can reach our team: ${SUPPORT}` },
       ]
     },
 

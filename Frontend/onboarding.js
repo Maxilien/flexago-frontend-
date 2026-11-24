@@ -394,7 +394,7 @@
 
           localStorage.removeItem(TOKEN_KEY);
           window.Flexago.saveSession(result.data, result.token);
-          window.Flexago.go("background-check");
+          window.Flexago.go(result.data.role === "traveler" ? "background-check" : "Sender");
         });
       });
     }

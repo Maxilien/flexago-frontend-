@@ -223,8 +223,9 @@
     return Boolean(user.emailVerified && user.phoneVerified && user.identityVerified);
   }
 
-  // Nobody uses the app until Checkr clears them.
+  // Travelers can't take jobs until Checkr clears them. Senders don't need a check.
   function needsBackgroundCheck(user) {
+    if (user.role !== "traveler") return false;
     if (user.background_status === "clear") return false;
 
     go("background-check");
@@ -279,9 +280,12 @@
     const rows = [
       ["Email", flags.email],
       ["Phone number", flags.phone],
-      ["Identity check", flags.identity],
-      ["Background check", user.background_status === "clear"]
+      ["Identity check", flags.identity]
     ];
+
+    if (user.role === "traveler") {
+      rows.push(["Background check", user.background_status === "clear"]);
+    }
 
     const list = document.createElement("ul");
     list.className = "verification-list";

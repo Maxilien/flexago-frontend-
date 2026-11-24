@@ -10,7 +10,7 @@
   const SCREENS = {
     not_started: {
       title: "Background check",
-      text: "Everyone on FlexaGo passes a background check. This keeps senders and travelers safe. You'll give your consent and enter your details on our partner Checkr's secure page.",
+      text: "Every traveler on FlexaGo passes a background check. This keeps senders and their packages safe. You'll give your consent and enter your details on our partner Checkr's secure page.",
       button: "Start background check"
     },
     invited: {
@@ -24,7 +24,7 @@
     },
     canceled: {
       title: "Start your background check again",
-      text: "Your last background check was canceled before it finished, so it has no result. Start a new one to use FlexaGo.",
+      text: "Your last background check was canceled before it finished, so it has no result. Start a new one to take jobs.",
       button: "Start background check"
     },
     disputed: {
