@@ -273,3 +273,62 @@ textarea.input-shell:focus,
 .area-note[hidden] { display: none; }
 .area-note.bad { color: #fca5a5; }
 .area-note.info { color: #93c5fd; }
+
+/* iPhone centers a date and draws the field at its own width.
+   Keep date of birth left-aligned and the same width as the other fields. */
+input[type="date"].input-field {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+  -webkit-appearance: none;
+  appearance: none;
+  text-align: left;
+}
+input[type="date"].input-field::-webkit-date-and-time-value { text-align: left; margin: 0; }
+
+/* Payout card form: one field per line, MM/YY and CVC side by side. */
+.payout-form .input-field {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0 0 12px;
+}
+.payout-form .input-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.payout-form .input-row .input-field { min-width: 0; }
+
+/* Debit card / bank account switch on the payout screens. */
+.payout-method-toggle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 0 0 16px;
+}
+.payout-method-toggle .toggle-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 0;
+  min-height: 46px;
+  padding: 10px 12px;
+  border: 1px solid var(--field-edge);
+  border-radius: 10px;
+  background: var(--field-bg);
+  color: var(--field-text);
+  font: inherit;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.payout-method-toggle .toggle-btn svg { width: 18px; height: 18px; flex: none; }
+.payout-method-toggle .toggle-btn.active {
+  border-color: var(--field-focus);
+  background: var(--field-focus);
+  color: #0b1424;
+}

@@ -5636,7 +5636,7 @@ async function loadAccountAndIdentity() {
     // ============================
     document.getElementById("firstName").value = user.firstName || "";
     document.getElementById("lastName").value = user.lastName || "";
-    document.getElementById("dob").value = user.dob || "";
+    document.getElementById("dob").value = user.dob ? String(user.dob).split("T")[0] : "";
     document.getElementById("phone").value = user.phone || "";
     document.getElementById("email").value = user.email || "";
 
