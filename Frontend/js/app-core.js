@@ -449,6 +449,17 @@
 
   document.addEventListener("DOMContentLoaded", initSafetyActions);
 
+  // Report button on delivered orders, where the chat is closed.
+  // Capture phase so the tap doesn't also open the delivery card.
+  document.addEventListener("click", (event) => {
+    const button = event.target.closest(".report-delivery-btn[data-delivery-id]");
+    if (!button) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    openSafetyDialog(button.dataset.deliveryId);
+  }, true);
+
   /* ---------- phone menu ---------- */
   function initMenu() {
     const button = document.getElementById("hamburgerBtn");
@@ -543,6 +554,7 @@
     needsBackgroundCheck,
     startReverification,
     renderVerification,
-    mountDeleteAccount
+    mountDeleteAccount,
+    report: openSafetyDialog
   };
 })();

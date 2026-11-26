@@ -1101,8 +1101,17 @@ function openProofOfDeliveryModal(job) {
 
   initSignaturePad();
 
-  modal.querySelector(".complete-delivery-btn").onclick = () => {
-    completeJob(job._id);
+  // Disable while sending so a second tap can't submit the delivery twice.
+  const submitBtn = modal.querySelector(".complete-delivery-btn");
+  submitBtn.disabled = false;
+  submitBtn.onclick = async () => {
+    if (submitBtn.disabled) return;
+    submitBtn.disabled = true;
+    try {
+      await completeJob(job._id);
+    } finally {
+      submitBtn.disabled = false;
+    }
   };
 }
 
@@ -1304,6 +1313,14 @@ card.innerHTML = `
       <div class="completed-tag">
         Completed
       </div>
+
+      <button
+        type="button"
+        class="report-delivery-btn"
+        data-delivery-id="${deliveryId}"
+      >
+        Report a problem
+      </button>
     ` : ""}
 
   </div>

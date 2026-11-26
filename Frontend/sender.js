@@ -2305,6 +2305,25 @@ function renderMyDeliveries(list) {
       `;
     }
 
+    // Delivered orders: the chat is closed, so Report lives on the card.
+    const reportEligible =
+      Boolean(delivery.travelerId) &&
+      ["delivered", "payout_pending", "payout_completed"].includes(delivery.status);
+
+    if (reportEligible) {
+      html += `
+        <div class="delivery-row sender-report-action">
+          <button
+            type="button"
+            class="report-delivery-btn"
+            data-delivery-id="${delivery._id || ""}"
+          >
+            Report a problem
+          </button>
+        </div>
+      `;
+    }
+
     deliveryCard.innerHTML =
       html;
 /* ========================================================
